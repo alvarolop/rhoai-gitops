@@ -1,0 +1,13 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: rhods-operator
+  namespace: redhat-ods-operator 
+spec:
+  name: rhods-operator
+  channel: stable 
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  annotations:
+    argocd.argoproj.io/sync-wave: "-05"
