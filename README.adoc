@@ -32,8 +32,21 @@ endif::[]
 
 This repository is my playground to deploy, configure, and use RH OpenShift AI.
 
+NOTE: RHOAI is a product under continuous improvement, so probably this repo will be outdated at some point in time. I recommend you to refer to the https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.7[Official documentation] to check the latest features!
+
 == Introduction
 
 
+== Installation
+
+[source, bash]
+----
+oc apply -f application-rhoai.yaml
+----
+
 == Useful links
 
+* https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.7[Official documentation].
+* https://access.redhat.com/support/policy/updates/rhoai/service[KCS: Red Hat OpenShift AI Service Definition].
+* https://github.com/stefan-bergstein/rhoai-on-rhdh-template/tree/main/manifests/helm/ds-project
+* https://github.com/stratus-ss/openshift-ai/blob/main/docs/rendered/OpenShift_AI_CLI.md

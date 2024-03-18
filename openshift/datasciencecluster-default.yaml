@@ -10,14 +10,21 @@ spec:
     codeflare:
       managementState: Removed
     dashboard:
-      managementState: Removed
+      managementState: Managed
     datasciencepipelines:
-      managementState: Removed
+      managementState: Managed
     kserve:
-      managementState: Removed
+      managementState: Managed
+      serving:
+        ingressGateway:
+          certificate:
+            type: SelfSigned
+        managementState: Managed
+        name: knative-serving
     modelmeshserving:
-      managementState: Removed
+      managementState: Managed
     ray:
       managementState: Removed
+    trustyai: {}
     workbenches:
-      managementState: Removed
+      managementState: Managed
