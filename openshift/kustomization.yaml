@@ -2,8 +2,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+
+  # Installing OpenShift AI operator
   - ns-redhat-ods-operator.yaml
   - og-redhat-ods-operator.yaml
   - sub-rhods-operator.yaml
+
+  # Installing OpenShift Pipelines operator
+  - sub-openshift-pipelines-operator.yaml
+
+  # Creating the RHOAI default instance
   - datasciencecluster-default.yaml
+
 ...
