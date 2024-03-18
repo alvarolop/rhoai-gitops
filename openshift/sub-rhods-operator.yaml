@@ -4,10 +4,10 @@ kind: Subscription
 metadata:
   name: rhods-operator
   namespace: redhat-ods-operator 
+  annotations:
+    argocd.argoproj.io/sync-wave: "-05"
 spec:
   name: rhods-operator
   channel: stable 
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  annotations:
-    argocd.argoproj.io/sync-wave: "-05"
