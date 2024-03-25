@@ -1,0 +1,8 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: serverless-operators
+  namespace: openshift-serverless
+  annotations:
+    argocd.argoproj.io/sync-wave: "-05"
