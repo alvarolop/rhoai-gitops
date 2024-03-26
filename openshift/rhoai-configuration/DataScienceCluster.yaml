@@ -21,10 +21,11 @@ spec:
             type: SelfSigned
         managementState: Managed
         name: knative-serving
+    kueue:
+      managementState: Removed
     modelmeshserving:
       managementState: Managed
     ray:
       managementState: Removed
-    trustyai: {}
     workbenches:
       managementState: Managed

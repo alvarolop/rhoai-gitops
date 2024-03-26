@@ -1,14 +1,14 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources:
 
-  # Installing Operators
-  - operator-rhoai
+commonLabels:
+  app.kubernetes.io/instance: rhoai
+
+resources:
   - operator-pipelines
   - operator-serverless
-
-  # Creating the RHOAI default instance
-  - datasciencecluster-default.yaml
-
+  - operator-rhoai
+  - rhoai-configuration # Configure RHOAI cluster
+  - rhoai-workbench # Create an environment for a user
 ...

@@ -1,0 +1,12 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: datascience-playground
+  annotations:
+    openshift.io/description: "data-science-project for Alvaro"
+    openshift.io/display-name: "datascience-playground"
+    argocd.argoproj.io/sync-wave: "-05"
+  labels:
+    modelmesh-enabled: 'true'
+    opendatahub.io/dashboard: 'true'
