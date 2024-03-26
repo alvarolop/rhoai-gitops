@@ -6,6 +6,7 @@ resources:
   - pvc-workbench-storage.yaml
   # The secret is created manually
   # - secret-data-connection-pipelines.yaml
+  - DataSciencePipelinesApplication.yaml
 
 namespace: datascience-playground
 ...
