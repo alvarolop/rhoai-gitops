@@ -7,6 +7,8 @@ metadata:
     app.opendatahub.io/rhods-dashboard: "true"
   name: odh-dashboard-config
   namespace: redhat-ods-applications
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   dashboardConfig:
     disableAcceleratorProfiles: false

@@ -32,7 +32,7 @@ endif::[]
 
 This repository is my playground to deploy, configure, and use RH OpenShift AI.
 
-NOTE: RHOAI is a product under continuous improvement, so probably this repo will be outdated at some point in time. I recommend you to refer to the https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.7[Official documentation] to check the latest features!
+NOTE: RHOAI is a product under continuous improvement, so probably this repo will be outdated at some point in time. I recommend you to refer to the https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8[Official documentation] to check the latest features!
 
 == Introduction
 
@@ -44,9 +44,52 @@ NOTE: RHOAI is a product under continuous improvement, so probably this repo wil
 oc apply -f application-rhoai.yaml
 ----
 
+
+== RHOAI Components
+
+  * codeflare: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. The Codeflare component on RHOAI is a Technology Preview feature. If CodeFlare Operator has been installed in the cluster, it should be uninstalled first before enabled component.
+
+  * dashboard: Provides the RHOAI dashboard.
+
+  * datasciencepipelines: This enables you to build portable machine learning workflows. Requires the OpenShift Pipelines Operator to be present before enabling the data science pipelines.
+
+  * kserve: RHOAI uses Kserve to serve large language models that can scale based on demand. Requires the OpenShift Serverless and the OpenShift Service Mesh operators to be present before enabling the component. Does not support enabled ModelMeshServing at the same time.
+
+  * kueue: Kueue component configuration. It is not yet in Technology Preview
+
+  * modelmeshserving: KServe also offers a component for general-purpose model serving, called ModelMesh Mesh Serving. Activate this component to serve small and medium size models. Does not support enabled Kserve at the same time
+
+  * ray: Component to run the data science code in a distributed manner. The Ray, or KubeRay, component on RHOAI is a Technology Preview feature.
+
+  * trustyai: ## DEPRECATED ## Component to add explainability to the predictions made by machine learning models. If TrustyAI operator is installed, it will be removed.
+
+  * workbenches: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
+
+
+
 == Useful links
 
-* https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.7[Official documentation].
+* https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8[Official documentation].
 * https://access.redhat.com/support/policy/updates/rhoai/service[KCS: Red Hat OpenShift AI Service Definition].
 * https://github.com/stefan-bergstein/rhoai-on-rhdh-template/tree/main/manifests/helm/ds-project
 * https://github.com/stratus-ss/openshift-ai/blob/main/docs/rendered/OpenShift_AI_CLI.md
+
+* https://issues.redhat.com/projects/RHOAIENG/issues
+* https://github.com/mamurak/os-mlops/tree/main/manifests/odh
+* https://access.redhat.com/articles/rhoai-supported-configs
+
+
+* Getting started: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html-single/getting_started_with_red_hat_openshift_ai_self-managed/index
+* Monitoring: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html-single/serving_models/index#monitoring-model-performance_monitoring-model-performance
+* DS Pipelines: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html/working_on_data_science_projects/working-with-data-science-pipelines_ds-pipelines
+
+
+
+
+Study sources:
+* https://redhatquickcourses.github.io/rhods-admin/rhods-admin/1.33/chapter2/users.html
+* https://redhatquickcourses.github.io/rhods-intro/rhods-intro/1.33/chapter1/section2.html
+* https://redhatquickcourses.github.io/rhods-model/rhods-model/1.33/chapter1/index.html
+* https://rh-aiservices-bu.github.io/insurance-claim-processing/modules/02-03-creating-workbench.html
+* https://developers.redhat.com/products/red-hat-openshift-ai/getting-started
+* https://role.rhu.redhat.com/rol-rhu/app/
