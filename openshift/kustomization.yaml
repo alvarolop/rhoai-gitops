@@ -6,7 +6,6 @@ commonLabels:
   app.kubernetes.io/instance: rhoai
 
 resources:
-  # - infrastructure
   - operator-pipelines
   - operator-serverless
   - operator-servicemesh
