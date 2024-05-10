@@ -14,17 +14,19 @@ spec:
     datasciencepipelines:
       managementState: Managed
     kserve:
-      managementState: Managed
+      managementState: Managed # Triggers automated installation of KServe
       serving:
         ingressGateway:
           certificate:
             type: SelfSigned
-        managementState: Managed
+        managementState: Managed # Triggers automated installation of OpenShift Serverless
         name: knative-serving
     kueue:
       managementState: Removed
     modelmeshserving:
       managementState: Managed
+    trustyai: # This component is deprecated
+      managementState: Removed
     ray:
       managementState: Removed
     workbenches:
