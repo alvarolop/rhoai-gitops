@@ -6,3 +6,6 @@ metadata:
   namespace: openshift-nfd
   annotations:
     argocd.argoproj.io/sync-wave: "-05"
+spec:
+  targetNamespaces:
+  - openshift-nfd
