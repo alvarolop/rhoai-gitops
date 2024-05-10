@@ -3,9 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # Elasticsearch
-  - ns-openshift-operators-redhat.yaml
-  - og-openshift-operators-redhat.yaml
-  - sub-elasticsearch-operator.yaml
+  # It is not installed, as this is only mandatory for Jaeger data persistance.
 
   # Jaeger
   - ns-openshift-distributed-tracing.yaml
