@@ -4,6 +4,8 @@ kind: Subscription
 metadata:
   name: elasticsearch-operator
   namespace: openshift-operators-redhat
+  annotations:
+    argocd.argoproj.io/sync-wave: "-05"
 spec:
   channel: stable
   installPlanApproval: Automatic
