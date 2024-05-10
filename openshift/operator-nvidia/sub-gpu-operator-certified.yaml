@@ -2,13 +2,13 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: rhods-operator
-  namespace: redhat-ods-operator 
+  name: gpu-operator-certified
+  namespace: nvidia-gpu-operator
   annotations:
     argocd.argoproj.io/sync-wave: "-05"
 spec:
-  name: rhods-operator
+  channel: v23.6 
   installPlanApproval: Automatic
-  channel: stable 
-  source: redhat-operators
+  name: gpu-operator-certified
+  source: certified-operators
   sourceNamespace: openshift-marketplace

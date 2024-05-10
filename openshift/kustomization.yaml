@@ -10,6 +10,8 @@ resources:
   - operator-serverless
   - operator-servicemesh
   - operator-rhoai
+  - operator-nfd
+  - operator-nvidia
   - rhoai-configuration # Configure RHOAI cluster
   - rhoai-workbench # Create an environment for a user
 ...

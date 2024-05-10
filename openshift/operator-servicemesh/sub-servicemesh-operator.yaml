@@ -5,7 +5,7 @@ metadata:
   name: servicemesh-operator
   namespace: openshift-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "-5"
+    argocd.argoproj.io/sync-wave: "-05"
 spec:
   channel: stable
   installPlanApproval: Automatic

@@ -1,0 +1,8 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ns-openshift-nfd.yaml
+  - ns-openshift-nfd.yaml
+  - sub-nfd.yaml
+...
