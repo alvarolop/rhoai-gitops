@@ -1,0 +1,8 @@
+---
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  labels:
+    kubernetes.io/metadata.name: openshift-operators-redhat
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-operators-redhat

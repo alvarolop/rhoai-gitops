@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # Elasticsearch
+  - ns-openshift-operators-redhat.yaml
+  - og-openshift-operators-redhat.yaml
+  - sub-elasticsearch-operator.yaml
+
+  # Jaeger
+  - ns-openshift-distributed-tracing.yaml
+  - og-openshift-distributed-tracing.yaml
+  - sub-jaeger-product.yaml
+
+  # Kiali
+  - sub-kiali-ossm.yaml
+
+  # Service Mesh
+  - sub-servicemesh-operator.yaml
