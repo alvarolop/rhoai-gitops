@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: openshift
-    repoURL: https://github.com/alvarolop/ocp-ai
+    repoURL: https://github.com/alvarolop/rhoai-gitops
     targetRevision: main
   syncPolicy:
     automated:
