@@ -7,5 +7,5 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-05"
 spec:
- targetNamespaces:
- - nvidia-gpu-operator
+  targetNamespaces:
+    - nvidia-gpu-operator

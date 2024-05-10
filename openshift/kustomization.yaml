@@ -6,12 +6,13 @@ commonLabels:
   app.kubernetes.io/instance: rhoai
 
 resources:
+  # - infrastructure
   - operator-pipelines
   - operator-serverless
   - operator-servicemesh
   - operator-rhoai
   - operator-nfd
-  - operator-nvidia
+  - operator-nvidia-gpu
   - rhoai-configuration # Configure RHOAI cluster
   - rhoai-workbench # Create an environment for a user
 ...
