@@ -7,19 +7,9 @@ metadata:
   name: servicemesh-operator
   namespace: openshift-operators 
 spec:
-  config:
-    nodeSelector:
-      node-role.kubernetes.io/infra: ""
-    tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/infra
-        value: reserved
-      - effect: NoExecute
-        key: node-role.kubernetes.io/infra
-        value: reserved
   channel: stable
   installPlanApproval: Automatic
   name: servicemeshoperator
-  source: redhat-operators-index
+  source: redhat-operators
   sourceNamespace: openshift-marketplace
 ...
