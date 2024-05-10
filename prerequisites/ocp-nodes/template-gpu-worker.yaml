@@ -1,0 +1,97 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata: 
+  name: gpu-worker
+objects:
+  - apiVersion: machine.openshift.io/v1beta1
+    kind: MachineSet
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: ${INFRASTRUCTURE_ID}
+      name: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${ZONE}
+      namespace: openshift-machine-api
+    spec:
+      replicas: ${{REPLICAS}}
+      selector:
+        matchLabels:
+          machine.openshift.io/cluster-api-cluster: ${INFRASTRUCTURE_ID}
+          machine.openshift.io/cluster-api-machineset: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${ZONE}
+      template:
+        metadata:
+          labels:
+            machine.openshift.io/cluster-api-cluster: ${INFRASTRUCTURE_ID}
+            machine.openshift.io/cluster-api-machine-role: ${ROLE} 
+            machine.openshift.io/cluster-api-machine-type: ${ROLE} 
+            machine.openshift.io/cluster-api-machineset: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${ZONE}
+        spec:
+          metadata:
+            labels:
+              node-role.kubernetes.io/${ROLE}: ""
+              node-role.kubernetes.io/${PREFIX}${ROLE}: ""
+          providerSpec:
+            value:
+              ami:
+                id: ${AMI}
+              apiVersion: awsproviderconfig.openshift.io/v1beta1
+              blockDevices:
+                - ebs:
+                    iops: 0
+                    volumeSize: 120
+                    volumeType: gp2
+              credentialsSecret:
+                name: aws-cloud-credentials
+              deviceIndex: 0
+              iamInstanceProfile:
+                id: ${INFRASTRUCTURE_ID}-worker-profile 
+              instanceType: ${INSTANCE_TYPE}
+              kind: AWSMachineProviderConfig
+              placement:
+                availabilityZone: ${ZONE}
+                region: ${REGION} 
+              securityGroups:
+                - filters:
+                    - name: tag:Name
+                      values:
+                        - ${INFRASTRUCTURE_ID}-worker-sg 
+              subnet:
+                filters:
+                  - name: tag:Name
+                    values:
+                      - ${INFRASTRUCTURE_ID}-private-${ZONE}
+              tags:
+                - name: kubernetes.io/cluster/${INFRASTRUCTURE_ID}
+                  value: owned
+              userDataSecret:
+                name: worker-user-data
+parameters:
+  - name: REPLICAS
+    description: "Number of nodes."
+    required: false
+    value: "1"
+  - name: ROLE
+    description: "Role of the node (Worker or master normally)."
+    required: false
+    value: worker
+  - name: REGION
+    description: "Node region."
+    required: false
+    value: eu-west-1
+  - name: ZONE
+    description: "Node zone."
+    required: false
+    value: eu-west-1a
+  - name: PREFIX
+    description: "Prefix that will be attached to the node name."
+    required: false
+    value: "gpu-"
+  - name: AMI
+    description: "AMI of the CoreOS image in that AWS region."
+    required: false
+    value: ami-0faeeeb3d2b1aa07c
+  - name: INSTANCE_TYPE
+    description: "Instance type in AWS EC2."
+    required: false
+    value: g5.2xlarge
+  - name: INFRASTRUCTURE_ID
+    description: "Cluster ID."
+    required: true

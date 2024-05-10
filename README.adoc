@@ -37,6 +37,52 @@ NOTE: RHOAI is a product under continuous improvement, so probably this repo wil
 == Introduction
 
 
+
+== Prerequisites
+
+Due to the GitOps nature and that some files are confidential or change in every installation.
+
+=== NVIDIA GPU nodes
+
+First, you need to add an OCP node with GPUs. For that, you can use the AWS `g5.2xlarge` instance. According to the documentation:
+
+> Amazon EC2 G5 instances are designed to accelerate graphics-intensive applications and machine learning inference. They can also be used to train simple to moderately complex machine learning models.
+
+Use the following command if you are logged in to your cluster:
+
+[source, bash]
+----
+oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
+    -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
+    -p INSTANCE_TYPE="g5.2xlarge" \
+    oc apply -n openshift-machine-api -f -
+----
+
+.How to know that a node has NVIDIA GPUs using NodeFeatureDiscovery?
+====
+Run the following command and check the output:
+[source, bash]
+----
+oc describe node | egrep 'Roles|pci'
+Roles:              control-plane,master
+Roles:              worker
+                    feature.node.kubernetes.io/pci-1d0f.present=true
+Roles:              gpu-worker,worker
+                    feature.node.kubernetes.io/pci-10de.present=true
+                    feature.node.kubernetes.io/pci-1d0f.present=true
+Roles:              control-plane,master
+Roles:              control-plane,master
+----
+
+`pci-10de` is the PCI vendor ID that is assigned to NVIDIA.
+====
+
+
+
+=== Data Connection Pipelines S3 Bucket Secret
+
+
+
 == Installation
 
 [source, bash]
