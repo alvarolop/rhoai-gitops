@@ -5,4 +5,3 @@ resources:
   - ns-nvidia-gpu-operator.yaml
   - og-nvidia-gpu-operator-group.yaml
   - sub-gpu-operator-certified.yaml
-...

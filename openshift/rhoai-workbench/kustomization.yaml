@@ -9,4 +9,3 @@ resources:
   - DataSciencePipelinesApplication.yaml
 
 namespace: datascience-playground
-...

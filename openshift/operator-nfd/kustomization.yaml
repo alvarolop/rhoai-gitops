@@ -6,4 +6,3 @@ resources:
   - og-openshift-nfd.yaml
   - sub-nfd.yaml
   - nodefeaturediscovery-nfd-instance.yaml
-...
