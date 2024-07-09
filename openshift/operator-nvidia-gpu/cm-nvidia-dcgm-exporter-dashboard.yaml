@@ -736,7 +736,9 @@ data:
       "refresh": false,
       "schemaVersion": 22,
       "style": "dark",
-      "tags": [],
+      "tags": [
+        "gpu"  
+      ],
       "templating": {
         "list": [
           {
