@@ -96,7 +96,8 @@ oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
     oc apply -n openshift-machine-api -f -
 ----
 
-.How to know that a node has NVIDIA GPUs using NodeFeatureDiscovery?
+How to know that a node has NVIDIA GPUs using NodeFeatureDiscovery? The output of the following command will only be visible when you have applied the ArgoCD `Application` and the Node Feature Discovery operator has scanned the OpenShift nodes:
+
 ====
 Run the following command and check the output:
 [source, bash]
@@ -118,6 +119,9 @@ Roles:              control-plane,master
 
 
 === Data Connection Pipelines S3 Bucket Secret
+
+
+
 
 
 
