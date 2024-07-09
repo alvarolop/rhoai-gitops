@@ -6,3 +6,4 @@ resources:
   - og-nvidia-gpu-operator-group.yaml
   - sub-gpu-operator-certified.yaml
   - clusterpolicy-gpu-cluster-policy.yaml
+  - cm-nvidia-dcgm-exporter-dashboard.yaml
