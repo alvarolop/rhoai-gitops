@@ -70,8 +70,6 @@ image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rh
 
 * ray: Component to run the data science code in a distributed manner. The Ray, or KubeRay, component on RHOAI is a Technology Preview feature.
 
-* trustyai: ## DEPRECATED ## Component to add explainability to the predictions made by machine learning models. If TrustyAI operator is installed, it will be removed.
-
 * workbenches: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
 
 
