@@ -30,11 +30,51 @@ ifndef::env-github[]
 endif::[]
 // End: Enable admonition icons
 
-This repository is my playground to deploy, configure, and use RH OpenShift AI.
+Red Hat OpenShift AI (RHOAI) builds on the capabilities of Red Hat OpenShift to provide a single, consistent, enterprise-ready hybrid AI and MLOps platform. It provides tools across the full lifecycle of AI/ML experiments and models including training, serving, monitoring, and managing AI/ML models and AI-enabled applications. This is my personal repository to test and play with some of its most important features.
 
-NOTE: RHOAI is a product under continuous improvement, so probably this repo will be outdated at some point in time. I recommend you to refer to the https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest[Official documentation] to check the latest features!
 
-== Introduction
+== Red Hat Training
+
+RHOAI is a product under continuous improvement, so *this repo will be outdated at some point in time*. I recommend you to refer to the https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest[Official documentation] to check the latest features or you can try the official trainings.
+
+Red Hat OpenShift AI (RHOAI) is a platform for data scientists, AI practitioners, developers, machine learning engineers, and operations teams to prototype, build, deploy, and monitor AI models. This is a wide variety of audience that needs different kinds of training. For that reason, there are https://role.rhu.redhat.com/rol-rhu/app[several courses] that will help you to understand RHOAI from all angles:
+
+
+* *AI262* - _Introduction to Red Hat OpenShift AI_: About configuring Data Science Projects and Jupyter Notebooks.
+* *AI263* - _Red Hat OpenShift AI Administration_: About installing RHOAI, configuring users and permissions and creating Custom Notebook Images.
+* *AI264* - _Creating Machine Learning Models with Red Hat OpenShift AI_: About training models and enhancing the model training.
+* *AI265* - _Deploying Machine Learning Models with Red Hat OpenShift AI_: About serving models on RHOAI.
+* *AI266* - _Automating AI/ML Workflows with Red Hat OpenShift AI_: About creating Data Science Pipelines, and Elyra and Kubeflow Pipelines.
+* *AI267* - _Developing and Deploying AI/ML Applications on Red Hat OpenShift AI_: All the previous courses altogether.
+
+
+== RHOAI Architecture
+
+The following diagram depicts the general architecture of a RHOAI deployment, including the most important components:
+
+.RHOAI Architecture
+image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rhoaiarch/architecture/assets/architecture.svg[RHOAI Architecture]
+
+
+* codeflare: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. The Codeflare component on RHOAI is a Technology Preview feature. If CodeFlare Operator has been installed in the cluster, it should be uninstalled first before enabled component.
+
+* dashboard: Provides the RHOAI dashboard.
+
+* datasciencepipelines: This enables you to build portable machine learning workflows. Requires the OpenShift Pipelines Operator to be present before enabling the data science pipelines.
+
+* kserve: RHOAI uses Kserve to serve large language models that can scale based on demand. Requires the OpenShift Serverless and the OpenShift Service Mesh operators to be present before enabling the component. Does not support enabled ModelMeshServing at the same time.
+
+* kueue: Kueue component configuration. It is not yet in Technology Preview
+
+* modelmeshserving: KServe also offers a component for general-purpose model serving, called ModelMesh Mesh Serving. Activate this component to serve small and medium size models. Does not support enabled Kserve at the same time.
+
+* ray: Component to run the data science code in a distributed manner. The Ray, or KubeRay, component on RHOAI is a Technology Preview feature.
+
+* trustyai: ## DEPRECATED ## Component to add explainability to the predictions made by machine learning models. If TrustyAI operator is installed, it will be removed.
+
+* workbenches: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
+
+
 
 
 
@@ -54,7 +94,7 @@ Use the following command if you are logged in to your cluster:
 ----
 oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
     -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-    -p INSTANCE_TYPE="g5.2xlarge" \
+    -p INSTANCE_TYPE="g5.2xlarge" | \
     oc apply -n openshift-machine-api -f -
 ----
 
@@ -91,25 +131,10 @@ oc apply -f application-rhoai.yaml
 ----
 
 
-== RHOAI Components
 
-* codeflare: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. The Codeflare component on RHOAI is a Technology Preview feature. If CodeFlare Operator has been installed in the cluster, it should be uninstalled first before enabled component.
 
-* dashboard: Provides the RHOAI dashboard.
 
-* datasciencepipelines: This enables you to build portable machine learning workflows. Requires the OpenShift Pipelines Operator to be present before enabling the data science pipelines.
 
-* kserve: RHOAI uses Kserve to serve large language models that can scale based on demand. Requires the OpenShift Serverless and the OpenShift Service Mesh operators to be present before enabling the component. Does not support enabled ModelMeshServing at the same time.
-
-* kueue: Kueue component configuration. It is not yet in Technology Preview
-
-* modelmeshserving: KServe also offers a component for general-purpose model serving, called ModelMesh Mesh Serving. Activate this component to serve small and medium size models. Does not support enabled Kserve at the same time.
-
-* ray: Component to run the data science code in a distributed manner. The Ray, or KubeRay, component on RHOAI is a Technology Preview feature.
-
-* trustyai: ## DEPRECATED ## Component to add explainability to the predictions made by machine learning models. If TrustyAI operator is installed, it will be removed.
-
-* workbenches: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
 
 
 
