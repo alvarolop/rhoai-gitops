@@ -25,8 +25,6 @@ spec:
       managementState: Removed
     modelmeshserving:
       managementState: Managed
-    trustyai: # This component is deprecated
-      managementState: Removed
     ray:
       managementState: Removed
     workbenches:
