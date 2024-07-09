@@ -52,12 +52,16 @@ objects:
                 - filters:
                     - name: tag:Name
                       values:
-                        - ${INFRASTRUCTURE_ID}-worker-sg 
+                        - ${INFRASTRUCTURE_ID}-node 
+                - filters:
+                    - name: tag:Name
+                      values:
+                        - ${INFRASTRUCTURE_ID}-lb
               subnet:
                 filters:
                   - name: tag:Name
                     values:
-                      - ${INFRASTRUCTURE_ID}-private-${ZONE}
+                      - ${INFRASTRUCTURE_ID}-subnet-private-${ZONE}
               tags:
                 - name: kubernetes.io/cluster/${INFRASTRUCTURE_ID}
                   value: owned
