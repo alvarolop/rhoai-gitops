@@ -1,0 +1,15 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: authorino-operator
+  namespace: openshift-operators
+  annotations:
+    argocd.argoproj.io/sync-wave: "-05"
+spec:
+  # channel: managed-services
+  channel: tech-preview-v1
+  installPlanApproval: Automatic
+  name: authorino-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace

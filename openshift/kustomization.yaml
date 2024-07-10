@@ -9,6 +9,7 @@ resources:
   - operator-pipelines
   - operator-serverless
   - operator-servicemesh
+  - operator-authorino
   - operator-rhoai
   - operator-nfd
   - operator-nvidia-gpu

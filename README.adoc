@@ -178,9 +178,6 @@ First, define the configuration variables for AWS is a file dubbed `aws-env-vars
 
 
 
-
-
-
 == Installation
 
 [source, bash]
