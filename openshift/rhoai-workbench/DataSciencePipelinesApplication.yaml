@@ -2,7 +2,7 @@
 apiVersion: datasciencepipelinesapplications.opendatahub.io/v1alpha1
 kind: DataSciencePipelinesApplication
 metadata:
-  name: pipelines-definition
+  name: dspa
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
@@ -10,6 +10,8 @@ spec:
     applyTektonCustomResource: true
     archiveLogs: false
     autoUpdatePipelineDefaultVersion: true
+    caBundleFileMountPath: ""
+    caBundleFileName: ""
     collectMetrics: true
     dbConfigConMaxLifetimeSec: 120
     deploy: true
@@ -26,18 +28,20 @@ spec:
       pipelineDBName: mlpipeline
       pvcSize: 10Gi
       username: mlpipeline
-  mlmd:
-    deploy: false
+  dspVersion: v2
   objectStorage:
     disableHealthCheck: false
+    enableExternalRoute: false
     externalStorage:
-      bucket: rhoai-pipelines-bucket
-      host: s3.eu-west-3.amazonaws.com
+      basePath: ""
+      bucket: rhoai-playground-pipelines-bucket
+      host: s3.eu-west-1.amazonaws.com
       port: ""
+      region: eu-west-1
       s3CredentialsSecret:
         accessKey: AWS_ACCESS_KEY_ID
         secretKey: AWS_SECRET_ACCESS_KEY
-        secretName: data-connection-pipelines
+        secretName: dashboard-dspa-secret
       scheme: https
   persistenceAgent:
     deploy: true

@@ -1,12 +1,12 @@
 #!/bin/sh
 
 AWS_VARS_FILE=aws-env-vars
-NOTEBOOK_NAMESPACE=datascience-playground
+NOTEBOOK_NAMESPACE=rhoai-playground
 
 source ./$AWS_VARS_FILE
 
 # User defined variables
-AWS_S3_BUCKET="rhoai-pipelines-bucket"
+AWS_S3_BUCKET="$NOTEBOOK_NAMESPACE-pipelines-bucket"
 
 # Print environment variables
 echo -e "\n=============="

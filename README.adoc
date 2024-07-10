@@ -164,6 +164,16 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 === Data Connection Pipelines S3 Bucket Secret
 
 
+The `DataSciencePipelineApplication` requires an S3-compatible storage solution to store artifacts that are generated in the pipeline. You can use any S3-compatible storage solution for data science pipelines, including AWS S3, OpenShift Data Foundation, or MinIO. In this exercise, as our cluster is on AWS, we will use AWS S3.
+
+First, define the configuration variables for AWS is a file dubbed `aws-env-vars`. Then, execute the following command:
+
+[source, bash]
+----
+./aws-create-bucket.sh
+----
+
+
 
 
 
