@@ -172,7 +172,7 @@ spec:
           claimName: {{ .Values.workbench.name }}-storage
       - name: elyra-dsp-details
         secret:
-          secretName: ds-pipeline-config
+          secretName: "{{ .Values.pipelinesConnection.secretName }}"
       - emptyDir:
           medium: Memory
         name: shm
