@@ -56,21 +56,21 @@ The following diagram depicts the general architecture of a RHOAI deployment, in
 image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rhoaiarch/architecture/assets/architecture.svg[RHOAI Architecture]
 
 
-* codeflare: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. The Codeflare component on RHOAI is a Technology Preview feature. If CodeFlare Operator has been installed in the cluster, it should be uninstalled first before enabled component.
+* *codeflare*: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. The Codeflare component on RHOAI is a Technology Preview feature. If CodeFlare Operator has been installed in the cluster, it should be uninstalled first before enabled component.
 
-* dashboard: Provides the RHOAI dashboard.
+* *dashboard*: Provides the RHOAI dashboard.
 
-* datasciencepipelines: This enables you to build portable machine learning workflows. Requires the OpenShift Pipelines Operator to be present before enabling the data science pipelines.
+* *datasciencepipelines*: This enables you to build portable machine learning workflows. Requires the OpenShift Pipelines Operator to be present before enabling the data science pipelines.
 
-* kserve: RHOAI uses Kserve to serve large language models that can scale based on demand. Requires the OpenShift Serverless and the OpenShift Service Mesh operators to be present before enabling the component. Does not support enabled ModelMeshServing at the same time.
+* *kserve*: RHOAI uses Kserve to serve large language models that can scale based on demand. Requires the OpenShift Serverless and the OpenShift Service Mesh operators to be present before enabling the component. Does not support enabled ModelMeshServing at the same time.
 
-* kueue: Kueue component configuration. It is not yet in Technology Preview
+* *kueue*: Kueue component configuration. It is not yet in Technology Preview
 
-* modelmeshserving: KServe also offers a component for general-purpose model serving, called ModelMesh Mesh Serving. Activate this component to serve small and medium size models. Does not support enabled Kserve at the same time.
+* *modelmeshserving*: KServe also offers a component for general-purpose model serving, called ModelMesh Mesh Serving. Activate this component to serve small and medium size models. Does not support enabled Kserve at the same time.
 
-* ray: Component to run the data science code in a distributed manner. The Ray, or KubeRay, component on RHOAI is a Technology Preview feature.
+* *ray*: Component to run the data science code in a distributed manner. The Ray, or KubeRay, component on RHOAI is a Technology Preview feature.
 
-* workbenches: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
+* *workbenches*: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
 
 
 
@@ -168,12 +168,18 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 
 
 
+
+
+
 == Installation
 
 [source, bash]
 ----
 oc apply -f application-rhoai.yaml
 ----
+
+
+
 
 
 
@@ -195,17 +201,16 @@ oc apply -f application-rhoai.yaml
 * https://access.redhat.com/articles/rhoai-supported-configs
 
 
-* Getting started: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html-single/getting_started_with_red_hat_openshift_ai_self-managed/index
-* Monitoring: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html-single/serving_models/index#monitoring-model-performance_monitoring-model-performance
-* DS Pipelines: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html/working_on_data_science_projects/working-with-data-science-pipelines_ds-pipelines
+* Getting started: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest/html-single/getting_started_with_red_hat_openshift_ai_self-managed/index
+* Monitoring: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest/html-single/serving_models/index#monitoring-model-performance_monitoring-model-performance
+* DS Pipelines: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest/html/working_on_data_science_projects/working-with-data-science-pipelines_ds-pipelines
 
 
 
 
 Study sources:
-* https://redhatquickcourses.github.io/rhods-admin/rhods-admin/1.33/chapter2/users.html
-* https://redhatquickcourses.github.io/rhods-intro/rhods-intro/1.33/chapter1/section2.html
-* https://redhatquickcourses.github.io/rhods-model/rhods-model/1.33/chapter1/index.html
+* https://redhatquickcourses.github.io/rhods-admin/rhods-admin/1.33
+* https://redhatquickcourses.github.io/rhods-intro/rhods-intro/1.33
+* https://redhatquickcourses.github.io/rhods-model/rhods-model/1.33
 * https://rh-aiservices-bu.github.io/insurance-claim-processing/modules/02-03-creating-workbench.html
 * https://developers.redhat.com/products/red-hat-openshift-ai/getting-started
-* https://role.rhu.redhat.com/rol-rhu/app/
