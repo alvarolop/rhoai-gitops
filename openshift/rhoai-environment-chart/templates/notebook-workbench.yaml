@@ -88,8 +88,6 @@ spec:
         volumeMounts:
         - mountPath: /opt/app-root/src
           name: {{ .Values.workbench.name }}
-        - mountPath: /opt/app-root/runtimes
-          name: elyra-dsp-details
         - mountPath: /dev/shm
           name: shm
         - mountPath: /etc/pki/tls/custom-certs/ca-bundle.crt
@@ -170,9 +168,6 @@ spec:
       - name: {{ .Values.workbench.name }}
         persistentVolumeClaim:
           claimName: {{ .Values.workbench.name }}-storage
-      - name: elyra-dsp-details
-        secret:
-          secretName: "{{ .Values.pipelinesConnection.secretName }}"
       - emptyDir:
           medium: Memory
         name: shm
