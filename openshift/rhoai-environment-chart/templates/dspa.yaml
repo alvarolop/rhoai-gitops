@@ -3,7 +3,9 @@ apiVersion: datasciencepipelinesapplications.opendatahub.io/v1alpha1
 kind: DataSciencePipelinesApplication
 metadata:
   name: dspa
+  namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
+    # argocd.argoproj.io/compare-options: IgnoreExtraneous
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   apiServer:
@@ -33,16 +35,16 @@ spec:
     disableHealthCheck: false
     enableExternalRoute: false
     externalStorage:
-      basePath: ""
-      bucket: rhoai-playground-pipelines-bucket
-      host: s3.eu-west-1.amazonaws.com
-      port: ""
-      region: eu-west-1
+      basePath: ''
+      bucket: '{{ .Values.pipelinesConnection.awsS3Bucket}}'
+      host: '{{ .Values.pipelinesConnection.awsS3Endpoint }}'
+      port: ''
+      region: '{{ .Values.pipelinesConnection.awsDefaultRegion }}'
       s3CredentialsSecret:
         accessKey: AWS_ACCESS_KEY_ID
         secretKey: AWS_SECRET_ACCESS_KEY
-        secretName: dashboard-dspa-secret
-      scheme: https
+        secretName: "{{ .Values.pipelinesConnection.secretName }}"
+      scheme: "{{ .Values.pipelinesConnection.scheme }}"
   persistenceAgent:
     deploy: true
     numWorkers: 2

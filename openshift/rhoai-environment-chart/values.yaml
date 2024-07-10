@@ -1,0 +1,32 @@
+# Default values for rhoai-environment-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+dataScienceProjectDisplayName: RHOAI Playground
+dataScienceProjectNamespace: rhoai-playground
+
+workbench:
+  name: notebook
+  displayName: Test GPU
+  namespace: rhoai-playground
+  image: pytorch:2024.1
+  resources:
+    limits:
+      cpu: '2'
+      memory: 8Gi
+      nvidiaGpu: '1'
+    requests:
+      cpu: '1'
+      memory: 6Gi
+      nvidiaGpu: '1'
+
+pipelinesConnection:
+  secretName: dashboard-dspa-secret
+  displayName: pipelines
+  type: s3
+  scheme: https
+  awsAccessKeyId: AWS_ACCESS_KEY_ID
+  awsSecretAccessKey: AWS_SECRET_ACCESS_KEY
+  awsDefaultRegion: eu-west-1
+  awsS3Bucket: rhoai-playground-pipelines-bucket
+  awsS3Endpoint: s3.eu-west-1.amazonaws.com

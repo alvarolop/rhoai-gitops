@@ -1,0 +1,12 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: "{{ .Values.dataScienceProjectNamespace }}"
+  annotations:
+    openshift.io/description: "{{ .Values.dataScienceProjectDisplayName }}"
+    openshift.io/display-name: "{{ .Values.dataScienceProjectDisplayName }}"
+    argocd.argoproj.io/sync-wave: "-05"
+  labels:
+    modelmesh-enabled: 'true'
+    opendatahub.io/dashboard: 'true'

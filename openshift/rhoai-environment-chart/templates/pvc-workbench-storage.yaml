@@ -1,0 +1,18 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  annotations:
+    openshift.io/description: 'PVC for {{ .Values.workbench.name }}'
+    openshift.io/display-name: {{ .Values.workbench.name }}
+  name: {{ .Values.workbench.name }}
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem

@@ -13,5 +13,12 @@ resources:
   - operator-nfd
   - operator-nvidia-gpu
   - rhoai-configuration # Configure RHOAI cluster
-  - rhoai-workbench # Create an environment for a user
-...
+
+helmGlobals:
+  chartHome: .
+
+helmCharts:
+- name: rhoai-environment-chart
+  includeCRDs: false
+  releaseName: rhoai-playground
+  version: 0.1.0
