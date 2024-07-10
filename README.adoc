@@ -170,7 +170,7 @@ First, define the configuration variables for AWS is a file dubbed `aws-env-vars
 
 [source, bash]
 ----
-./aws-create-bucket.sh
+./prerequisites/s3-bucket/create-aws-s3-bucket.sh
 ----
 
 
