@@ -28,5 +28,5 @@ pipelinesConnection:
   awsAccessKeyId: AWS_ACCESS_KEY_ID
   awsSecretAccessKey: AWS_SECRET_ACCESS_KEY
   awsDefaultRegion: eu-west-1
-  awsS3Bucket: rhoai-playground-pipelines
+  awsS3Bucket: rhoai-playground-pipelines-bucket
   awsS3Endpoint: s3.eu-west-1.amazonaws.com
