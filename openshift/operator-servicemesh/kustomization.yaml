@@ -14,4 +14,4 @@ resources:
   - sub-kiali-ossm.yaml
 
   # Service Mesh
-  - sub-servicemesh-operator.yaml
+  - sub-servicemeshoperator.yaml
