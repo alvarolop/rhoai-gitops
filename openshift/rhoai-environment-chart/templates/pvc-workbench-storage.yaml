@@ -5,7 +5,7 @@ metadata:
   annotations:
     openshift.io/description: 'PVC for {{ .Values.workbench.name }}'
     openshift.io/display-name: {{ .Values.workbench.name }}
-  name: {{ .Values.workbench.name }}
+  name: {{ .Values.workbench.name }}-storage
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
     opendatahub.io/dashboard: 'true'
