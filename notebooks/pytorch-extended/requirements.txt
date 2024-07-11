@@ -1,0 +1,6 @@
+# Additional dependencies
+seaborn==0.12.2
+plotly==5.15.0
+dask==2023.6.1
+tensorflow==2.14.0
+jupyterlab==4.0.0
