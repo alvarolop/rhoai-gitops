@@ -3,6 +3,8 @@ apiVersion: nvidia.com/v1
 kind: ClusterPolicy
 metadata:
   name: gpu-cluster-policy
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   operator:
     defaultRuntime: crio
