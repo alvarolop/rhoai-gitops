@@ -35,6 +35,7 @@ else
 fi
 
 echo -e "\nCreate the Pipelines Datasource Secret"
+oc new-project $NOTEBOOK_NAMESPACE
 oc process -f ./prerequisites/s3-bucket/secret-data-connection-pipelines.yaml \
     --param-file $AWS_VARS_FILE --ignore-unknown-parameters=true \
     -p NOTEBOOK_NAMESPACE=$NOTEBOOK_NAMESPACE \
