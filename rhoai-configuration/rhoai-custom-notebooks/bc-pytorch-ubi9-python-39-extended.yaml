@@ -1,0 +1,38 @@
+---
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+  name: pytorch-ubi9-python-39-extended
+  labels:
+    component: pytorch-ubi9-python-39-extended-image
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/alvarolop/rhoai-gitops
+      ref: main
+    contextDir: notebooks/pytorch-extended
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Containerfile
+      from:
+        kind: ImageStreamTag
+        name: pytorch:2024.1
+        namespace: redhat-ods-applications
+  output:
+    to:
+      kind: ImageStreamTag
+      name: pytorch-extended:2024.1
+  runPolicy: Serial
+  resources:
+    limits:
+      cpu: 3
+      memory: 4Gi
+    requests:
+      cpu: 1
+      memory: 2Gi
+  successfulBuildsHistoryLimit: 2
+  failedBuildsHistoryLimit: 2

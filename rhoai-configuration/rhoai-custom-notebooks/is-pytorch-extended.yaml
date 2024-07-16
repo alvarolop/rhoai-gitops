@@ -1,0 +1,63 @@
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: 10
+    opendatahub.io/notebook-image-desc: Jupyter notebook image with PyTorch libraries
+      extended with some nice dependencies recommended by ChatGPT :)
+    opendatahub.io/notebook-image-name: PyTorch - Extended
+    opendatahub.io/notebook-image-order: "50"
+    opendatahub.io/notebook-image-url: https://github.com/alvarolop/rhoai-gitops/tree/main/notebooks/pytorch-extended
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+  name: pytorch-extended
+  labels:
+    app.kubernetes.io/part-of: workbenches
+    app.opendatahub.io/workbenches: "true"
+    component.opendatahub.io/name: notebooks
+    opendatahub.io/component: "true"
+    opendatahub.io/notebook-image: "true"
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+    - annotations:
+        opendatahub.io/notebook-build-commit: 70df141
+        opendatahub.io/notebook-python-dependencies: |
+          [
+            {"name": "PyTorch", "version": "2.2"},
+            {"name": "Tensorboard", "version": "2.16"},
+            {"name": "Boto3", "version": "1.34"},
+            {"name": "Kafka-Python", "version": "2.0"},
+            {"name": "Kfp", "version": "2.7"},
+            {"name": "Matplotlib", "version": "3.8"},
+            {"name": "Numpy", "version": "1.26"},
+            {"name": "Pandas", "version": "2.2"},
+            {"name": "Scikit-learn", "version": "1.4"},
+            {"name": "Scipy", "version": "1.12"},
+            {"name": "Odh-Elyra", "version": "3.16"},
+            {"name": "PyMongo", "version": "4.6"},
+            {"name": "Pyodbc", "version": "5.1"},
+            {"name": "Codeflare-SDK", "version": "0.16"},
+            {"name": "Sklearn-onnx", "version": "1.16"},
+            {"name": "Psycopg", "version": "3.1"},
+            {"name": "MySQL Connector/Python", "version": "8.3"},
+            {"name": "Seaborn", "version": "0.12.2"},
+            {"name": "Plotly", "version": "5.15.0"},
+            {"name": "Dask", "version": "2023.6.1"},
+            {"name": "TensorFlow", "version": "2.14.0"},
+            {"name": "JupyterLab", "version": "4.0.0"}
+          ]
+        opendatahub.io/notebook-software: '[{"name":"CUDA","version":"12.1"},{"name":"Python","version":"v3.9"},{"name":"PyTorch","version":"2.2"}]'
+        opendatahub.io/workbench-image-recommended: "true"
+      from:
+        kind: DockerImage
+        name: quay.io/modh/odh-pytorch-notebook@sha256:354f98690a02c5b2519da72be22555562c6652bc9db8ece2f3c03476fd6369ff
+      importPolicy:
+        importMode: Legacy
+      name: "2024.1"
+      referencePolicy:
+        type: Source
+
+
+

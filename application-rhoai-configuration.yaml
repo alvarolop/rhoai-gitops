@@ -3,16 +3,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   labels:
-    app: rhoai
-  name: rhoai
+    app: rhoai-configuration
+  name: rhoai-configuration
   namespace: gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: openshift
-    repoURL: https://github.com/alvarolop/rhoai-gitops
+    path: rhoai-configuration
+    repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
   syncPolicy:
     automated:
