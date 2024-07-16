@@ -10,11 +10,11 @@ resources:
   # - rhoai-custom-notebooks # Create Custom Notebooks
   # - rhoai-runtimes
 
-helmGlobals:
-  chartHome: .
+# helmGlobals:
+#   chartHome: .
 
-helmCharts:
-- name: rhoai-environment-chart
-  includeCRDs: false
-  releaseName: rhoai-playground
-  version: 0.1.0
+# helmCharts:
+# - name: rhoai-environment-chart
+#   includeCRDs: false
+#   releaseName: rhoai-playground
+#   version: 0.1.0
