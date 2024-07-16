@@ -39,3 +39,4 @@ Session.vim
 aws-env-vars
 .hf-token
 rhods-internal-primary-cert-bundle-secret.yaml
+models-tmp
