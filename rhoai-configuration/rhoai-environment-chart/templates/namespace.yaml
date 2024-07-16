@@ -8,5 +8,5 @@ metadata:
     openshift.io/display-name: "{{ .Values.dataScienceProjectDisplayName }}"
     argocd.argoproj.io/sync-wave: "-05"
   labels:
-    modelmesh-enabled: 'true'
+    # modelmesh-enabled: 'true'
     opendatahub.io/dashboard: 'true'
