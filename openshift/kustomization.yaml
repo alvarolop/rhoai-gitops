@@ -15,6 +15,7 @@ resources:
   - operator-nvidia-gpu
   - rhoai-configuration # Configure RHOAI cluster
   # - rhoai-custom-notebooks # Create Custom Notebooks
+  - rhoai-runtimes
 
 helmGlobals:
   chartHome: .
