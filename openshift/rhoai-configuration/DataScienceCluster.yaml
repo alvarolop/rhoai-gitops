@@ -18,7 +18,11 @@ spec:
       serving:
         ingressGateway:
           certificate:
-            type: SelfSigned
+            # Intructions from: https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/
+            # You have to copy the secret create it in istio-system namespace
+            # secretName: rhods-internal-primary-cert-bundle-secret
+            secretName: ingress-certs
+            type: Provided
         managementState: Managed # Triggers automated installation of OpenShift Serverless
         name: knative-serving
     kueue:

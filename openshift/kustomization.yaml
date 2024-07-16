@@ -9,11 +9,12 @@ resources:
   - operator-pipelines
   - operator-serverless
   - operator-servicemesh
-  - operator-authorino
+  # - operator-authorino
   - operator-rhoai
   - operator-nfd
   - operator-nvidia-gpu
   - rhoai-configuration # Configure RHOAI cluster
+  # - rhoai-custom-notebooks # Create Custom Notebooks
 
 helmGlobals:
   chartHome: .
