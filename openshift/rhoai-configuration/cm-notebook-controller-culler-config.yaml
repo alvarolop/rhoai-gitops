@@ -9,4 +9,4 @@ metadata:
 data:
   CULL_IDLE_TIME: '300'
   ENABLE_CULLING: 'true'
-  IDLENESS_CHECK_PERIOD: '1'
+  IDLENESS_CHECK_PERIOD: '5'
