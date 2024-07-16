@@ -12,7 +12,7 @@ metadata:
     {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
     opendatahub.io/accelerator-name: migrated-gpu
     openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
-    {{- else -}}
+    {{- else }}
     openshift.io/description: This is an example Workbench using the PyTorch Image
     {{- end }}
     openshift.io/display-name: {{ .Values.workbench.name }}
