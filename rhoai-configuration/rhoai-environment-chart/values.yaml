@@ -5,20 +5,33 @@
 dataScienceProjectDisplayName: RHOAI Playground
 dataScienceProjectNamespace: rhoai-playground
 
+# workbench:
+#   name: notebook-gpu
+#   displayName: Notebook GPU
+#   namespace: rhoai-playground
+#   image: pytorch:2024.1
+#   resources:
+#     limits:
+#       cpu: '2'
+#       memory: 8Gi
+#       nvidiaGpu: '1'
+#     requests:
+#       cpu: '1'
+#       memory: 6Gi
+#       nvidiaGpu: '1'
+
 workbench:
-  name: notebook-gpu
-  displayName: Notebook GPU
+  name: notebook
+  displayName: Notebook
   namespace: rhoai-playground
   image: pytorch:2024.1
   resources:
     limits:
       cpu: '2'
       memory: 8Gi
-      nvidiaGpu: '1'
     requests:
       cpu: '1'
       memory: 6Gi
-      nvidiaGpu: '1'
 
 pipelinesConnection:
   secretName: aws-connection-pipelines

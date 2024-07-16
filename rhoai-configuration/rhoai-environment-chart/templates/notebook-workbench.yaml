@@ -8,9 +8,13 @@ metadata:
     notebooks.opendatahub.io/last-size-selection: Small
     notebooks.opendatahub.io/oauth-logout-url: >-
       $DASHBOARD_ROUTE/projects/{{ .Values.dataScienceProjectNamespace }}?notebookLogout={{ .Values.workbench.name }}
-    opendatahub.io/accelerator-name: migrated-gpu
     opendatahub.io/image-display-name: PyTorch
-    openshift.io/description: This is an example Workbench using the PyTorch Image and NVIDIA GPUs
+    {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
+    opendatahub.io/accelerator-name: migrated-gpu
+    openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
+    {{- else -}}
+    openshift.io/description: This is an example Workbench using the PyTorch Image
+    {{- end }}
     openshift.io/display-name: {{ .Values.workbench.name }}
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: {{ .Values.workbench.name }}
