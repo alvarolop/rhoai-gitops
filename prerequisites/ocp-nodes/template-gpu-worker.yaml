@@ -8,21 +8,21 @@ objects:
     metadata:
       labels:
         machine.openshift.io/cluster-api-cluster: ${INFRASTRUCTURE_ID}
-      name: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${ZONE}
+      name: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${REGION}${AZ}
       namespace: openshift-machine-api
     spec:
       replicas: ${{REPLICAS}}
       selector:
         matchLabels:
           machine.openshift.io/cluster-api-cluster: ${INFRASTRUCTURE_ID}
-          machine.openshift.io/cluster-api-machineset: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${ZONE}
+          machine.openshift.io/cluster-api-machineset: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${REGION}${AZ}
       template:
         metadata:
           labels:
             machine.openshift.io/cluster-api-cluster: ${INFRASTRUCTURE_ID}
             machine.openshift.io/cluster-api-machine-role: ${ROLE} 
             machine.openshift.io/cluster-api-machine-type: ${ROLE} 
-            machine.openshift.io/cluster-api-machineset: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${ZONE}
+            machine.openshift.io/cluster-api-machineset: ${INFRASTRUCTURE_ID}-${PREFIX}${ROLE}-${REGION}${AZ}
         spec:
           metadata:
             labels:
@@ -46,7 +46,7 @@ objects:
               instanceType: ${INSTANCE_TYPE}
               kind: AWSMachineProviderConfig
               placement:
-                availabilityZone: ${ZONE}
+                availabilityZone: ${REGION}${AZ}
                 region: ${REGION} 
               securityGroups:
                 - filters:
@@ -61,7 +61,7 @@ objects:
                 filters:
                   - name: tag:Name
                     values:
-                      - ${INFRASTRUCTURE_ID}-subnet-private-${ZONE}
+                      - ${INFRASTRUCTURE_ID}-subnet-private-${REGION}${AZ}
               tags:
                 - name: kubernetes.io/cluster/${INFRASTRUCTURE_ID}
                   value: owned
@@ -80,10 +80,10 @@ parameters:
     description: "Node region."
     required: false
     value: eu-west-1
-  - name: ZONE
-    description: "Node zone."
+  - name: AZ
+    description: "Availability Zone."
     required: false
-    value: eu-west-1a
+    value: a
   - name: PREFIX
     description: "Prefix that will be attached to the node name."
     required: false
