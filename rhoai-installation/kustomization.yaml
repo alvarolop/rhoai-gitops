@@ -14,7 +14,8 @@ resources:
   # KServe Installation for Single-model server
   - operator-serverless
   - operator-opentelemetry
-  - operator-grafana-tempo
+  - operator-jaeger
+  # - operator-grafana-tempo
   - operator-kiali
   - operator-servicemesh
   
