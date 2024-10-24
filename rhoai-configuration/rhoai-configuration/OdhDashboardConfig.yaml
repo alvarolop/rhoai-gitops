@@ -13,7 +13,7 @@ spec:
   dashboardConfig:
     disableAcceleratorProfiles: false
     disableBYONImageStream: false
-    disableBiasMetrics: false
+    disableBiasMetrics: true
     disableClusterManager: false
     disableCustomServingRuntimes: false
     disableDistributedWorkloads: true
