@@ -8,7 +8,8 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   operand:
-    image: "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.17"
+    image: 'registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9@sha256:5c9a97a7c1ebc677d1280b6ba5bdbf291f9dd288f77656a51c02fc3b33eb419b'
+    imagePullPolicy: IfNotPresent
     servicePort: 12000
   workerConfig:
     configData: |
@@ -118,3 +119,12 @@ spec:
       #            vendor: ["15b3"]
       #            device: ["1014", "1017"]
       #          loadedKMod : ["vendor_kmod1", "vendor_kmod2"]
+  customConfig:
+    configData: |
+      #    - name: "more.kernel.features"
+      #      matchOn:
+      #      - loadedKMod: ["example_kmod3"]
+      #    - name: "more.features.by.nodename"
+      #      value: customValue
+      #      matchOn:
+      #      - nodename: ["special-.*-node-.*"]
