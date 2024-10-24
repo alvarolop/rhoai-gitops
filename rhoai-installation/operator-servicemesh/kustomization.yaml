@@ -2,16 +2,4 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  # Elasticsearch
-  # It is not installed, as this is only mandatory for Jaeger data persistance.
-
-  # Jaeger
-  - ns-openshift-distributed-tracing.yaml
-  - og-openshift-distributed-tracing.yaml
-  - sub-jaeger-product.yaml
-
-  # Kiali
-  - sub-kiali-ossm.yaml
-
-  # Service Mesh
   - sub-servicemeshoperator.yaml
