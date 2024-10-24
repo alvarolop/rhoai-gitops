@@ -12,3 +12,14 @@ spec:
   name: kiali-ossm
   source: redhat-operators
   sourceNamespace: openshift-marketplace
+  # startingCSV: kiali-operator.v1.73.10
+  # config:
+  #   nodeSelector: 
+  #     node-role.kubernetes.io/infra: ""
+  #   tolerations: 
+  #   - effect: NoSchedule
+  #     key: node-role.kubernetes.io/infra
+  #     value: reserved
+  #   - effect: NoExecute
+  #     key: node-role.kubernetes.io/infra
+  #     value: reserved

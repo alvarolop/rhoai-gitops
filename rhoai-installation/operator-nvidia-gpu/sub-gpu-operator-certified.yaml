@@ -7,7 +7,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-05"
 spec:
-  channel: v24.3
+  channel: v24.6
   installPlanApproval: Automatic
   name: gpu-operator-certified
   source: certified-operators

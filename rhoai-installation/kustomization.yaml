@@ -6,10 +6,20 @@ commonLabels:
   app.kubernetes.io/instance: rhoai
 
 resources:
-  - operator-pipelines
-  - operator-serverless
-  - operator-servicemesh
-  # - operator-authorino
-  - operator-rhoai
+
+  # Support for GPU Acceleration
   - operator-nfd
   - operator-nvidia-gpu
+
+  # KServe Installation for Single-model server
+  - operator-serverless
+  - operator-opentelemetry
+  - operator-grafana-tempo
+  - operator-kiali
+  - operator-servicemesh
+  
+  # Support for authentication of server models
+  # - operator-authorino
+
+  # Actual installation of RHOAI operator
+  - operator-rhoai

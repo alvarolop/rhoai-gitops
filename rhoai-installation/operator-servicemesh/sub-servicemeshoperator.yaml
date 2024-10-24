@@ -12,3 +12,13 @@ spec:
   name: servicemeshoperator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
+  # config:
+  #   nodeSelector: 
+  #     node-role.kubernetes.io/infra: ""
+  #   tolerations: 
+  #   - effect: NoSchedule
+  #     key: node-role.kubernetes.io/infra
+  #     value: reserved
+  #   - effect: NoExecute
+  #     key: node-role.kubernetes.io/infra
+  #     value: reserved
