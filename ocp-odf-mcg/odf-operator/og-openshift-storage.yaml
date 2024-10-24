@@ -1,0 +1,11 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-storage
+  namespace: openshift-storage
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  targetNamespaces:
+  - openshift-storage
