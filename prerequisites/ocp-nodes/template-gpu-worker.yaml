@@ -28,6 +28,9 @@ objects:
             labels:
               node-role.kubernetes.io/${ROLE}: ""
               node-role.kubernetes.io/${PREFIX}${ROLE}: ""
+          taints:
+            - key: nvidia.com/gpu
+              effect: NoSchedule
           providerSpec:
             value:
               ami:
