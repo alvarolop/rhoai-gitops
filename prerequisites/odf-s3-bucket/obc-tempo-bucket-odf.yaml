@@ -1,0 +1,11 @@
+---
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: tempo-bucket-odf
+  namespace: openshift-tempo-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  generateBucketName: tempo-bucket-odf
+  storageClassName: openshift-storage.noobaa.io
