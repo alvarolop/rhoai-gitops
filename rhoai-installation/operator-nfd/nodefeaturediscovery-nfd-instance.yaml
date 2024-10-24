@@ -8,7 +8,7 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   operand:
-    image: "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.15"
+    image: "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.17"
     servicePort: 12000
   workerConfig:
     configData: |
