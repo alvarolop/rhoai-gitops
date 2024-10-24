@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
 
   - odf-operator
-
-  # - mcg-instance.yaml
+  - storagecluster-ocs-storagecluster.yaml

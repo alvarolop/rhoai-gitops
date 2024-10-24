@@ -1,0 +1,53 @@
+---
+apiVersion: ocs.openshift.io/v1
+kind: StorageCluster
+metadata:
+  annotations:
+    uninstall.ocs.openshift.io/cleanup-policy: delete
+    uninstall.ocs.openshift.io/mode: graceful
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "5"
+  name: ocs-storagecluster
+  namespace: openshift-storage
+spec:
+  arbiter: {}
+  encryption:
+    keyRotation:
+      schedule: '@weekly'
+    kms: {}
+  externalStorage: {}
+  managedResources:
+    cephBlockPools: {}
+    cephCluster: {}
+    cephConfig: {}
+    cephDashboard: {}
+    cephFilesystems:
+      dataPoolSpec:
+        application: ""
+        erasureCoded:
+          codingChunks: 0
+          dataChunks: 0
+        mirroring: {}
+        quotas: {}
+        replicated:
+          size: 0
+        statusCheck:
+          mirror: {}
+    cephNonResilientPools:
+      count: 1
+      resources: {}
+      volumeClaimTemplate:
+        metadata: {}
+        spec:
+          resources: {}
+        status: {}
+    cephObjectStoreUsers: {}
+    cephObjectStores: {}
+    cephRBDMirror:
+      daemonCount: 1
+    cephToolbox: {}
+  mirroring: {}
+  multiCloudGateway:
+    dbStorageClassName: gp3-csi
+    reconcileStrategy: standalone
+  resourceProfile: balanced
