@@ -37,6 +37,6 @@ Session.vim
 .history
 
 aws-env-vars
-.hf-token
+hf-creds
 rhods-internal-primary-cert-bundle-secret.yaml
 models-tmp
