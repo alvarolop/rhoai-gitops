@@ -60,3 +60,16 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "getBucketName" -}}
+{{- if .Values.pipelinesConnection.awsS3Bucket -}}
+{{ .Values.pipelinesConnection.awsS3Bucket }}
+{{- else -}}
+  {{- $obcConfigMap := (lookup "v1" "ConfigMap" .Release.Namespace .Values.pipelinesConnection.secretName) -}}
+  {{- if $obcConfigMap -}}
+    {{ index $obcConfigMap.data "BUCKET_NAME" }}
+  {{- else -}}
+    "default-bucket-name"
+  {{- end -}}
+{{- end -}}
+{{- end -}}

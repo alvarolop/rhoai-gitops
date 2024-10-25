@@ -1,11 +1,4 @@
 ---
-{{- if not .Values.pipelinesConnection.awsS3Bucket }}
-{{- $obcConfigMap := (lookup "v1" "ConfigMap" .Release.Namespace .Values.pipelinesConnectionsecretName) }}
-{{- if $obcConfigMap }}
-{{- $obcBucket = index $obcBucket.data "BUCKET_NAME"}}
-{{- end -}}
-{{- end -}}
-
 apiVersion: datasciencepipelinesapplications.opendatahub.io/v1alpha1
 kind: DataSciencePipelinesApplication
 metadata:
@@ -45,7 +38,7 @@ spec:
     enableExternalRoute: false
     externalStorage:
       basePath: ''
-      bucket: '{{ $obcBucket }}'
+      bucket: '{{ include "getBucketName" . }}'
       host: '{{ .Values.pipelinesConnection.awsS3Endpoint }}'
       port: '{{ .Values.pipelinesConnection.awsS3Port }}'
       region: '{{ .Values.pipelinesConnection.awsDefaultRegion }}'
