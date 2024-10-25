@@ -33,15 +33,26 @@ workbench:
 #       cpu: '1'
 #       memory: 6Gi
 
-storageBackendODF: true
-
 pipelinesConnection:
-  secretName: aws-connection-pipelines
-  displayName: pipelines
+  storageBackendODF: true
+  secretName: odf-connection-pipelines
+  # displayName: pipelines
   type: s3
   scheme: https
-  awsAccessKeyId: AWS_ACCESS_KEY_ID
-  awsSecretAccessKey: AWS_SECRET_ACCESS_KEY
-  awsDefaultRegion: eu-west-1
-  awsS3Bucket: rhoai-playground-pipelines
-  awsS3Endpoint: s3.eu-west-1.amazonaws.com
+  # awsAccessKeyId: AWS_ACCESS_KEY_ID
+  # awsSecretAccessKey: AWS_SECRET_ACCESS_KEY
+  awsDefaultRegion: local-odf
+  awsS3Bucket: odf-connection-pipelines-64375d16-d0a9-4403-82e0-fd05d984d209
+  awsS3Endpoint: s3.openshift-storage.svc
+
+# # Old example using AWS
+# pipelinesConnection:
+#   secretName: aws-connection-pipelines
+#   displayName: pipelines
+#   type: s3
+#   scheme: https
+#   awsAccessKeyId: AWS_ACCESS_KEY_ID
+#   awsSecretAccessKey: AWS_SECRET_ACCESS_KEY
+#   awsDefaultRegion: eu-west-1
+#   awsS3Bucket: rhoai-playground-pipelines
+#   awsS3Endpoint: s3.eu-west-1.amazonaws.com

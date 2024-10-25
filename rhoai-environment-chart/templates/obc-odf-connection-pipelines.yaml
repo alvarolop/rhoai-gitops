@@ -1,13 +1,13 @@
-{{- if .Values.storageBackendODF }}
+{{- if .Values.pipelinesConnection.storageBackendODF }}
 ---
 apiVersion: objectbucket.io/v1alpha1
 kind: ObjectBucketClaim
 metadata:
-  name: odf-connection-pipelines
+  name: {{ .Values.pipelinesConnection.secretName }}
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
-  generateBucketName: odf-connection-pipelines
+  generateBucketName: {{ .Values.pipelinesConnection.secretName }}
   storageClassName: openshift-storage.noobaa.io
 {{- end }}

@@ -11,6 +11,7 @@ spec:
   apiServer:
     applyTektonCustomResource: true
     archiveLogs: false
+    artifactSignedURLExpirySeconds: 60
     autoUpdatePipelineDefaultVersion: true
     caBundleFileMountPath: ""
     caBundleFileName: ""
@@ -48,6 +49,7 @@ spec:
   persistenceAgent:
     deploy: true
     numWorkers: 2
+  podToPodTLS: true
   scheduledWorkflow:
     cronScheduleTimezone: UTC
     deploy: true
