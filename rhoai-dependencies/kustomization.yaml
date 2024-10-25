@@ -17,6 +17,3 @@ resources:
   
   # Support for authentication of server models
   # - operator-authorino
-
-  # Actual installation of RHOAI operator
-  - operator-rhoai
