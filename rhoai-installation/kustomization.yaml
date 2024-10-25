@@ -6,6 +6,9 @@ commonLabels:
   app.kubernetes.io/instance: rhoai
 
 resources:
+  # Actual installation of RHOAI operator
+  - operator-rhoai
+  
   - rhoai-configuration # Configure RHOAI cluster
   # - rhoai-custom-notebooks # Create Custom Notebooks
   # - rhoai-runtimes

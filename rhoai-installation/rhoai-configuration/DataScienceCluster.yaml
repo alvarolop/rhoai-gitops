@@ -19,15 +19,12 @@ spec:
     datasciencepipelines:
       managementState: Managed
     kserve:
-      managementState: Managed # Triggers automated installation of KServe
+      managementState: Managed
       serving:
         ingressGateway:
           certificate:
-            # Intructions from: https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/
-            # You have to copy the secret create it in istio-system namespace
-            secretName: rhods-internal-primary-cert-bundle-secret
-            type: Provided
-        managementState: Managed # Triggers automated installation of OpenShift Serverless
+            type: OpenshiftDefaultIngress
+        managementState: Managed
         name: knative-serving
     kueue:
       managementState: Managed
@@ -35,5 +32,11 @@ spec:
       managementState: Managed
     ray:
       managementState: Managed
+    kueue:
+      managementState: Managed
     workbenches:
       managementState: Managed
+    # trainingoperator:
+    #   managementState: Removed
+    # trustyai:
+    #   managementState: Removed
