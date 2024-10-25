@@ -35,12 +35,9 @@ workbench:
 
 pipelinesConnection:
   storageBackendODF: true
-  secretName: odf-connection-pipelines
-  # displayName: pipelines
+  secretName: rhoai-connection-pipelines
   type: s3
   scheme: https
-  # awsAccessKeyId: AWS_ACCESS_KEY_ID
-  # awsSecretAccessKey: AWS_SECRET_ACCESS_KEY
   awsDefaultRegion: ""
   awsS3Bucket: odf-connection-pipelines-64375d16-d0a9-4403-82e0-fd05d984d209
   awsS3Endpoint: s3.openshift-storage.svc
