@@ -7,6 +7,7 @@ metadata:
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "-05"
 spec:
   generateBucketName: {{ .Values.pipelinesConnection.secretName }}
   storageClassName: openshift-storage.noobaa.io

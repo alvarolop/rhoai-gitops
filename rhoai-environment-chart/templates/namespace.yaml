@@ -6,7 +6,7 @@ metadata:
   annotations:
     openshift.io/description: "{{ .Values.dataScienceProjectDisplayName }}"
     openshift.io/display-name: "{{ .Values.dataScienceProjectDisplayName }}"
-    argocd.argoproj.io/sync-wave: "-05"
+    argocd.argoproj.io/sync-wave: "-10"
   labels:
     # modelmesh-enabled: 'true'
     opendatahub.io/dashboard: 'true'

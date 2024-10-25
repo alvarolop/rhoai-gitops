@@ -5,6 +5,7 @@ metadata:
   annotations:
     openshift.io/description: 'PVC for {{ .Values.workbench.name }}'
     openshift.io/display-name: {{ .Values.workbench.name }}
+    argocd.argoproj.io/sync-wave: "5"
   name: {{ .Values.workbench.name }}-storage
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
