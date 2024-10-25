@@ -39,7 +39,7 @@ spec:
       basePath: ''
       bucket: '{{ .Values.pipelinesConnection.awsS3Bucket}}'
       host: '{{ .Values.pipelinesConnection.awsS3Endpoint }}'
-      port: ''
+      port: '{{ .Values.pipelinesConnection.awsS3Port }}'
       region: '{{ .Values.pipelinesConnection.awsDefaultRegion }}'
       s3CredentialsSecret:
         accessKey: AWS_ACCESS_KEY_ID
