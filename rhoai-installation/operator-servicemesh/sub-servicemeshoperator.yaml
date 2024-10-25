@@ -8,7 +8,8 @@ metadata:
     argocd.argoproj.io/sync-wave: "-05"
 spec:
   channel: stable
-  installPlanApproval: Automatic
+  # Has to be Manual because is installed in the same ns as Kiali
+  installPlanApproval: Manual
   name: servicemeshoperator
   source: redhat-operators
   sourceNamespace: openshift-marketplace

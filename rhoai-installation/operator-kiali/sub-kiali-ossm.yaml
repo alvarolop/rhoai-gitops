@@ -12,7 +12,7 @@ spec:
   name: kiali-ossm
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: kiali-operator.v1.73.10
+  startingCSV: kiali-operator.v1.73.15
   # config:
   #   nodeSelector: 
   #     node-role.kubernetes.io/infra: ""
