@@ -13,10 +13,6 @@ resources:
 
   # KServe Installation for Single-model server
   - operator-serverless
-  # - operator-jaeger
-  # - operator-grafana-tempo
-  # - operator-opentelemetry
-  # - operator-kiali
   - operator-servicemesh
   
   # Support for authentication of server models
