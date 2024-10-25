@@ -65,7 +65,7 @@ Create the name of the service account to use
 {{- if .Values.pipelinesConnection.awsS3Bucket -}}
 {{ .Values.pipelinesConnection.awsS3Bucket }}
 {{- else -}}
-  {{- $obcConfigMap := (lookup "v1" "ConfigMap" .Release.Namespace .Values.pipelinesConnection.secretName) -}}
+  {{- $obcConfigMap := (lookup "v1" "ConfigMap" .Values.dataScienceProjectNamespace .Values.pipelinesConnection.secretName) -}}
   {{- if $obcConfigMap -}}
     {{ index $obcConfigMap.data "BUCKET_NAME" }}
   {{- else -}}
