@@ -33,6 +33,8 @@ workbench:
 #       cpu: '1'
 #       memory: 6Gi
 
+storageBackendODF: true
+
 pipelinesConnection:
   secretName: aws-connection-pipelines
   displayName: pipelines
