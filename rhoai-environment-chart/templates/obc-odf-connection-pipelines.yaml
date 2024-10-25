@@ -1,5 +1,17 @@
 {{- if .Values.pipelinesConnection.storageBackendODF }}
 ---
+# The original plan was to generate a random bucket name and then retrieve it using Helm lookup.
+# 
+# Usage would be to include the following on the dspa.yaml file
+# {{- $obcConfigMap := default (dict "data" (dict)) (lookup "v1" "ConfigMap" .Values.dataScienceProjectNamespace .Values.pipelinesConnection.secretName) -}}
+# {{- $bucketName := $obcConfigMap.data.BUCKET_NAME }}
+# bucket: '{{ $bucketName }}'
+# 
+# This section would be tested using the following command:
+# helm install . --dry-run=server  --generate-name --debug  | grep "bucket:"
+# 
+# However, this does not work due to this issue: 
+# https://github.com/helm/helm/issues/13038
 apiVersion: objectbucket.io/v1alpha1
 kind: ObjectBucketClaim
 metadata:
@@ -10,6 +22,7 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "-05"
 spec:
-  generateBucketName: {{ .Values.pipelinesConnection.secretName }}
+  # generateBucketName: {{ .Values.pipelinesConnection.secretName }}
+  bucketName: {{ include "generateBucketName" . }}
   storageClassName: openshift-storage.noobaa.io
 {{- end }}
