@@ -67,7 +67,7 @@ oc apply -f application-rhoai-dependencies.yaml
 
 
 echo -e "\n2) Wait 30 seconds for Subscriptions to be applied"
-for i in {1..1}; do
+for i in {30..1}; do
   echo -ne "\tTime left: $i seconds.\r"
   sleep 1
 done
@@ -137,8 +137,12 @@ echo -e "======================\n"
 echo -e "Trigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
 
+echo -e "\nLet's wait until all the pods are up and running"
+while oc get pods -n redhat-ods-applications | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
+
 echo ""
 echo "That's all!! Wait a little bit and everything should be fine :)"
+
 echo "If you access the RHOAI dashboard > Settings > Cluster Settings and any of the model servings are not available, try restarting the dashboard pods:"
 echo -e "\toc delete pods -l app=rhods-dashboard -n redhat-ods-applications"
 
@@ -146,6 +150,17 @@ echo -e "\toc delete pods -l app=rhods-dashboard -n redhat-ods-applications"
 echo -e "\n=========================="
 echo -e "= Post Install utilities ="
 echo -e "==========================\n"
+
+echo -e "Trigger the ArgoCD application to deploy the RHOAI Playground environment"
+oc apply -f application-rhoai-playground-env.yaml
+
+
+
+
+
+
+
+
 
 
 # echo -e "\nWaiting for ObjectBucketClaim for Tempo to be ready..."
