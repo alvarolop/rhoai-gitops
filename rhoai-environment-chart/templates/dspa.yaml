@@ -1,4 +1,9 @@
 ---
+# This section is tested using the following command:
+# helm install . --dry-run=server  --generate-name --debug  | grep "bucket:"
+{{- $obcConfigMap := default (dict "data" (dict)) (lookup "v1" "ConfigMap" .Values.dataScienceProjectNamespace .Values.pipelinesConnection.secretName) -}}
+{{- $bucketName := $obcConfigMap.data.BUCKET_NAME }}
+
 apiVersion: datasciencepipelinesapplications.opendatahub.io/v1alpha1
 kind: DataSciencePipelinesApplication
 metadata:
@@ -38,7 +43,7 @@ spec:
     enableExternalRoute: false
     externalStorage:
       basePath: ''
-      bucket: '{{ include "getBucketName" . }}'
+      bucket: '{{ $bucketName }}'
       host: '{{ .Values.pipelinesConnection.awsS3Endpoint }}'
       port: '{{ .Values.pipelinesConnection.awsS3Port }}'
       region: '{{ .Values.pipelinesConnection.awsDefaultRegion }}'
