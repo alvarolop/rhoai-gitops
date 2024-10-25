@@ -38,7 +38,8 @@ spec:
     enableExternalRoute: false
     externalStorage:
       basePath: ''
-      bucket: {{ include "generateBucketName" . }}
+      # bucket: {{ include "generateBucketName" . }}
+      bucket: {{ .Values.dataScienceProjectNamespace }}-{{ .Values.pipelinesConnection.secretName }}
       host: '{{ .Values.pipelinesConnection.awsS3Endpoint }}'
       port: '{{ .Values.pipelinesConnection.awsS3Port }}'
       region: '{{ .Values.pipelinesConnection.awsDefaultRegion }}'

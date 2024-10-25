@@ -12,6 +12,17 @@
 # 
 # However, this does not work due to this issue: 
 # https://github.com/helm/helm/issues/13038
+
+
+# Then I tried to generate a random value an reuse it in both files using this:
+# bucketName: {{ include "generateBucketName" . }}
+# 
+# However,  I got two issues:
+# * If you call the function from two files, it will generate different values.
+# * If you sync it with ArgoCD, each sync will generate new values.
+#      https://helm.sh/docs/howto/charts_tips_and_tricks/#be-careful-with-generating-random-values
+# For that reason, I've decided to compose a quite unique and hardcoded identifier for the OBC
+
 apiVersion: objectbucket.io/v1alpha1
 kind: ObjectBucketClaim
 metadata:
@@ -23,6 +34,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "-05"
 spec:
   # generateBucketName: {{ .Values.pipelinesConnection.secretName }}
-  bucketName: {{ include "generateBucketName" . }}
+  # bucketName: {{ include "generateBucketName" . }}
+  bucketName: {{ .Values.dataScienceProjectNamespace }}-{{ .Values.pipelinesConnection.secretName }}
   storageClassName: openshift-storage.noobaa.io
 {{- end }}
