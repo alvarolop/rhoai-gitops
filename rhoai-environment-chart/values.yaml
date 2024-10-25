@@ -38,7 +38,7 @@ pipelinesConnection:
   secretName: rhoai-connection-pipelines
   type: s3
   scheme: https
-  awsDefaultRegion: ""
+  awsDefaultRegion: odf
   awsS3Bucket: odf-connection-pipelines-64375d16-d0a9-4403-82e0-fd05d984d209
   awsS3Endpoint: s3.openshift-storage.svc
   awsS3Port: "443"
