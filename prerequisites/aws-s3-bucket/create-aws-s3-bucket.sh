@@ -6,7 +6,8 @@ NOTEBOOK_NAMESPACE=rhoai-playground
 source ./$AWS_VARS_FILE
 
 # User defined variables
-AWS_S3_BUCKET="$NOTEBOOK_NAMESPACE-pipelines"
+BUCKET_SECRET_NAME="dspa-pipelines-connection-secret"
+AWS_S3_BUCKET="$NOTEBOOK_NAMESPACE-$BUCKET_SECRET_NAME"
 
 # Print environment variables
 echo -e "\n=============="
