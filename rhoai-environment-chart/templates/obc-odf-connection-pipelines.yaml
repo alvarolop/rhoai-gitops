@@ -6,6 +6,7 @@ metadata:
   name: {{ .Values.pipelinesConnection.secretName }}
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
+    argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "-05"
 spec:
