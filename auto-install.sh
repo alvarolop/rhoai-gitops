@@ -9,6 +9,10 @@ source ./aws-env-vars
 #####################################
 
 
+CREATE_AWS_MACHINESETS=true
+INSTALL_ODF=true
+CREATE_RHOAI_ENV=true
+
 #####################################
 ## Do not modify anything from this line
 #####################################
@@ -38,25 +42,28 @@ echo -e "\n=================="
 echo -e "=    GPU INFRA   ="
 echo -e "==================\n"
 
-echo "Adding GPU nodes to the cluster. Adding three availability zones for the future, but only one node in AZ a."
+if [ "$CREATE_AWS_MACHINESETS" = true ]; then
+    echo "Adding GPU nodes to the cluster. Adding three availability zones for the future, but only one node in AZ a."
 
-oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
-    -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-    -p INSTANCE_TYPE="g5.4xlarge" -p AZ="a" -p REPLICAS=1 | \
-    oc apply -n openshift-machine-api -f -
+    oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
+        -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
+        -p INSTANCE_TYPE="g5.4xlarge" -p AZ="a" -p REPLICAS=1 | \
+        oc apply -n openshift-machine-api -f -
 
-oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
-    -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-    -p INSTANCE_TYPE="g5.4xlarge" -p AZ="b" -p REPLICAS=0 | \
-    oc apply -n openshift-machine-api -f -
+    oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
+        -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
+        -p INSTANCE_TYPE="g5.4xlarge" -p AZ="b" -p REPLICAS=0 | \
+        oc apply -n openshift-machine-api -f -
 
-oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
-    -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-    -p INSTANCE_TYPE="g5.4xlarge" -p AZ="c" -p REPLICAS=0 | \
-    oc apply -n openshift-machine-api -f -
+    oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
+        -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
+        -p INSTANCE_TYPE="g5.4xlarge" -p AZ="c" -p REPLICAS=0 | \
+        oc apply -n openshift-machine-api -f -
 
-echo -e "\nRemember, those nodes are tainted with 'nvidia.com/gpu:NoSchedule' by default. Modify the template or update the node definition if you want to run normal workloads"
-
+    echo -e "\nRemember, those nodes are tainted with 'nvidia.com/gpu:NoSchedule' by default. Modify the template or update the node definition if you want to run normal workloads"
+else
+    echo "Skip creation of NVIDIA gpu nodes..."
+fi
 
 echo -e "\n====================="
 echo -e "= Install Operators ="
@@ -87,33 +94,36 @@ echo -e "\n======================"
 echo -e "=  ODF Installation  ="
 echo -e "======================\n"
 
-echo -e "\n1) Label all non-GPU worker nodes to storage nodes for simplicity. Not for production use"
-for node in $(oc get nodes -l node-role.kubernetes.io/worker -o name | grep -v "gpu-worker"); do
-    oc label $node cluster.ocs.openshift.io/openshift-storage=""
-    oc label $node node-role.kubernetes.io/infra=""
-done
+if [ "$INSTALL_ODF" = true ]; then
+    echo -e "\n1) Label all non-GPU worker nodes to storage nodes for simplicity. Not for production use"
+    for node in $(oc get nodes -l node-role.kubernetes.io/worker -o name | grep -v "gpu-worker"); do
+        oc label $node cluster.ocs.openshift.io/openshift-storage=""
+        oc label $node node-role.kubernetes.io/infra=""
+    done
 
-echo -e "\n2) Trigger the ArgoCD application to install ODF and create the Multicloud Object Gateway"
-oc apply -f application-ocp-odf-mcg.yaml
+    echo -e "\n2) Trigger the ArgoCD application to install ODF and create the Multicloud Object Gateway"
+    oc apply -f application-ocp-odf-mcg.yaml
 
-echo -e "\n3) Enable the console plugin..."
-if oc get console.operator.openshift.io cluster -o template='{{.spec.plugins}}' | grep odf-console &> /dev/null; then
-    echo -e "\tChecked. The logging plugin was already enabled."
+    echo -e "\n3) Enable the console plugin..."
+    if oc get console.operator.openshift.io cluster -o template='{{.spec.plugins}}' | grep odf-console &> /dev/null; then
+        echo -e "\tChecked. The logging plugin was already enabled."
+    else
+        echo -e "\tChecked. The logging plugin was not enabled. Enabling..."
+        oc patch console.operator.openshift.io cluster --type json \
+        --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "odf-console"}]'
+    fi
+
+    echo -e "\n4) Waiting for StorageCluster and components to be ready..."
+    until [[ "$(oc get storagecluster ocs-storagecluster -n openshift-storage -o jsonpath='{.status.phase}')" == "Ready" && \
+            #  "$(oc get cephcluster -n openshift-storage -o jsonpath='{.items[0].status.ceph.health}')" == "HEALTH_OK" && \
+            "$(oc get noobaa noobaa -n openshift-storage -o jsonpath='{.status.phase}')" == "Ready" ]]; do
+        echo "Waiting for StorageCluster and components to be fully ready..."
+        sleep 30
+    done
+    echo "StorageCluster is ready and all components are healthy."
 else
-    echo -e "\tChecked. The logging plugin was not enabled. Enabling..."
-    oc patch console.operator.openshift.io cluster --type json \
-    --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "odf-console"}]'
+    echo "Skip installation of ODF..."
 fi
-
-echo -e "\n4) Waiting for StorageCluster and components to be ready..."
-until [[ "$(oc get storagecluster ocs-storagecluster -n openshift-storage -o jsonpath='{.status.phase}')" == "Ready" && \
-        #  "$(oc get cephcluster -n openshift-storage -o jsonpath='{.items[0].status.ceph.health}')" == "HEALTH_OK" && \
-         "$(oc get noobaa noobaa -n openshift-storage -o jsonpath='{.status.phase}')" == "Ready" ]]; do
-    echo "Waiting for StorageCluster and components to be fully ready..."
-    sleep 30
-done
-echo "StorageCluster is ready and all components are healthy."
-
 
 echo -e "\n==================="
 echo -e "= GPU NODES READY ="
@@ -141,7 +151,7 @@ echo -e "\nLet's wait until all the pods are up and running"
 while oc get pods -n redhat-ods-applications | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
 
 echo ""
-echo "That's all!! Wait a little bit and everything should be fine :)"
+echo "You should be able now to access the RHOAI dashboard"
 
 echo "If you access the RHOAI dashboard > Settings > Cluster Settings and any of the model servings are not available, try restarting the dashboard pods:"
 echo -e "\toc delete pods -l app=rhods-dashboard -n redhat-ods-applications"
@@ -151,13 +161,15 @@ echo -e "\n=========================="
 echo -e "= Post Install utilities ="
 echo -e "==========================\n"
 
-echo -e "Trigger the ArgoCD application to deploy the RHOAI Playground environment"
-oc apply -f application-rhoai-playground-env.yaml
+if [ "$CREATE_RHOAI_ENV" = true ]; then
+    echo -e "Trigger the ArgoCD application to deploy the RHOAI Playground environment"
+    oc apply -f application-rhoai-playground-env.yaml
+else
+    echo "Skip creation of RHOAI Playground environment..."
+fi
 
-
-
-
-
+echo "That's all!! RHOAI should be up and running!! :)"
+ 
 
 
 

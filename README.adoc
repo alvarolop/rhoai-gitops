@@ -30,8 +30,10 @@ ifndef::env-github[]
 endif::[]
 // End: Enable admonition icons
 
-Red Hat OpenShift AI (RHOAI) builds on the capabilities of Red Hat OpenShift to provide a single, consistent, enterprise-ready hybrid AI and MLOps platform. It provides tools across the full lifecycle of AI/ML experiments and models including training, serving, monitoring, and managing AI/ML models and AI-enabled applications. This is my personal repository to test and play with some of its most important features.
+Red Hat OpenShift AI (RHOAI) builds on the capabilities of Red Hat OpenShift to provide a single, consistent, enterprise-ready hybrid AI and MLOps platform. It provides tools across the *full lifecycle of AI/ML* experiments and models including training, serving, monitoring, and managing AI/ML models and AI-enabled applications. This is my personal repository to test and play with some of its most important features.
 
+// Create the Table of contents here
+toc::[]
 
 == Red Hat Training
 
@@ -48,6 +50,7 @@ Red Hat OpenShift AI (RHOAI) is a platform for data scientists, AI practitioners
 * *AI267* - _Developing and Deploying AI/ML Applications on Red Hat OpenShift AI_: All the previous courses altogether.
 
 
+
 == RHOAI Architecture
 
 The following diagram depicts the general architecture of a RHOAI deployment, including the most important components:
@@ -56,7 +59,7 @@ The following diagram depicts the general architecture of a RHOAI deployment, in
 image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rhoaiarch/architecture/assets/architecture.svg[RHOAI Architecture]
 
 
-* *codeflare*: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. The Codeflare component on RHOAI is a Technology Preview feature. If CodeFlare Operator has been installed in the cluster, it should be uninstalled first before enabled component.
+* *codeflare*: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. 
 
 * *dashboard*: Provides the RHOAI dashboard.
 
@@ -68,10 +71,32 @@ image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rh
 
 * *modelmeshserving*: KServe also offers a component for general-purpose model serving, called ModelMesh Mesh Serving. Activate this component to serve small and medium size models. Does not support enabled Kserve at the same time.
 
-* *ray*: Component to run the data science code in a distributed manner. The Ray, or KubeRay, component on RHOAI is a Technology Preview feature.
+* *ray*: Component to run the data science code in a distributed manner.
 
 * *workbenches*: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
 
+
+
+== Installation
+
+
+Installing RHOAI is not as simple as installing and configuring other operators on OpenShift. This product provides integration with hardware like NVIDIA and Intel GPUs, automation of ML workflows and AI training, and deployment of LLMs. For that reason, I've created an `auto-install.sh` script that will do everything for you:
+
+1. If the installation is IPI AWS, it will create MachineSets for nodes with NVIDIA GPUs (Currently, `g5.4xlarge`).
+2. Install all the operators that RHOAI depends on: 
+    * Service Mesh and Serverless to enable KServe and allow Single-Model serving platform.
+    * Node Feature Discovery and Nvidia GPU Operator to discover and configure nodes with GPU.
+    * Authorino, to enable token authorization for models deployed with RHOAI.
+3. Install and configure OpenShift Data Foundation (ODF) in Multicloud Object Gateway (MCG) mode. This is a lightweight alternative that allows us to use the AWS S3 object storage the same way that we will then use Object storage on Baremetal using ODF.
+4. Installs the actual RHOAI operator and configures the installation with some defaults, enabling NVIDIA acceleration and Single-Model Serving.
+5. Deploys a new Data Science Project called `RHOAI Playground` enabling pipelines and deploying a basic `Notebook` for testing.
+
+
+
+[TIP]
+====
+💡 **Tip:** The script contains many tasks divided in clear blocks with comments. Use the Environment Variables or add comments to disable those that you are not interested in.
+====
 
 
 
@@ -92,8 +117,13 @@ Use the following command if you are logged in to your cluster:
 ----
 oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
     -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-    -p INSTANCE_TYPE="g5.2xlarge" | \
+    -p INSTANCE_TYPE="g5.4xlarge" | \
     oc apply -n openshift-machine-api -f -
+
+GPU_NODE_NAME=$(oc get nodes -l node-role.kubernetes.io/gpu-worker='' -o jsonpath='{.items[0].metadata.name}')
+oc adm taint node $GPU_NODE_NAME nvidia.com/gpu:NoSchedule
+
+oc adm taint node $GPU_NODE_NAME nvidia.com/gpu-
 ----
 
 How to know that a node has NVIDIA GPUs using NodeFeatureDiscovery? The output of the following command will only be visible when you have applied the ArgoCD `Application` and the Node Feature Discovery operator has scanned the OpenShift nodes:
@@ -121,8 +151,8 @@ The NVIDIA GPU Operator uses the operator framework within Kubernetes to automat
 After configuring the Node Feature Discovery Operator and the NVidia GPU Operator using GitOps, you need to confirm that the Nvidia operator is correctly retrieving the GPU information. You can use the following command to confirm that OpenShift is correctly configured:
 
 [source, bash]
----
-oc exec -it -n nvidia-gpu-operator $(oc get pod -owide -lopenshift.driver-toolkit=true -o jsonpath="{.items[0].metadata.name}" -n nvidia-gpu-operator) -- nvidia-smi
+----
+oc exec -it -n nvidia-gpu-operator $(oc get pod -o wide -l openshift.driver-toolkit=true -o jsonpath="{.items[0].metadata.name}" -n nvidia-gpu-operator) -- nvidia-smi
 ----
 
 The output should look like this:
@@ -154,7 +184,7 @@ Tue Jul  9 15:08:22 2024
 Now, you need to reset RHOAI so that it retrieves the latest GPU configuration:
 
 [source, bash]
----
+----
 oc delete cm migration-gpu-status -n redhat-ods-applications; sleep 3; oc delete pods -l app=rhods-dashboard -n redhat-ods-applications
 ----
 
@@ -176,16 +206,40 @@ First, define the configuration variables for AWS is a file dubbed `aws-env-vars
 
 
 
+=== Reusing Router Certificates
+
+By default, the Single Stack Serving in Openshift AI *uses a self-signed certificate generated at installation* for the endpoints that are created when deploying a server. This can be counter-intuitive because if you already have certificates configured on your OpenShift cluster, they will be used by default for other types of endpoints like Routes.
+
+This following procedure explains how to use the same certificate that you already have for your OpenShift cluster.
+
+[source, bash]
+----
+export INGRESS_SECRET_NAME=$(oc get ingresscontroller default -n openshift-ingress-operator -o json | jq -r .spec.defaultCertificate.name)
+oc get secret ${INGRESS_SECRET_NAME} -n openshift-ingress -o yaml | yq 'del(.metadata["namespace","creationTimestamp","resourceVersion","uid"])' | yq '.metadata.name = "rhods-internal-primary-cert-bundle-secret"' > rhods-internal-primary-cert-bundle-secret.yaml
+oc apply -n istio-system -f rhods-internal-primary-cert-bundle-secret.yaml
+----
+
+
+
+
+
 
 
 == Installation
 
+
+
 [source, bash]
 ----
-oc apply -f application-rhoai.yaml
+oc apply -f application-rhoai-installation.yaml
 ----
 
 
+
+[source, bash]
+----
+oc apply -f application-rhoai-configuration.yaml
+----
 
 
 
