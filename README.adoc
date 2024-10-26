@@ -95,41 +95,37 @@ Installing RHOAI is not as simple as installing and configuring other operators 
 
 [TIP]
 ====
-💡 **Tip:** The script contains many tasks divided in clear blocks with comments. Use the Environment Variables or add comments to disable those that you are not interested in.
+💡 **Tip** 💡
+The script contains many tasks divided in clear blocks with comments. Use the Environment Variables or add comments to disable those that you are not interested in.
 ====
 
+In order to automate it all, it relays on OpenShift GitOps (ArgoCD), so you will to have it installed before executing the following script. Check out my automated installation on https://github.com/alvarolop/ocp-gitops-playground[alvarolop/ocp-gitops-playground GitHub repository].
 
 
-
-== Prerequisites
-
-Due to the GitOps nature and that some files are confidential or change in every installation.
-
-=== NVIDIA GPU nodes
-
-First, you need to add an OCP node with GPUs. For that, you can use the AWS `g5.2xlarge` instance. According to the documentation:
-
-> Amazon EC2 G5 instances are designed to accelerate graphics-intensive applications and machine learning inference. They can also be used to train simple to moderately complex machine learning models.
-
-Use the following command if you are logged in to your cluster:
+Now, log in to the cluster and just execute the script:
 
 [source, bash]
 ----
-oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
-    -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-    -p INSTANCE_TYPE="g5.4xlarge" | \
-    oc apply -n openshift-machine-api -f -
-
-GPU_NODE_NAME=$(oc get nodes -l node-role.kubernetes.io/gpu-worker='' -o jsonpath='{.items[0].metadata.name}')
-oc adm taint node $GPU_NODE_NAME nvidia.com/gpu:NoSchedule
-
-oc adm taint node $GPU_NODE_NAME nvidia.com/gpu-
+./auto-install.sh
 ----
 
-How to know that a node has NVIDIA GPUs using NodeFeatureDiscovery? The output of the following command will only be visible when you have applied the ArgoCD `Application` and the Node Feature Discovery operator has scanned the OpenShift nodes:
 
-====
-Run the following command and check the output:
+
+== Things you should know!
+
+=== NVIDIA GPU nodes
+
+Most of the activities related to RHOAI will require GPU Acceleration. For that purpose, we add NVIDIA GPU nodes during the installation process. In this chapter, I collect some information that might be useful for you.
+
+In this automation, we are currently using the AWS `g5.2xlarge` instance, that according to the documentation:
+
+> Amazon EC2 G5 instances are designed to accelerate graphics-intensive applications and machine learning inference. They can also be used to train simple to moderately complex machine learning models.
+
+
+==== How to know that a node has NVIDIA GPUs using NodeFeatureDiscovery? 
+
+The output of the following command will only be visible when you have applied the ArgoCD `Application` and the Node Feature Discovery operator has scanned the OpenShift nodes:
+
 [source, bash]
 ----
 oc describe node | egrep 'Roles|pci'
@@ -144,9 +140,8 @@ Roles:              control-plane,master
 ----
 
 `pci-10de` is the PCI vendor ID that is assigned to NVIDIA.
-====
 
-The NVIDIA GPU Operator uses the operator framework within Kubernetes to automate the management of all NVIDIA software components needed to provision GPU. These components include the NVIDIA drivers (to enable CUDA), Kubernetes device plugin for GPUs, the NVIDIA Container Runtime, automatic node labelling, DCGM based monitoring and others.
+The NVIDIA GPU Operator automates the management of all NVIDIA software components needed to provision GPU. These components include the NVIDIA drivers (to enable CUDA), Kubernetes device plugin for GPUs, the NVIDIA Container Runtime, automatic node labelling, DCGM based monitoring and others.
 
 After configuring the Node Feature Discovery Operator and the NVidia GPU Operator using GitOps, you need to confirm that the Nvidia operator is correctly retrieving the GPU information. You can use the following command to confirm that OpenShift is correctly configured:
 
@@ -159,19 +154,19 @@ The output should look like this:
 
 [source, bash]
 ----
-Tue Jul  9 15:08:22 2024
+Sat Oct 26 08:47:06 2024       
 +-----------------------------------------------------------------------------------------+
-| NVIDIA-SMI 550.54.15              Driver Version: 550.54.15      CUDA Version: 12.4     |
+| NVIDIA-SMI 550.90.07              Driver Version: 550.90.07      CUDA Version: 12.4     |
 |-----------------------------------------+------------------------+----------------------+
 | GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
 | Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
 |                                         |                        |               MIG M. |
 |=========================================+========================+======================|
 |   0  NVIDIA A10G                    On  |   00000000:00:1E.0 Off |                    0 |
-|  0%   23C    P8             22W /  300W |       0MiB /  23028MiB |      0%      Default |
+|  0%   25C    P8             22W /  300W |       1MiB /  23028MiB |      0%      Default |
 |                                         |                        |                  N/A |
 +-----------------------------------------+------------------------+----------------------+
-
+                                                                                         
 +-----------------------------------------------------------------------------------------+
 | Processes:                                                                              |
 |  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
@@ -181,7 +176,7 @@ Tue Jul  9 15:08:22 2024
 +-----------------------------------------------------------------------------------------+
 ----
 
-Now, you need to reset RHOAI so that it retrieves the latest GPU configuration:
+If, for some race condition, RHOAI is not detecting that GPU worker, you might need to force it to recalculate. You can do so easily with the following command:
 
 [source, bash]
 ----
@@ -194,10 +189,11 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 === Data Connection Pipelines S3 Bucket Secret
 
 
-The `DataSciencePipelineApplication` requires an S3-compatible storage solution to store artifacts that are generated in the pipeline. You can use any S3-compatible storage solution for data science pipelines, including AWS S3, OpenShift Data Foundation, or MinIO. In this exercise, as our cluster is on AWS, we will use AWS S3.
+The `DataSciencePipelineApplication` requires an S3-compatible storage solution to store artifacts that are generated in the pipeline. You can use any S3-compatible storage solution for data science pipelines, including AWS S3, OpenShift Data Foundation, or MinIO. The automation is currently using ODF with Nooba to interact with the AWS S3 interface, so you won't need to do anything. Nevertheless, if you decide to disable ODF, you will need to create buckets on AWS S3 manually and for that you will need the following process:
 
-First, define the configuration variables for AWS is a file dubbed `aws-env-vars`. You can use the same structure as in `aws-env-vars.example`. Then, execute the following command:
-
+1. Define the configuration variables for AWS is a file dubbed `aws-env-vars`. You can use the same structure as in `aws-env-vars.example`
+2. Execute the following command to interact with the AWS API:
++
 [source, bash]
 ----
 ./prerequisites/s3-bucket/create-aws-s3-bucket.sh
@@ -217,28 +213,6 @@ This following procedure explains how to use the same certificate that you alrea
 export INGRESS_SECRET_NAME=$(oc get ingresscontroller default -n openshift-ingress-operator -o json | jq -r .spec.defaultCertificate.name)
 oc get secret ${INGRESS_SECRET_NAME} -n openshift-ingress -o yaml | yq 'del(.metadata["namespace","creationTimestamp","resourceVersion","uid"])' | yq '.metadata.name = "rhods-internal-primary-cert-bundle-secret"' > rhods-internal-primary-cert-bundle-secret.yaml
 oc apply -n istio-system -f rhods-internal-primary-cert-bundle-secret.yaml
-----
-
-
-
-
-
-
-
-== Installation
-
-
-
-[source, bash]
-----
-oc apply -f application-rhoai-installation.yaml
-----
-
-
-
-[source, bash]
-----
-oc apply -f application-rhoai-configuration.yaml
 ----
 
 
