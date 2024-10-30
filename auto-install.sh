@@ -73,8 +73,8 @@ echo -e "1) Trigger the ArgoCD application to install the operators"
 oc apply -f application-rhoai-dependencies.yaml
 
 
-echo -e "\n2) Wait 30 seconds for Subscriptions to be applied"
-for i in {30..1}; do
+echo -e "\n2) Wait 10 seconds for Subscriptions to be applied"
+for i in {10..1}; do
   echo -ne "\tTime left: $i seconds.\r"
   sleep 1
 done
