@@ -6,7 +6,6 @@ metadata:
     uninstall.ocs.openshift.io/cleanup-policy: delete
     uninstall.ocs.openshift.io/mode: graceful
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "5"
   name: ocs-storagecluster
   namespace: openshift-storage
 spec:
@@ -47,7 +46,30 @@ spec:
       daemonCount: 1
     cephToolbox: {}
   mirroring: {}
-  multiCloudGateway:
-    dbStorageClassName: gp3-csi
-    reconcileStrategy: standalone
-  resourceProfile: balanced
+  network:
+    connections:
+      encryption: {}
+    multiClusterService: {}
+  nodeTopologies: {}
+  resourceProfile: lean
+  storageDeviceSets:
+  - config: {}
+    count: 1
+    dataPVCTemplate:
+      metadata: {}
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 512Gi
+        storageClassName: gp3-csi
+        volumeMode: Block
+      status: {}
+    name: ocs-deviceset-gp3-csi
+    placement: {}
+    portable: true
+    preparePlacement: {}
+    replica: 3
+    resources: {}
+

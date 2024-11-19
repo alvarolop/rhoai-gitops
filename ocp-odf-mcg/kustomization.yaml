@@ -5,3 +5,4 @@ resources:
 
   - odf-operator
   - storagecluster-ocs-storagecluster.yaml
+  - radosgw

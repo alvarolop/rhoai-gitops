@@ -5,3 +5,4 @@ resources:
 - ns-openshift-storage.yaml
 - og-openshift-storage.yaml
 - sub-odf-operator.yaml
+- job-enable-console-plugin

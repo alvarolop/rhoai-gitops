@@ -189,7 +189,7 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 === Data Connection Pipelines S3 Bucket Secret
 
 
-The `DataSciencePipelineApplication` requires an S3-compatible storage solution to store artifacts that are generated in the pipeline. You can use any S3-compatible storage solution for data science pipelines, including AWS S3, OpenShift Data Foundation, or MinIO. The automation is currently using ODF with Nooba to interact with the AWS S3 interface, so you won't need to do anything. Nevertheless, if you decide to disable ODF, you will need to create buckets on AWS S3 manually and for that you will need the following process:
+The `DataSciencePipelineApplication` requires an S3-compatible storage solution to store artifacts that are generated in the pipeline. You can use any S3-compatible storage solution for data science pipelines, including AWS S3, OpenShift Data Foundation, or MinIO. *The automation is currently using ODF with Nooba to interact with the AWS S3 interface, so you won't need to do anything*. Nevertheless, if you decide to disable ODF, you will need to create buckets on AWS S3 manually and for that you will need the following process:
 
 1. Define the configuration variables for AWS is a file dubbed `aws-env-vars`. You can use the same structure as in `aws-env-vars.example`
 2. Execute the following command to interact with the AWS API:
@@ -243,9 +243,56 @@ oc apply -n istio-system -f rhods-internal-primary-cert-bundle-secret.yaml
 
 
 
-Study sources:
+== Study sources
+
 * https://redhatquickcourses.github.io/rhods-admin/rhods-admin/1.33
 * https://redhatquickcourses.github.io/rhods-intro/rhods-intro/1.33
 * https://redhatquickcourses.github.io/rhods-model/rhods-model/1.33
 * https://rh-aiservices-bu.github.io/insurance-claim-processing/modules/02-03-creating-workbench.html
 * https://developers.redhat.com/products/red-hat-openshift-ai/getting-started
+
+
+== Nice demos and projects to take a look:
+
+* https://github.com/alpha-hack-program/doc-bot
+* https://github.com/alpha-hack-program/ai-studio-rhoai/tree/main
+* https://github.com/davidseve/mlops/tree/main
+
+
+== OpenShift Data Foundation
+
+TIP: This section is already fully automated in the GitOps deployment during the `auto-install.sh`, but if you need to deploy it manually, you can follow the steps from this section.
+
+=== ODF Installation and configuration
+
+This section will guide you on how we are deploying ODF to provide internal S3 storage on our cluster. 
+
+WARNING: Make sure to have at least three worker nodes!!
+
+1. Install the ODF operator.
++
+[source, bash]
+----
+oc apply -k ocp-odf-mcg/odf-operator/
+----
++
+2. Install the ODF cluster
++ 
+[source, bash]
+----
+oc apply -f ocp-odf-mcg/storagecluster-ocs-storagecluster.yaml
+----
++
+3. Install RadosGW to provide S3 storage based on Ceph on OCP clusters deployed on Cloud Providers:
++ 
+[source, bash]
+----
+oc apply -k ocp-odf-mcg/radosgw/
+----
+
+
+=== ODF S3 configuration and testing
+
+
+
+
