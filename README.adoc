@@ -323,3 +323,10 @@ export BUCKET_PORT=$(oc get configmap models -n rhoai-models -o jsonpath='{.data
 export BUCKET_NAME="models"
 export MODEL_NAME="ibm-granite/granite-3.0-1b-a400m-instruct"
 ----
+
+And then execute normal `aws-cli` commands against the bucket:
+
+[source, bash]
+----
+aws s3 ls s3://${BUCKET_NAME}/$MODEL_NAME/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+----
