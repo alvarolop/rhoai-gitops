@@ -310,9 +310,10 @@ oc apply -k ocp-odf-mcg/rhoai-models
 oc create secret generic hf-creds --from-env-file=hf-creds -n rhoai-models
 ----
 
-.Wanna check the status from your laptop?
-====
-Just need to retrieve the credentials to the bucket and point to the bucket route url:
+==== Wanna check the status from your laptop?
+
+You just need to retrieve the credentials to the bucket and point to the bucket route url:
+
 [source, bash]
 ----
 export AWS_ACCESS_KEY_ID=$(oc get secret models -n rhoai-models -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 --decode)
@@ -322,6 +323,3 @@ export BUCKET_PORT=$(oc get configmap models -n rhoai-models -o jsonpath='{.data
 export BUCKET_NAME="models"
 export MODEL_NAME="ibm-granite/granite-3.0-1b-a400m-instruct"
 ----
-====
-
-
