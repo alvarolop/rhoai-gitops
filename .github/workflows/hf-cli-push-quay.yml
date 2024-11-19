@@ -40,5 +40,5 @@ jobs:
         with:
           push: true
           context: .
-          file: dockerfile-aws/Dockerfile
+          file: dockerfiles/hf-cli/Dockerfile
           tags: ${{ env.IMAGE_BASE_NAME }}:latest
