@@ -1,0 +1,53 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sync-model
+spec:
+  completions: 1
+  parallelism: 1
+  backoffLimit: 10
+  activeDeadlineSeconds: 240
+  template:
+    spec:
+      containers:
+      - name: sync-model
+        image: quay.io/alopezme/hf-cli:latest
+        imagePullPolicy: Always
+        command:
+          - /bin/bash
+          - -c
+          - |
+            MODEL_NAME="ibm-granite/granite-3.0-1b-a400m-instruct"
+
+            # Listing all S3 buckets this account has access to
+            echo "STEP 1: Listing all accessible S3 buckets on http://$BUCKET_HOST:$BUCKET_PORT..."
+            aws s3 ls --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+
+            echo -e "\nSTEP 2: Download the model"
+            huggingface-cli download $MODEL_NAME \
+              --cache-dir /tmp/.cache \
+              --local-dir /tmp/$MODEL_NAME
+
+            # Upload the model to the bucket excluding safetensor files
+            echo -e "\nSTEP 3: Uploading model to BUCKET_NAME ${BUCKET_NAME}"
+            aws s3 sync /tmp/$MODEL_NAME s3://${BUCKET_NAME}/$MODEL_NAME/ \
+              --exclude ".git/*" --exclude ".git" \
+              --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+
+            # List the uploaded files in the S3 bucket
+            echo -e "\nSTEP 4: Listing uploaded files in s3://${BUCKET_NAME}/$MODEL_NAME/"
+            aws s3 ls s3://${BUCKET_NAME}/$MODEL_NAME/ \
+              --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+          
+        envFrom:
+          - secretRef:
+              name: models
+          - configMapRef:
+              name: models
+          - secretRef:
+              name: hf-creds
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30

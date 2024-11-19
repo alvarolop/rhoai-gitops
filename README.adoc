@@ -273,7 +273,7 @@ WARNING: Make sure to have at least three worker nodes!!
 +
 [source, bash]
 ----
-oc apply -k ocp-odf-mcg/odf-operator/
+oc apply -k ocp-odf-mcg/odf-operator
 ----
 +
 2. Install the ODF cluster
@@ -287,12 +287,41 @@ oc apply -f ocp-odf-mcg/storagecluster-ocs-storagecluster.yaml
 + 
 [source, bash]
 ----
-oc apply -k ocp-odf-mcg/radosgw/
+oc apply -k ocp-odf-mcg/radosgw
 ----
 
+This https://red-hat-storage.github.io/ocs-training/training/ocs4/ocs4-enable-rgw.html[workshop guide] is a good read to understand the RadosGW configuration.
 
 === ODF S3 configuration and testing
 
+Let's now test our configuration and create a bucket to store a model in ODF.
 
+1. Create a bucket:
++
+[source, bash]
+----
+oc apply -k ocp-odf-mcg/rhoai-models
+----
++
+2. Create a secret with the credentials
++
+[source, bash]
+----
+oc create secret generic hf-creds --from-env-file=hf-creds -n rhoai-models
+----
+
+.Wanna check the status from your laptop?
+====
+Just need to retrieve the credentials to the bucket and point to the bucket route url:
+[source, bash]
+----
+export AWS_ACCESS_KEY_ID=$(oc get secret models -n rhoai-models -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 --decode)
+export AWS_SECRET_ACCESS_KEY=$(oc get secret models -n rhoai-models -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 --decode)
+export BUCKET_HOST=$(oc get route s3-rgw -n openshift-storage --template='{{ .spec.host }}')
+export BUCKET_PORT=$(oc get configmap models -n rhoai-models -o jsonpath='{.data.BUCKET_PORT}')
+export BUCKET_NAME="models"
+export MODEL_NAME="ibm-granite/granite-3.0-1b-a400m-instruct"
+----
+====
 
 
