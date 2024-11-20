@@ -297,6 +297,7 @@ This https://red-hat-storage.github.io/ocs-training/training/ocs4/ocs4-enable-rg
 ====
 
 If you want to test your ODF deployment, not with a real use-case, but with a funny example, 
+
 >> link:ocp-odf-mcg/pizza-hat/README.adoc[Click Here] <<
 ====
 
