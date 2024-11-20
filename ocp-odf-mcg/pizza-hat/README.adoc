@@ -1,0 +1,55 @@
+= The Pizza Hat demo
+
+You just need to retrieve the credentials to the bucket and point to the bucket route url:
+
+[source, bash]
+----
+BUCKET_NAME=menu
+OBC_NS=pizza-hat
+export AWS_ACCESS_KEY_ID=$(oc get secret $BUCKET_NAME -n $OBC_NS -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 --decode)
+export AWS_SECRET_ACCESS_KEY=$(oc get secret $BUCKET_NAME -n $OBC_NS -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 --decode)
+export BUCKET_HOST=$(oc get route s3-rgw -n openshift-storage --template='{{ .spec.host }}')
+export BUCKET_PORT=$(oc get configmap $BUCKET_NAME -n $OBC_NS -o jsonpath='{.data.BUCKET_PORT}')
+----
+
+Check content of the bucket:
+
+[source, bash]
+----
+aws s3 ls s3://${BUCKET_NAME}/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+----
+
+
+Push the content of the menu:
+
+[source, bash]
+----
+aws s3 cp ocp-odf-mcg/pizza-hat/red-hat-pizza-menu-v1.pdf s3://${BUCKET_NAME}/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+aws s3 cp ocp-odf-mcg/pizza-hat/red-hat-pizza-menu-v2.pdf s3://${BUCKET_NAME}/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+----
+
+Access the menu URL:
+
+[source, bash]
+----
+oc get route s3-rgw -n openshift-storage --template="http://{{ .spec.host }}/${BUCKET_NAME}/red-hat-pizza-menu-v1.pdf"
+# https://s3-rgw-openshift-storage.apps.ocp.sandbox922.opentlc.com/menu/red-hat-pizza-menu-v2.pdf
+----
+
+Provide view access to people with the link:
+
+[source, bash]
+----
+aws s3api put-object-acl --bucket ${BUCKET_NAME} --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT --key red-hat-pizza-menu-v1.pdf --acl public-read
+aws s3api put-object-acl --bucket ${BUCKET_NAME} --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT --key red-hat-pizza-menu-v2.pdf --acl public-read
+----
+
+
+Check permissions of the object in bucket:
+
+[source, bash]
+----
+aws s3api get-object-acl --bucket ${BUCKET_NAME} --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT --key red-hat-pizza-menu-v1.pdf
+----
+
+
