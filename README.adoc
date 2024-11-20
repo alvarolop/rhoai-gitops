@@ -293,8 +293,12 @@ oc apply -k ocp-odf-mcg/radosgw
 This https://red-hat-storage.github.io/ocs-training/training/ocs4/ocs4-enable-rgw.html[workshop guide] is a good read to understand the RadosGW configuration.
 
 
-If you want to test your ODF deployment, not with a real use-case, but with a funny example, >> link:ocp-odf-mcg/pizza-hat/README.adoc[Click Here] <<
+[NOTE]
+====
 
+If you want to test your ODF deployment, not with a real use-case, but with a funny example, 
+>> link:ocp-odf-mcg/pizza-hat/README.adoc[Click Here] <<
+====
 
 
 === ODF S3 configuration and testing
