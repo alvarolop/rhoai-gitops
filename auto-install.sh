@@ -18,13 +18,13 @@ CREATE_RHOAI_ENV=true
 #####################################
 
 # Print environment variables
-echo -e "\n===================="
-echo -e "ENVIRONMENT VARIABLES:"
+# echo -e "\n===================="
+# echo -e "ENVIRONMENT VARIABLES:"
 # echo -e " * LOKI_BUCKET: $LOKI_BUCKET"
 # echo -e " * LOKI_SECRET_NAMESPACE: $LOKI_SECRET_NAMESPACE"
 # echo -e " * TEMPO_BUCKET: $TEMPO_BUCKET"
 # echo -e " * TEMPO_SECRET_NAMESPACE: $TEMPO_SECRET_NAMESPACE"
-echo -e "====================\n"
+# echo -e "====================\n"
 
 # Check if the user is logged in 
 if ! oc whoami &> /dev/null; then
@@ -65,6 +65,20 @@ else
     echo "Skip creation of NVIDIA gpu nodes..."
 fi
 
+if [ "$INSTALL_ODF" = true ]; then
+
+    # Precheck to ensure there are at least 3 worker nodes without taints for GPU
+    echo -e "\nPrecheck: Ensuring there are at least 3 non-GPU worker nodes available..."
+    non_gpu_worker_count=$(oc get nodes -l node-role.kubernetes.io/worker --template '{{range .items}}{{if not .spec.taints}}{{.metadata.name}}{{"\n"}}{{else}}{{range .spec.taints}}{{if ne .key "nvidia.com/gpu"}}{{.}}{{end}}{{end}}{{end}}{{end}}' | wc -l)
+    if [ "$non_gpu_worker_count" -lt 3 ]; then
+        echo "Error: At least 3 non-GPU worker nodes are required. Only $non_gpu_worker_count available."
+        echo "Scale up your cluster!"
+        exit 1
+    else 
+        echo "Pass: There are $non_gpu_worker_count non-GPU worker nodes are required available."
+    fi
+fi
+
 echo -e "\n====================="
 echo -e "= Install Operators ="
 echo -e "=====================\n"
@@ -95,6 +109,7 @@ echo -e "=  ODF Installation  ="
 echo -e "======================\n"
 
 if [ "$INSTALL_ODF" = true ]; then
+
     echo -e "\n1) Label all non-GPU worker nodes to storage nodes for simplicity. Not for production use"
     for node in $(oc get nodes -l node-role.kubernetes.io/worker -o name | grep -v "gpu-worker"); do
         oc label $node cluster.ocs.openshift.io/openshift-storage=""
