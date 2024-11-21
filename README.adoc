@@ -92,6 +92,22 @@ Installing RHOAI is not as simple as installing and configuring other operators 
 5. Deploys a new Data Science Project called `RHOAI Playground` enabling pipelines and deploying a basic `Notebook` for testing.
 
 
+=== Installation on non-4.17 OCP
+
+Some of the components deployed in this repo are bound to an specific version of OpenShift. If you want to deploy RHOAI on an older version (For example 4.16 which is LTS), you have to make the following modifications:
+
+* Change the image for the Node Feature Discovery container to the one for 4.16:
+    ** In `./rhoai-dependencies/operator-nfd/nodefeaturediscovery-nfd-instance.yaml`, the `.spec.operand.image` field should have value `registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.16`.
+* Change the channel of ODF:
+    ** In `./ocp-odf-mcg/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.16`.
+
+
+
+
+
+
+=== Let's install!!
+
 
 [TIP]
 ====
@@ -108,6 +124,8 @@ Now, log in to the cluster and just execute the script:
 ----
 ./auto-install.sh
 ----
+
+
 
 
 
