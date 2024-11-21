@@ -117,7 +117,7 @@ if [ "$INSTALL_ODF" = true ]; then
     done
 
     echo -e "\n2) Trigger the ArgoCD application to install ODF and create the Multicloud Object Gateway"
-    oc apply -f application-ocp-odf-mcg.yaml
+    oc apply -f application-ocp-odf.yaml
 
     echo -e "\n3) Enable the console plugin..."
     if oc get console.operator.openshift.io cluster -o template='{{.spec.plugins}}' | grep odf-console &> /dev/null; then
