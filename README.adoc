@@ -99,7 +99,7 @@ Some of the components deployed in this repo are bound to an specific version of
 * Change the image for the Node Feature Discovery container to the one for 4.16:
     ** In `./rhoai-dependencies/operator-nfd/nodefeaturediscovery-nfd-instance.yaml`, the `.spec.operand.image` field should have value `registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.16`.
 * Change the channel of ODF:
-    ** In `./ocp-odf-mcg/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.16`.
+    ** In `./ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.16`.
 
 
 
@@ -291,21 +291,21 @@ WARNING: Make sure to have at least three worker nodes!!
 +
 [source, bash]
 ----
-oc apply -k ocp-odf-mcg/odf-operator
+oc apply -k ocp-odf/odf-operator
 ----
 +
 2. Install the ODF cluster
 + 
 [source, bash]
 ----
-oc apply -f ocp-odf-mcg/storagecluster-ocs-storagecluster.yaml
+oc apply -f ocp-odf/storagecluster-ocs-storagecluster.yaml
 ----
 +
 3. Install RadosGW to provide S3 storage based on Ceph on OCP clusters deployed on Cloud Providers:
 + 
 [source, bash]
 ----
-oc apply -k ocp-odf-mcg/radosgw
+oc apply -k ocp-odf/radosgw
 ----
 
 This https://red-hat-storage.github.io/ocs-training/training/ocs4/ocs4-enable-rgw.html[workshop guide] is a good read to understand the RadosGW configuration.
@@ -316,7 +316,7 @@ This https://red-hat-storage.github.io/ocs-training/training/ocs4/ocs4-enable-rg
 
 If you want to test your ODF deployment, not with a real use-case, but with a funny example, 
 
->> link:ocp-odf-mcg/pizza-hat/README.adoc[Click Here] <<
+>> link:ocp-odf/pizza-hat/README.adoc[Click Here] <<
 ====
 
 
@@ -328,7 +328,7 @@ Let's now test our configuration and create a bucket to store a model in ODF.
 +
 [source, bash]
 ----
-oc apply -k ocp-odf-mcg/rhoai-models
+oc apply -k ocp-odf/rhoai-models
 ----
 +
 2. Create a secret with the credentials

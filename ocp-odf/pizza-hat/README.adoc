@@ -4,7 +4,7 @@ First, create the bucket that we will use in the demo:
 
 [source, bash]
 ----
-oc apply -k ocp-odf-mcg/pizza-hat
+oc apply -k ocp-odf/pizza-hat
 ----
 
 
@@ -32,8 +32,8 @@ Push the content of the menu:
 
 [source, bash]
 ----
-aws s3 cp ocp-odf-mcg/pizza-hat/red-hat-pizza-menu-v1.pdf s3://${BUCKET_NAME}/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
-aws s3 cp ocp-odf-mcg/pizza-hat/red-hat-pizza-menu-v2.pdf s3://${BUCKET_NAME}/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+aws s3 cp ocp-odf/pizza-hat/red-hat-pizza-menu-v1.pdf s3://${BUCKET_NAME}/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+aws s3 cp ocp-odf/pizza-hat/red-hat-pizza-menu-v2.pdf s3://${BUCKET_NAME}/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
 ----
 
 Access the menu URL:
@@ -61,3 +61,18 @@ aws s3api get-object-acl --bucket ${BUCKET_NAME} --endpoint-url http://$BUCKET_H
 ----
 
 
+
+
+
+== AWS S3 Bucket
+
+[source, bash]
+----
+BUCKET_NAME=alvaro-menu
+aws s3 ls s3://$BUCKET_NAME/
+aws s3 cp ocp-odf/pizza-hat/red-hat-pizza-menu-v1.pdf s3://${BUCKET_NAME}/
+
+aws s3api put-object-acl --bucket $BUCKET_NAME --key red-hat-pizza-menu-v1.pdf --acl public-read # I don't have enough permissions
+
+aws s3 presign s3://$BUCKET_NAME/red-hat-pizza-menu-v1.pdf --expires-in 86400 
+----
