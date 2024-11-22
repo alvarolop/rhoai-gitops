@@ -9,6 +9,7 @@ metadata:
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
+    namespace: ic-shared-minio
   project: default
   source:
     path: ocp-minio
@@ -18,4 +19,5 @@ spec:
     automated:
       prune: false
       selfHeal: false
-    syncOptions: []
+    syncOptions:
+      - CreateNamespace=true
