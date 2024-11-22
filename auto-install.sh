@@ -120,7 +120,23 @@ if [ "$INSTALL_MINIO" = true ]; then
     done
 
     echo -e "\n3) Let's wait until all the pods are up and running"
-    while oc get pods -n minio | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
+    while oc get pods -n ic-shared-minio | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
+
+    oc apply -f - <<-EOF
+    apiVersion: console.openshift.io/v1
+    kind: ConsoleLink
+    metadata:
+      name: minio-route
+    spec:
+      href: "$(oc get routes -n ic-shared-minio minio-ui --template='https://{{ .spec.host }}')"
+      location: ApplicationMenu
+      text: Minio UI
+      applicationMenu:
+        section: OpenShift Self Managed Services
+        imageURL: https://elest.io/images/softwares/63/logo.png
+EOF
+
+
 else
     echo "Skip installation of MinIO..."
 fi

@@ -4,7 +4,6 @@ kind: Kustomization
 
 resources:
 
-  - ns-minio.yaml
   - deployment-minio.yaml
   - pvc-minio.yaml
   - secret-minio.yaml
