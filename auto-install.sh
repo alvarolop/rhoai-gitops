@@ -10,6 +10,7 @@ source ./aws-env-vars
 
 
 CREATE_AWS_MACHINESETS=true
+INSTALL_MINIO=true
 INSTALL_ODF=true
 CREATE_RHOAI_ENV=true
 
@@ -103,6 +104,26 @@ done
 echo -e "\tAll operators are in 'Succeeded' state."
 
 
+echo -e "\n======================"
+echo -e "= MinIO Installation ="
+echo -e "======================\n"
+
+if [ "$INSTALL_MINIO" = true ]; then
+
+    echo -e "1) Trigger the ArgoCD application to install MinIO instance"
+    oc apply -f application-ocp-minio.yaml
+
+    echo -e "\n2) Wait 5 seconds for resources to be created"
+    for i in {5..1}; do
+    echo -ne "\tTime left: $i seconds.\r"
+    sleep 1
+    done
+
+    echo -e "\n3) Let's wait until all the pods are up and running"
+    while oc get pods -n minio | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
+else
+    echo "Skip installation of MinIO..."
+fi
 
 echo -e "\n======================"
 echo -e "=  ODF Installation  ="

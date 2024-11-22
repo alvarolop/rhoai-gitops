@@ -358,3 +358,13 @@ And then execute normal `aws-cli` commands against the bucket:
 ----
 aws s3 ls s3://${BUCKET_NAME}/$MODEL_NAME/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
 ----
+
+
+== Deploy MinIO
+
+This demo is fully oriented to use the default and production ready capabilities provided by OpenShift. However, if your current deployment already uses minio and you cannot change it, you can optionally deploy a MinIO application in a side namespace using the following ArgoCD application. *This application is included in the `auto-install.sh` automation*:
+
+[source, bash]
+----
+oc apply -f application-ocp-minio.yaml
+----
