@@ -9,10 +9,11 @@ source ./aws-env-vars
 #####################################
 
 
-CREATE_AWS_MACHINESETS=true
+CREATE_GPU_MACHINESETS=true
 INSTALL_MINIO=true
-INSTALL_ODF=true
+INSTALL_ODF=false
 CREATE_RHOAI_ENV=true
+AWS_GPU_INSTANCE=g5.4xlarge
 
 #####################################
 ## Do not modify anything from this line
@@ -43,22 +44,22 @@ echo -e "\n=================="
 echo -e "=    GPU INFRA   ="
 echo -e "==================\n"
 
-if [ "$CREATE_AWS_MACHINESETS" = true ]; then
+if [ "$CREATE_GPU_MACHINESETS" = true ]; then
     echo "Adding GPU nodes to the cluster. Adding three availability zones for the future, but only one node in AZ a."
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p INSTANCE_TYPE="g5.4xlarge" -p AZ="a" -p REPLICAS=1 | \
+        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="a" -p REPLICAS=1 | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p INSTANCE_TYPE="g5.4xlarge" -p AZ="b" -p REPLICAS=0 | \
+        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="b" -p REPLICAS=0 | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p INSTANCE_TYPE="g5.4xlarge" -p AZ="c" -p REPLICAS=0 | \
+        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="c" -p REPLICAS=0 | \
         oc apply -n openshift-machine-api -f -
 
     echo -e "\nRemember, those nodes are tainted with 'nvidia.com/gpu:NoSchedule' by default. Modify the template or update the node definition if you want to run normal workloads"
@@ -113,8 +114,8 @@ if [ "$INSTALL_MINIO" = true ]; then
     echo -e "1) Trigger the ArgoCD application to install MinIO instance"
     oc apply -f application-ocp-minio.yaml
 
-    echo -e "\n2) Wait 5 seconds for resources to be created"
-    for i in {5..1}; do
+    echo -e "\n2) Wait 10 seconds for resources to be created"
+    for i in {10..1}; do
     echo -ne "\tTime left: $i seconds.\r"
     sleep 1
     done
@@ -136,6 +137,7 @@ if [ "$INSTALL_MINIO" = true ]; then
         imageURL: https://elest.io/images/softwares/63/logo.png
 EOF
 
+    ./prerequisites/s3-bucket/create-minio-s3-bucket.sh
 
 else
     echo "Skip installation of MinIO..."
@@ -182,12 +184,12 @@ echo -e "= GPU NODES READY ="
 echo -e "===================\n"
 
 echo "This script waits until there is at least one node discovered as NVIDIA GPU node by the Node Feature Discovery Operator."
-echo "It checks every 5 seconds to see if nodes with the feature.node.kubernetes.io/pci-10de.present=true label are available."
+echo "It checks every 15 seconds to see if nodes with the feature.node.kubernetes.io/pci-10de.present=true label are available."
 # https://docs.nvidia.com/datacenter/cloud-native/openshift/24.6.2/install-nfd.html#verify-that-the-node-feature-discovery-operator-is-functioning-correctly
 
 while [[ $(oc get nodes -l feature.node.kubernetes.io/pci-10de.present=true -o go-template='{{ len .items }}') -eq 0 ]]; do
   echo "No nodes found, waiting..."
-  sleep 5
+  sleep 15
 done
 echo "Nodes found!"
 
