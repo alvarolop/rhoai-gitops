@@ -11,8 +11,8 @@ metadata:
 spec:
   apiServer:
     artifactSignedURLExpirySeconds: 60
-    caBundleFileMountPath: ""
-    caBundleFileName: ""
+    caBundleFileMountPath: ''
+    caBundleFileName: ''
     deploy: true
     enableOauth: true
     enableSamplePipeline: false
@@ -29,7 +29,6 @@ spec:
     enableExternalRoute: false
     externalStorage:
       basePath: ''
-      # bucket: {{ include "generateBucketName" . }}
       bucket: {{ .Values.dataScienceProjectNamespace }}-{{ .Values.pipelinesConnection.secretName }}
       host: '{{ .Values.pipelinesConnection.awsS3Endpoint }}'
       port: '{{ .Values.pipelinesConnection.awsS3Port }}'

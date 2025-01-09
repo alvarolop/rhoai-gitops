@@ -8,7 +8,7 @@ AWS_S3_BUCKET="$NOTEBOOK_NAMESPACE-$BUCKET_SECRET_NAME"
 
 # MinIO-specific variables
 MINIO_ENDPOINT_ROUTE="$(oc get routes -n ic-shared-minio minio-api --template='https://{{ .spec.host }}')"
-MINIO_ENDPOINT_SVC="https://minio-api.ic-shared-minio.svc.cluster.local"
+MINIO_ENDPOINT_SVC="minio-service.ic-shared-minio.svc.cluster.local:9000"
 
 export AWS_ACCESS_KEY_ID="$(oc get secret minio -n ic-shared-minio -o jsonpath='{.data.minio_root_user}' | base64 --decode)"
 export AWS_SECRET_ACCESS_KEY="$(oc get secret minio -n ic-shared-minio -o jsonpath='{.data.minio_root_password}' | base64 --decode)"
@@ -45,6 +45,7 @@ fi
 echo -e "\nCreate the Pipelines Datasource Secret"
 oc get project $NOTEBOOK_NAMESPACE || oc new-project $NOTEBOOK_NAMESPACE
 oc process -f ./prerequisites/s3-bucket/secret-data-connection-pipelines.yaml \
+    -p SECRET_NAME=$BUCKET_SECRET_NAME \
     -p AWS_S3_ENDPOINT=$MINIO_ENDPOINT_SVC \
     -p AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
     -p AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \

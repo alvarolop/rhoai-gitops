@@ -38,9 +38,9 @@ pipelinesConnection:
   storageBackend: minio
   secretName: dspa-pipelines-connection-secret
   type: s3
-  scheme: https
-  awsS3Endpoint: minio-api.ic-shared-minio.svc.cluster.local
-  awsS3Port: "9090"
+  scheme: http
+  awsS3Endpoint: minio-service.ic-shared-minio.svc.cluster.local
+  awsS3Port: "9000"
 
 # # Example with ODF
 # pipelinesConnection:
@@ -54,7 +54,7 @@ pipelinesConnection:
 # # Example with AWS
 # pipelinesConnection:
 #   storageBackend: aws
-#   secretName: aws-connection-pipelines
+#   secretName: dspa-pipelines-connection-secret
 #   displayName: pipelines
 #   type: s3
 #   scheme: https
