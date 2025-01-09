@@ -3,8 +3,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   labels:
-    app: ocp-minio
-  name: ocp-minio
+    app: minio
+  name: minio
   namespace: gitops
 spec:
   destination:
@@ -12,7 +12,7 @@ spec:
     namespace: ic-shared-minio
   project: default
   source:
-    path: ocp-minio
+    path: components/minio
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
   syncPolicy:
