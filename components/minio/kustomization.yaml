@@ -7,6 +7,6 @@ resources:
   - deployment-minio.yaml
   - pvc-minio.yaml
   - secret-minio.yaml
-  - svc-minio-service.yaml
+  - svc-minio.yaml
   - route-minio-api.yaml
   - route-minio-ui.yaml
