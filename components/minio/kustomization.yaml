@@ -8,5 +8,6 @@ resources:
   - pvc-minio.yaml
   - secret-minio.yaml
   - svc-minio.yaml
+  - svc-minio-service.yaml # Just for compatibility
   - route-minio-api.yaml
   - route-minio-ui.yaml

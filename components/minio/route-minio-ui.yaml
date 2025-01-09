@@ -6,7 +6,7 @@ metadata:
 spec:
   to:
     kind: Service
-    name: minio-service
+    name: minio
     weight: 100
   port:
     targetPort: ui
