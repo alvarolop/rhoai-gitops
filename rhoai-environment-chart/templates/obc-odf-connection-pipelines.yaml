@@ -1,4 +1,4 @@
-{{- if .Values.pipelinesConnection.storageBackendODF }}
+{{- if eq (lower .Values.pipelinesConnection.storageBackend) "odf" }}
 ---
 # The original plan was to generate a random bucket name and then retrieve it using Helm lookup.
 # 

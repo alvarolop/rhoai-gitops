@@ -33,16 +33,27 @@ workbench:
 #       cpu: '1'
 #       memory: 6Gi
 
+# Example with Minio
 pipelinesConnection:
-  storageBackendODF: true
+  storageBackend: minio
   secretName: dspa-pipelines-connection-secret
   type: s3
   scheme: https
-  awsS3Endpoint: s3.openshift-storage.svc
-  awsS3Port: "443"
+  awsS3Endpoint: minio-api.ic-shared-minio.svc.cluster.local
+  awsS3Port: "9090"
 
-# # Old example without ODF
+# # Example with ODF
 # pipelinesConnection:
+#   storageBackend: odf
+#   secretName: dspa-pipelines-connection-secret
+#   type: s3
+#   scheme: https
+#   awsS3Endpoint: s3.openshift-storage.svc
+#   awsS3Port: "443"
+
+# # Example with AWS
+# pipelinesConnection:
+#   storageBackend: aws
 #   secretName: aws-connection-pipelines
 #   displayName: pipelines
 #   type: s3

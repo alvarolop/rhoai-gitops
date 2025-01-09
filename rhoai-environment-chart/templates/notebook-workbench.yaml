@@ -4,7 +4,7 @@ kind: Notebook
 metadata:
   annotations:
     notebooks.opendatahub.io/inject-oauth: "true"
-    notebooks.opendatahub.io/last-image-selection: pytorch:2024.1
+    notebooks.opendatahub.io/last-image-selection: "{{ .Values.workbench.image }}"
     notebooks.opendatahub.io/last-size-selection: Small
     notebooks.opendatahub.io/oauth-logout-url: >-
       $DASHBOARD_ROUTE/projects/{{ .Values.dataScienceProjectNamespace }}?notebookLogout={{ .Values.workbench.name }}
