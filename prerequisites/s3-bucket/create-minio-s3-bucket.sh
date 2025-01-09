@@ -8,7 +8,7 @@ AWS_S3_BUCKET="$NOTEBOOK_NAMESPACE-$BUCKET_SECRET_NAME"
 
 # MinIO-specific variables
 MINIO_ENDPOINT_ROUTE="$(oc get routes -n ic-shared-minio minio-api --template='https://{{ .spec.host }}')"
-MINIO_ENDPOINT_SVC="minio-service.ic-shared-minio.svc.cluster.local:9000"
+MINIO_ENDPOINT_SVC="minio.ic-shared-minio.svc.cluster.local:9000"
 
 export AWS_ACCESS_KEY_ID="$(oc get secret minio -n ic-shared-minio -o jsonpath='{.data.minio_root_user}' | base64 --decode)"
 export AWS_SECRET_ACCESS_KEY="$(oc get secret minio -n ic-shared-minio -o jsonpath='{.data.minio_root_password}' | base64 --decode)"
