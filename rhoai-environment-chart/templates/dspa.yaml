@@ -1,5 +1,5 @@
 ---
-apiVersion: datasciencepipelinesapplications.opendatahub.io/v1alpha1
+apiVersion: datasciencepipelinesapplications.opendatahub.io/1
 kind: DataSciencePipelinesApplication
 metadata:
   name: dspa
@@ -10,21 +10,12 @@ metadata:
     argocd.argoproj.io/sync-wave: "10"
 spec:
   apiServer:
-    applyTektonCustomResource: true
-    archiveLogs: false
     artifactSignedURLExpirySeconds: 60
-    autoUpdatePipelineDefaultVersion: true
     caBundleFileMountPath: ""
     caBundleFileName: ""
-    collectMetrics: true
-    dbConfigConMaxLifetimeSec: 120
     deploy: true
     enableOauth: true
     enableSamplePipeline: false
-    injectDefaultScript: true
-    stripEOF: true
-    terminateStatus: Cancelled
-    trackArtifacts: true
   database:
     disableHealthCheck: false
     mariaDB:
