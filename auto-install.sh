@@ -89,8 +89,8 @@ echo -e "1) Trigger the ArgoCD application to install the operators"
 oc apply -f application-rhoai-dependencies.yaml
 
 
-echo -e "\n2) Wait 10 seconds for Subscriptions to be applied"
-for i in {10..1}; do
+echo -e "\n2) Wait 20 seconds for Subscriptions to be applied"
+for i in {20..1}; do
   echo -ne "\tTime left: $i seconds.\r"
   sleep 1
 done
@@ -104,6 +104,20 @@ until [[ -z $(oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metada
 done
 echo -e "\tAll operators are in 'Succeeded' state."
 
+
+echo -e "\tCopy the cluster certificates to RHOAI namespace for Single-model serving."
+# https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/#procedure
+
+# Check if the secret already exists in the target namespace
+if oc get secret ingress-certs -n istio-system >/dev/null 2>&1; then
+    echo "Secret 'ingress-certs' already exists in namespace 'istio-system'. Skipping creation."
+else
+    echo "Secret 'ingress-certs' does not exist in namespace 'istio-system'. Creating it now."
+    oc create secret generic ingress-certs --type=kubernetes.io/tls -n istio-system \
+        --from-literal=tls.crt="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 --decode)" \
+        --from-literal=tls.key="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.key}' | base64 --decode)"
+    echo "Secret 'ingress-certs' created successfully in namespace 'istio-system'."
+fi
 
 echo -e "\n======================"
 echo -e "= MinIO Installation ="
