@@ -6,6 +6,7 @@ resources:
   - og-nvidia-gpu-operator-group.yaml
   - sub-gpu-operator-certified.yaml
   - clusterpolicy-gpu-cluster-policy.yaml
+  # - cm-device-plugin-config.yaml # Time Slicing
 
 configMapGenerator:
   - name: nvidia-dcgm-exporter-dashboard
@@ -18,10 +19,10 @@ configMapGenerator:
         console.openshift.io/dashboard: 'true'
         console.openshift.io/odc-dashboard: 'true'
 
-# # Deploy HashiCorp Vault CSI driver
-# helmCharts:
-# - name: console-plugin-nvidia-gpu
-#   releaseName: console-plugin-nvidia-gpu
-#   repo: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
-#   # valuesFile: values.yaml
-#   version: 0.2.5
+# Deploy HashiCorp Vault CSI driver
+helmCharts:
+- name: console-plugin-nvidia-gpu
+  releaseName: console-plugin-nvidia-gpu
+  repo: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
+  # valuesFile: values.yaml
+  version: 0.2.5

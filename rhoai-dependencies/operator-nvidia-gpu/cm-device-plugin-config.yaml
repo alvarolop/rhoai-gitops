@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-plugin-config
+  namespace: nvidia-gpu-operator
+data:
+  A100-SXM4-40GB: |-
+    version: v1
+    sharing:
+      timeSlicing:
+        resources:
+          - name: nvidia.com/gpu
+            replicas: 8
+          - name: nvidia.com/mig-1g.5gb
+            replicas: 1
+          - name: nvidia.com/mig-2g.10gb
+            replicas: 2
+          - name: nvidia.com/mig-3g.20gb
+            replicas: 3
+          - name: nvidia.com/mig-7g.40gb
+            replicas: 7

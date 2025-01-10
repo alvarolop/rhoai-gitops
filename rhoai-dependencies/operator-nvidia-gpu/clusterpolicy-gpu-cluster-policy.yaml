@@ -33,20 +33,20 @@ spec:
       waitForCompletion:
         timeoutSeconds: 0
     repoConfig:
-      configMapName: ""
+      configMapName: ''
     certConfig:
-      name: ""
+      name: ''
     licensingConfig:
       nlsEnabled: true
-      configMapName: ""
+      configMapName: ''
     virtualTopology:
-      config: ""
+      config: ''
     kernelModuleConfig:
-      name: ""
+      name: ''
   dcgmExporter:
     enabled: true
     config:
-      name: ""
+      name: ''
     serviceMonitor:
       enabled: true
   dcgm:
@@ -54,14 +54,14 @@ spec:
   daemonsets:
     updateStrategy: RollingUpdate
     rollingUpdate:
-      maxUnavailable: "1"
+      maxUnavailable: '1'
   devicePlugin:
     enabled: true
     config:
-      name: ""
-      default: ""
+      name: ''
+      default: ''
     mps:
-      root: /run/nvidia/mps
+      root: "/run/nvidia/mps"
   gfd:
     enabled: true
   migManager:
@@ -75,8 +75,8 @@ spec:
   validator:
     plugin:
       env:
-        - name: WITH_WORKLOAD
-          value: "false"
+      - name: WITH_WORKLOAD
+        value: 'false'
   vgpuManager:
     enabled: false
   vgpuDeviceManager:
