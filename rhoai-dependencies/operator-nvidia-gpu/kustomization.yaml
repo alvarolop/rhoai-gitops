@@ -6,4 +6,22 @@ resources:
   - og-nvidia-gpu-operator-group.yaml
   - sub-gpu-operator-certified.yaml
   - clusterpolicy-gpu-cluster-policy.yaml
-  - cm-nvidia-dcgm-exporter-dashboard.yaml
+
+configMapGenerator:
+  - name: nvidia-dcgm-exporter-dashboard
+    namespace: openshift-config-managed
+    files:
+      - dcgm-exporter-dashboard.json
+    options:
+      disableNameSuffixHash: true
+      labels:
+        console.openshift.io/dashboard: 'true'
+        console.openshift.io/odc-dashboard: 'true'
+
+# # Deploy HashiCorp Vault CSI driver
+# helmCharts:
+# - name: console-plugin-nvidia-gpu
+#   releaseName: console-plugin-nvidia-gpu
+#   repo: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
+#   # valuesFile: values.yaml
+#   version: 0.2.5
