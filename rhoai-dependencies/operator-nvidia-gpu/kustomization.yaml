@@ -7,7 +7,7 @@ resources:
   - og-nvidia-gpu-operator-group.yaml
   - sub-gpu-operator-certified.yaml
   - clusterpolicy-gpu-cluster-policy.yaml
-  # - cm-device-plugin-config.yaml # Time Slicing
+  - cm-device-plugin-config.yaml # Time Slicing
 
 configMapGenerator:
   - name: nvidia-dcgm-exporter-dashboard

@@ -58,8 +58,9 @@ spec:
   devicePlugin:
     enabled: true
     config:
-      name: ''
-      default: ''
+      # name: '' 
+      name: 'device-plugin-config' # To enable Time-slicing
+      default: 'A100-SXM4-40GB' # All GPUs with same config
     mps:
       root: "/run/nvidia/mps"
   gfd:

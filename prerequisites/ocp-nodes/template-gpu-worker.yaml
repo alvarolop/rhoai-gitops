@@ -28,6 +28,7 @@ objects:
             labels:
               node-role.kubernetes.io/${ROLE}: ""
               node-role.kubernetes.io/${PREFIX}${ROLE}: ""
+              # nvidia.com/device-plugin.config: "${DEVICE_PLUGIN_CONFIG}" # Remove this if you want to disable Time-Slicing
           taints:
             - key: nvidia.com/gpu
               effect: NoSchedule
@@ -99,6 +100,10 @@ parameters:
     description: "Instance type in AWS EC2."
     required: false
     value: g5.2xlarge
+  - name: DEVICE_PLUGIN_CONFIG
+    description: "Device plugin config for time-slicing."
+    required: false
+    value: "A100-SXM4-40GB"
   - name: INFRASTRUCTURE_ID
     description: "Cluster ID."
     required: true
