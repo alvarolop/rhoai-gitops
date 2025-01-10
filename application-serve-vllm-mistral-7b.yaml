@@ -14,9 +14,11 @@ spec:
     path: gitops/model
     repoURL: https://github.com/alvarolop/model-serving-utils.git
     targetRevision: main
-    # helm:
-    #   values: |
-    #     key: value
+    helm:
+      values: |
+        model:
+          accelerator:
+            productName: NVIDIA-A10G-SHARED
   syncPolicy:
     automated:
       prune: false
