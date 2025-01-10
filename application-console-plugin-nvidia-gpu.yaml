@@ -1,0 +1,27 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: console-plugin-nvidia-gpu
+  name: console-plugin-nvidia-gpu
+  namespace: gitops
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: nvidia-gpu-operator
+  project: default
+  source:
+    # https://github.com/rh-ecosystem-edge/console-plugin-nvidia-gpu/blob/main/deployment/console-plugin-nvidia-gpu/README.md
+    repoURL: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
+    targetRevision: 0.2.5
+    chart: console-plugin-nvidia-gpu
+    # helm:
+    #   values: |
+    #     key: value
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

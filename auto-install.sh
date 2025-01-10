@@ -104,14 +104,10 @@ until [[ -z $(oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metada
 done
 echo -e "\tAll operators are in 'Succeeded' state."
 
-
-echo -e "\tCopy the cluster certificates to RHOAI namespace for Single-model serving."
-# https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/#procedure
-
 echo -e "\tEnable the NVIDIA GPU Console Plugin to view metrics in the Cluster Overview."
+oc apply -f application-console-plugin-nvidia-gpu.yaml
 oc patch consoles.operator.openshift.io cluster --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "console-plugin-nvidia-gpu" }]' --type=json
 
-exit
 
 echo -e "\n======================"
 echo -e "= MinIO Installation ="
@@ -209,6 +205,9 @@ echo -e "======================\n"
 echo -e "Trigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
 
+
+echo -e "\tCopy the cluster certificates to RHOAI namespace for Single-model serving."
+# https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/#procedure
 # Wait until the 'istio-system' namespace exists
 until oc get namespace istio-system >/dev/null 2>&1; do
   echo "Namespace 'istio-system' not found. Retrying in 5 seconds..."

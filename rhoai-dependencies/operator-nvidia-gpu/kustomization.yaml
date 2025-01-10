@@ -22,11 +22,12 @@ configMapGenerator:
         console.openshift.io/dashboard: 'true'
         console.openshift.io/odc-dashboard: 'true'
 
-# Deploy HashiCorp Vault CSI driver
-helmCharts:
-- name: console-plugin-nvidia-gpu
-  releaseName: console-plugin-nvidia-gpu
-  repo: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
-  # valuesFile: values.yaml
-  version: 0.2.5
-  namespace: nvidia-gpu-operator
+# # Deploy the GPU console plugin 
+# # This mechanism does not work as the Helm Chart does not provide default namespace.
+# helmCharts:
+# - name: console-plugin-nvidia-gpu
+#   releaseName: console-plugin-nvidia-gpu
+#   repo: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
+#   # valuesFile: values.yaml
+#   version: 0.2.5
+#   namespace: nvidia-gpu-operator
