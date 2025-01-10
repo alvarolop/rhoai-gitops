@@ -26,3 +26,4 @@ helmCharts:
   repo: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
   # valuesFile: values.yaml
   version: 0.2.5
+  namespace: nvidia-gpu-operator
