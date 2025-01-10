@@ -212,9 +212,20 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 If you want to achieve this properly, please, don't miss reading this https://github.com/rh-aiservices-bu/gpu-partitioning-guide[repo].
 ====
 
-Partitioning allows for flexibility in resource management, enabling multiple applications to share a single GPU or dividing a large GPU into smaller, dedicated units for different tasks.
+Partitioning allows for flexibility in resource management, enabling multiple applications to share a single GPU or dividing a large GPU into smaller, dedicated units for different tasks. For the sake of simplicity and maximization of the reduced resources, I have enabled **time-slicing** configuration. You can check the configuration in `rhoai-dependencies/operator-nvidia-gpu`.
+
+How to check that the configuration is applied?
+
+[source, bash]
+----
+oc get node --selector=nvidia.com/gpu.product="NVIDIA-A10G-SHARED" -o json  | jq '.items[0].metadata.labels' | grep nvidia
+----
 
 
+Also, you can check these two blog entries with an analysis from the RH Performance team about this topic:
+
+* https://www.redhat.com/en/blog/sharing-caring-how-make-most-your-gpus-part-1-time-slicing[Sharing is caring: How to make the most of your GPUs (part 1 - time-slicing)].
+* https://www.redhat.com/en/blog/sharing-caring-how-make-most-your-gpus-part-2-multi-instance-gpu[Sharing is caring: How to make the most of your GPUs part 2 - Multi-instance GPU].
 
 
 
@@ -251,6 +262,27 @@ See the following https://ai-on-openshift.io/odh-rhoai/single-stack-serving-cert
 
 
 
+=== Model Registry
+
+
+
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/configuring_the_model_registry_component[Installation guide].
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/managing_model_registries[Configuration guide].
+
+
+
+
+
+== Deploying an Inference Server
+
+As the Model Registry is still Tech Preview, we still keep documentation about how to sync manually models using an OCP Job and then serve it with OpenShift AI. You can use the following Application that points to a Helm Chart that automates it:
+
+[source, bash]
+----
+oc apply -f application-serve-vllm-mistral-7b.yaml
+sleep 4
+oc create secret generic hf-creds --from-env-file=hf-creds -n vllm-mistral-7b
+----
 
 
 
@@ -353,7 +385,7 @@ This demo is fully oriented to use the default and production ready capabilities
 
 [source, bash]
 ----
-oc apply -f application-ocp-minio.yaml
+oc apply -f application-minio.yaml
 ----
 
 * https://blog.stderr.at/gitopscollection/2024-05-17-configure-minio-buckets/
@@ -386,7 +418,9 @@ helm template components/open-webui --namespace="open-webui" \
 
 === Milvus
 
-Milvus is Vector database built for scalable similarity search. It is "Open-source, highly scalable, and blazing fast". Milvus offers robust data modeling capabilities, enabling you to organize your unstructured or multi-modal data into structured collections.
+**Milvus** is Vector database built for scalable similarity search. It is "Open-source, highly scalable, and blazing fast". Milvus offers robust data modeling capabilities, enabling you to organize your unstructured or multi-modal data into structured collections.
+
+**Attu** is an efficient open-source management tool for Milvus. It features an intuitive graphical user interface (GUI), allowing you to easily interact with your databases. 
 
 https://github.com/rh-aiservices-bu/llm-on-openshift/blob/main/vector-databases/milvus/milvus_manifest_standalone.yaml[Source]
 
@@ -399,10 +433,10 @@ or you can deploy it manually with the following command:
 
 [source, bash]
 ----
-oc apply -k components/milvus
+oc apply -f components/milvus
 ----
 
-
+The password for the Attu GUI is `root` / `Milvus`.
 
 
 
