@@ -1,0 +1,29 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: open-webui
+  name: open-webui
+  namespace: gitops
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: open-webui
+  project: default
+  source:
+    path: components/open-webui
+    repoURL: https://github.com/alvarolop/rhoai-gitops.git
+    targetRevision: main
+    helm:
+      values: |
+        llmInferenceService:
+          url: $LLM_INFERENCE_SERVICE_URL
+          apiKey: "" # Set this to an empty string if no API key is needed
+        clusterDomain: $CLUSTER_DOMAIN
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

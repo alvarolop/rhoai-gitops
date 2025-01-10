@@ -1,0 +1,18 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: open-webui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: open-webui
+spec:
+  to:
+    kind: Service
+    name: open-webui
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+  wildcardPolicy: None

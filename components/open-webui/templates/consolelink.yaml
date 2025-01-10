@@ -1,0 +1,14 @@
+{{- if .Values.clusterDomain }}
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: {{ .Release.Namespace }}-open-webui
+spec:
+  href: "https://open-webui-{{ .Release.Namespace }}.apps.{{ .Values.clusterDomain }}"
+  location: ApplicationMenu
+  text: Open WebUI
+  applicationMenu:
+    section: OpenShift Self Managed Services
+    imageURL: https://open-webui-open-webui.apps.ocp.sandbox557.opentlc.com/favicon/favicon-96x96.png
+{{- end }}

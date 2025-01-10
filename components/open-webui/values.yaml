@@ -1,0 +1,11 @@
+# Default values for open-webui.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+llmInferenceService:
+  # url: http://litellm.{{ .Release.Namespace }}.svc.cluster.local:4000
+  url: https://api.openai.com/v1
+
+  apiKey: "sk-123" # Set this to an empty string if no API key is needed
+
+clusterDomain: ""

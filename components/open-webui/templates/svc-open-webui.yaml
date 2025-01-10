@@ -1,0 +1,17 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: open-webui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: open-webui
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http
+  type: ClusterIP
+  selector:
+    app: open-webui
