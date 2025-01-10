@@ -28,7 +28,7 @@ objects:
             labels:
               node-role.kubernetes.io/${ROLE}: ""
               node-role.kubernetes.io/${PREFIX}${ROLE}: ""
-              # nvidia.com/device-plugin.config: "${DEVICE_PLUGIN_CONFIG}" # Remove this if you want to disable Time-Slicing
+              nvidia.com/device-plugin.config: "${DEVICE_PLUGIN_CONFIG}" # Remove this if you want to disable Time-Slicing
           taints:
             - key: nvidia.com/gpu
               effect: NoSchedule

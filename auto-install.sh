@@ -206,24 +206,24 @@ echo -e "Trigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
 
 
-echo -e "\tCopy the cluster certificates to RHOAI namespace for Single-model serving."
-# https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/#procedure
-# Wait until the 'istio-system' namespace exists
-until oc get namespace istio-system >/dev/null 2>&1; do
-  echo "Namespace 'istio-system' not found. Retrying in 5 seconds..."
-  sleep 5
-done
+# echo -e "\tCopy the cluster certificates to RHOAI namespace for Single-model serving."
+# # https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/#procedure
+# # Wait until the 'istio-system' namespace exists
+# until oc get namespace istio-system >/dev/null 2>&1; do
+#   echo "Namespace 'istio-system' not found. Retrying in 5 seconds..."
+#   sleep 5
+# done
 
-# Check if the secret already exists in the target namespace
-if oc get secret ingress-certs -n istio-system >/dev/null 2>&1; then
-    echo "Secret 'ingress-certs' already exists in namespace 'istio-system'. Skipping creation."
-else
-    echo "Secret 'ingress-certs' does not exist in namespace 'istio-system'. Creating it now."
-    oc create secret generic ingress-certs --type=kubernetes.io/tls -n istio-system \
-        --from-literal=tls.crt="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 --decode)" \
-        --from-literal=tls.key="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.key}' | base64 --decode)"
-    echo "Secret 'ingress-certs' created successfully in namespace 'istio-system'."
-fi
+# # Check if the secret already exists in the target namespace
+# if oc get secret ingress-certs -n istio-system >/dev/null 2>&1; then
+#     echo "Secret 'ingress-certs' already exists in namespace 'istio-system'. Skipping creation."
+# else
+#     echo "Secret 'ingress-certs' does not exist in namespace 'istio-system'. Creating it now."
+#     oc create secret generic ingress-certs --type=kubernetes.io/tls -n istio-system \
+#         --from-literal=tls.crt="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 --decode)" \
+#         --from-literal=tls.key="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.key}' | base64 --decode)"
+#     echo "Secret 'ingress-certs' created successfully in namespace 'istio-system'."
+# fi
 
 echo -e "\nLet's wait until all the pods are up and running"
 while oc get pods -n redhat-ods-applications | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done

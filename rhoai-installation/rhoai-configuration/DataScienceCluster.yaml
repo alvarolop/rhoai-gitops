@@ -23,9 +23,7 @@ spec:
       serving:
         ingressGateway:
           certificate:
-            # type: OpenshiftDefaultIngress # This is for self-signed certs
-            secretName: rhods-internal-primary-cert-bundle-secret
-            type: Provided # This is to reuse ingress certs
+            type: OpenshiftDefaultIngress
         managementState: Managed
         name: knative-serving
     kueue:
