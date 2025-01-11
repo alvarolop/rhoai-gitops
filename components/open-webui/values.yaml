@@ -6,6 +6,6 @@ llmInferenceService:
   # url: http://litellm.{{ .Release.Namespace }}.svc.cluster.local:4000
   url: https://api.openai.com/v1
 
-  apiKey: "sk-123" # Set this to an empty string if no API key is needed
+  apiKey: "" # Set this to an empty string if no API key is needed
 
 clusterDomain: ""

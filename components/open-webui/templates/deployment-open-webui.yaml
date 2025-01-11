@@ -36,13 +36,13 @@ spec:
               value: DEBUG
             - name: OPENAI_API_BASE_URL
               value: {{ .Values.llmInferenceService.url }}
-            # - name: ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION
-            #   value: "False"
+            - name: ENABLE_AUTOCOMPLETE_GENERATION
+              value: "False"
             # https://github.com/open-webui/open-webui/issues/1398
-            # - name: REQUESTS_CA_BUNDLE
-            #   value: /etc/pki/ca-trust/source/anchors/ca-bundle.crt
-            # - name: SSL_CERT_FILE
-            #   value: /etc/pki/ca-trust/source/anchors/ca-bundle.crt
+            - name: REQUESTS_CA_BUNDLE
+              value: /etc/pki/ca-trust/source/anchors/service-ca.crt
+            - name: SSL_CERT_FILE
+              value: /etc/pki/ca-trust/source/anchors/service-ca.crt
             - name: WEBUI_AUTH
               value: "False"
           ports:
@@ -67,4 +67,4 @@ spec:
         # https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/installing_and_uninstalling_openshift_ai_self-managed/working-with-certificates_certs#how_the_configmap_is_managed
         - name: user-ca-bundle-volume
           configMap:
-            name: odh-trusted-ca-bundle
+            name: openshift-service-ca.crt

@@ -285,12 +285,25 @@ sleep 4
 oc create secret generic hf-creds --from-env-file=hf-creds -n vllm-mistral-7b
 ----
 
-.granite-3b-a800m
+.granite-1b-a400m
 [source, bash]
 ----
-oc apply -f application-serve-granite-3b-a800m.yaml
+oc apply -f application-serve-granite-1b-a400m.yaml
 sleep 4
-oc create secret generic hf-creds --from-env-file=hf-creds -n granite-3b-a800m
+oc create secret generic hf-creds --from-env-file=hf-creds -n granite-1b-a400m
+----
+
+.Testing LLM certificates
+[source, bash]
+----
+# Retrieve certificates
+openssl s_client -showcerts -connect granite-1b-a400m.granite-1b-a400m.svc.cluster.local:443 </dev/null
+
+# Check models endpoint
+curl --cacert /etc/pki/ca-trust/source/anchors/service-ca.crt https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local:443/v1/models
+
+# Check Completion (It might be /v1/chat/completions)
+curl -s -X 'POST' https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local/v1/completions -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"model": "granite-1b-a400m","prompt": "San Francisco is a"}'
 ----
 
 
@@ -408,7 +421,7 @@ https://github.com/noelo/vllm-router-demo/tree/main/chart/templates/open-webui[S
 ----
 cat application-open-webui.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    LLM_INFERENCE_SERVICE_URL="https://mistral-7b.vllm-mistral-7b.svc.cluster.local" \
+    LLM_INFERENCE_SERVICE_URL="https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local" \
     envsubst | oc apply -f -
 ----
 
@@ -417,9 +430,10 @@ or you can deploy it manually with the following command:
 [source, bash]
 ----
 helm template components/open-webui --namespace="open-webui" \
-    --set llmInferenceService.url="https://mistral-7b.vllm-mistral-7b.svc.cluster.local" \
+    --set llmInferenceService.url="https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local/v1" \
     --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') | oc apply -f -
 ----
+
 
 
 
