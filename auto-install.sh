@@ -116,7 +116,7 @@ echo -e "======================\n"
 if [ "$INSTALL_MINIO" = true ]; then
 
     echo -e "1) Trigger the ArgoCD application to install MinIO instance"
-    oc apply -f application-ocp-minio.yaml
+    oc apply -f application-minio.yaml
 
     echo -e "\n2) Wait 10 seconds for resources to be created"
     for i in {10..1}; do
