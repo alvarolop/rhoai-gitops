@@ -13,7 +13,7 @@ spec:
   source:
     path: gitops/model
     repoURL: https://github.com/alvarolop/model-serving-utils.git
-    targetRevision: main
+    targetRevision: vllm/granite
     helm:
       values: |
         dataScienceProjectDisplayName: granite-1b-a400m
@@ -28,6 +28,7 @@ spec:
             networking.knative.dev/visibility: cluster-local
           # https://docs.vllm.ai/en/latest/features/tool_calling.html#ibm-granite
           # chatTemplate: /apps/data/template/tool_chat_template_granite.jinja
+          chatTemplate: /etc/config/tool_chat_template_granite.jinja
           toolCallParser: granite
           maxModelLen: "4096"
           runtime: 
@@ -38,7 +39,8 @@ spec:
               requests:
                 cpu: '4'
                 memory: 8Gi
-            image: quay.io/modh/vllm@sha256:c86ff1e89c86bc9821b75d7f2bbc170b3c13e3ccf538bf543b1110f23e056316
+            # image: quay.io/modh/vllm@sha256:c86ff1e89c86bc9821b75d7f2bbc170b3c13e3ccf538bf543b1110f23e056316
+            image: registry.hub.docker.com/vllm/vllm-openai:v0.6.6.post1
           accelerator:
             productName: NVIDIA-A10G-SHARED
   syncPolicy:

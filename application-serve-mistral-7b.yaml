@@ -1,0 +1,47 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: serve-mistral-7b
+  name: serve-mistral-7b
+  namespace: gitops
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    path: gitops/model
+    repoURL: https://github.com/alvarolop/model-serving-utils.git
+    targetRevision: main
+    helm:
+      values: |
+        dataScienceProjectDisplayName: mistral-7b
+        dataScienceProjectNamespace: mistral-7b
+        instanceName: mistral-7b
+        model:
+          root: mistralai
+          id: Mistral-7B-Instruct-v0.3
+          name: mistral-7b
+          displayName: Mistral 7b
+          additionalLabels:
+            networking.knative.dev/visibility: cluster-local
+          toolCallParser: mistral
+          maxModelLen: '6144'
+          runtime: 
+            resources:
+              limits:
+                cpu: '8'
+                memory: 24Gi
+              requests:
+                cpu: '6'
+                memory: 24Gi
+            image: quay.io/modh/vllm@sha256:c86ff1e89c86bc9821b75d7f2bbc170b3c13e3ccf538bf543b1110f23e056316
+          accelerator:
+            productName: NVIDIA-A10G-SHARED
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
