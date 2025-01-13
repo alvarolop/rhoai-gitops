@@ -277,12 +277,12 @@ See the following https://ai-on-openshift.io/odh-rhoai/single-stack-serving-cert
 
 As the Model Registry is still Tech Preview, we still keep documentation about how to sync manually models using an OCP Job and then serve it with OpenShift AI. You can use the following Application that points to a Helm Chart that automates it:
 
-.vllm-mistral-7b
+.mistral-7b
 [source, bash]
 ----
-oc apply -f application-serve-vllm-mistral-7b.yaml
+oc apply -f application-serve-mistral-7b.yaml
 sleep 4
-oc create secret generic hf-creds --from-env-file=hf-creds -n vllm-mistral-7b
+oc create secret generic hf-creds --from-env-file=hf-creds -n mistral-7b
 ----
 
 .granite-1b-a400m
@@ -407,6 +407,8 @@ This demo is fully oriented to use the default and production ready capabilities
 ----
 oc apply -f application-minio.yaml
 ----
+
+User and password is `minio` / `minio123`.
 
 * https://blog.stderr.at/gitopscollection/2024-05-17-configure-minio-buckets/
 
