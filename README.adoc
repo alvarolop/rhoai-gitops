@@ -405,8 +405,17 @@ Red Hat OpenShift Lightspeed is a generative AI-powered virtual assistant for Op
 
 [source, bash]
 ----
-oc apply -f application-minio.yaml
+oc apply -f application-ocp-lightspeed.yaml
 ----
+
+or you can deploy it manually with the following command:
+
+[source, bash]
+----
+oc apply -k components/ocp-lightspeed
+----
+
+
 
 === MinIO
 
@@ -414,7 +423,7 @@ This demo is fully oriented to use the default and production ready capabilities
 
 [source, bash]
 ----
-oc apply -f application-openshift-lightspeed.yaml
+oc apply -f application-minio.yaml
 ----
 
 User and password is `minio` / `minio123`.
