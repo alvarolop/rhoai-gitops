@@ -27,8 +27,8 @@ workbench:
   image: pytorch:2024.2
   resources:
     limits:
-      cpu: '2'
-      memory: 8Gi
+      cpu: '3'
+      memory: 10Gi
     requests:
       cpu: '1'
       memory: 6Gi
