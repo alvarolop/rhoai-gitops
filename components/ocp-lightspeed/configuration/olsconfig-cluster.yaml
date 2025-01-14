@@ -10,8 +10,8 @@ spec:
     providers:
       - name: Mistral
         type: openai
-        # credentialsSecretRef:
-        #   name: credentials
+        credentialsSecretRef:
+          name: credentials-mistral
         url: https://mistral-7b.mistral-7b.svc.cluster.local/v1
         models:
           - name: mistral-7b

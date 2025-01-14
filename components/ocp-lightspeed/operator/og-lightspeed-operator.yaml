@@ -1,0 +1,10 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: lightspeed-operator
+  namespace: openshift-lightspeed
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  upgradeStrategy: Default
