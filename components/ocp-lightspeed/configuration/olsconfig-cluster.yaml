@@ -25,3 +25,5 @@ spec:
   ols:
     defaultModel: mistral-7b
     defaultProvider: red_hat_openshift_ai
+    additionalCAConfigMapRef:
+      name: openshift-service-ca.crt
