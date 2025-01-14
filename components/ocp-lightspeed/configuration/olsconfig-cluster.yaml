@@ -8,11 +8,11 @@ metadata:
 spec:
   llm:
     providers:
-      - name: Mistral
-        type: openai
+      - name: red_hat_openshift_ai
+        type: rhoai_vllm
         credentialsSecretRef:
           name: credentials-mistral
-        url: https://mistral-7b.mistral-7b.svc.cluster.local/v1
+        url: "https://mistral-7b.mistral-7b.svc.cluster.local:443/v1"
         models:
           - name: mistral-7b
       # - name: myOpenai
@@ -24,4 +24,4 @@ spec:
       #     - name: gpt-3.5-turbo
   ols:
     defaultModel: mistral-7b
-    defaultProvider: Mistral
+    defaultProvider: red_hat_openshift_ai

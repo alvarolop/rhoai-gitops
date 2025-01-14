@@ -5,3 +5,5 @@ resources:
 
   - secret-credentials-mistral.yaml
   - olsconfig-cluster.yaml
+
+  - crb-lightspeed-operator-query-access.yaml
