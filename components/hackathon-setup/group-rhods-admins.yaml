@@ -1,0 +1,11 @@
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: rhods-admins
+users:
+  - user1
+  - user2
+  - user3
+  - user4
+  - user5
