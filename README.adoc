@@ -399,13 +399,22 @@ aws s3 ls s3://${BUCKET_NAME}/$MODEL_NAME/ --endpoint-url http://$BUCKET_HOST:$B
 
 == Extra Components
 
+=== OpenShift Lightspeed
+
+Red Hat OpenShift Lightspeed is a generative AI-powered virtual assistant for OpenShift Container Platform. Lightspeed functionality uses a natural-language interface in the OpenShift web console.
+
+[source, bash]
+----
+oc apply -f application-minio.yaml
+----
+
 === MinIO
 
 This demo is fully oriented to use the default and production ready capabilities provided by OpenShift. However, if your current deployment already uses minio and you cannot change it, you can optionally deploy a MinIO application in a side namespace using the following ArgoCD application. *This application is included in the `auto-install.sh` automation*:
 
 [source, bash]
 ----
-oc apply -f application-minio.yaml
+oc apply -f application-openshift-lightspeed.yaml
 ----
 
 User and password is `minio` / `minio123`.
@@ -423,7 +432,7 @@ https://github.com/noelo/vllm-router-demo/tree/main/chart/templates/open-webui[S
 ----
 cat application-open-webui.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    LLM_INFERENCE_SERVICE_URL="https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local" \
+    LLM_INFERENCE_SERVICE_URL="https://mistral-7b.mistral-7b.svc.cluster.local/v1" \
     envsubst | oc apply -f -
 ----
 
@@ -432,7 +441,7 @@ or you can deploy it manually with the following command:
 [source, bash]
 ----
 helm template components/open-webui --namespace="open-webui" \
-    --set llmInferenceService.url="https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local/v1" \
+    --set llmInferenceService.url="https://mistral-7b.mistral-7b.svc.cluster.local/v1" \
     --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') | oc apply -f -
 ----
 
