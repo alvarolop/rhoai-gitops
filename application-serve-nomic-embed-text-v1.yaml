@@ -1,0 +1,45 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: serve-nomic-embed-text-v1
+  name: serve-nomic-embed-text-v1
+  namespace: gitops
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    path: gitops/embeddings
+    repoURL: https://github.com/alvarolop/model-serving-utils.git
+    targetRevision: main
+    helm:
+      values: |
+        dataScienceProjectDisplayName: nomic-embed-text-v1
+        dataScienceProjectNamespace: nomic-embed-text-v1
+        instanceName: nomic-embed-text-v1
+        model:
+          root: nomic-ai
+          id: nomic-embed-text-v1
+          name: nomic-embed-text-v1
+          displayName: Nomic AI Embed Text v1
+          maxReplicas: 1
+          format: pytorch
+          apiProtocol: REST
+          runtime:
+            templateName: nomic-serving-template
+            templateDisplayName: Nomic Serving Template
+            resources:
+              limits:
+                cpu: '2'
+                memory: 8Gi
+              requests:
+                cpu: '1'
+                memory: 4Gi
+          accelerator:
+            productName: NVIDIA-A10G-SHARED
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false

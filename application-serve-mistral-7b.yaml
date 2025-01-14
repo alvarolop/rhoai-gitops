@@ -24,8 +24,8 @@ spec:
           id: Mistral-7B-Instruct-v0.2
           name: mistral-7b
           displayName: Mistral 7b
-          additionalLabels:
-            networking.knative.dev/visibility: cluster-local
+          # additionalLabels:
+          #   networking.knative.dev/visibility: cluster-local
           toolCallParser: mistral
           maxModelLen: '6144'
           runtime: 

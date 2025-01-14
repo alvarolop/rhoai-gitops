@@ -293,17 +293,27 @@ sleep 4
 oc create secret generic hf-creds --from-env-file=hf-creds -n granite-1b-a400m
 ----
 
+
+.nomic-embed-text-v1
+[source, bash]
+----
+oc apply -f application-serve-nomic-embed-text-v1.yaml
+sleep 4
+oc create secret generic hf-creds --from-env-file=hf-creds -n nomic-embed-text-v1
+----
+
+
 .Testing LLM certificates
 [source, bash]
 ----
 # Retrieve certificates
-openssl s_client -showcerts -connect granite-1b-a400m.granite-1b-a400m.svc.cluster.local:443 </dev/null
+openssl s_client -showcerts -connect mistral-7b.mistral-7b.svc.cluster.local:443 </dev/null
 
 # Check models endpoint
-curl --cacert /etc/pki/ca-trust/source/anchors/service-ca.crt https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local:443/v1/models
+curl --cacert /etc/pki/ca-trust/source/anchors/service-ca.crt https://mistral-7b.mistral-7b.svc.cluster.local:443/v1/models
 
 # Check Completion (It might be /v1/chat/completions)
-curl -s -X 'POST' https://granite-1b-a400m.granite-1b-a400m.svc.cluster.local/v1/completions -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"model": "granite-1b-a400m","prompt": "San Francisco is a"}'
+curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"model": "mistral-7b","prompt": "San Francisco is a"}'
 ----
 
 

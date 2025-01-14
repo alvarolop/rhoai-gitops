@@ -9,5 +9,6 @@ resources:
 
   - rb-rhods-admin-ic-shared-minio.yaml
   - rb-rhods-admin-mistral-7b.yaml
+  - rb-rhods-admin-nomic-embed-text-v1.yaml
   - rb-rhods-admin-open-webui.yaml
   - rb-rhods-admin-rhoai-playground.yaml

@@ -1,0 +1,14 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rhods-admin-nomic-embed-text-v1
+  namespace: nomic-embed-text-v1
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: rhods-admins
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
