@@ -45,6 +45,26 @@ spec:
               value: /etc/pki/ca-trust/source/anchors/service-ca.crt
             - name: WEBUI_AUTH
               value: "False"
+            {{- if .Values.rag.enable }}
+            # VectorDB
+            - name: VECTOR_DB
+              value: "milvus"
+            - name: MILVUS_URI
+              value: "http://root:Milvus@vectordb-milvus.milvus.svc.cluster.local:19530"
+            # - name: RAG_TOP_K
+            #   value: "milvus"
+            # - name: RAG_RELEVANCE_THRESHOLD
+            #   value: "milvus"
+            # - name: RAG_RELEVANCE_THRESHOLD
+            #   value: "milvus"
+            # Embeddings configuration
+            - name: RAG_EMBEDDING_ENGINE
+              value: "openai"
+            - name: RAG_OPENAI_API_BASE_URL
+              value: "https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local"
+            - name: RAG_EMBEDDING_MODEL
+              value: "nomic-embed-text-v1"
+            {{- end }}
           ports:
             - name: http
               containerPort: 8080
