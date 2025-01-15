@@ -109,6 +109,22 @@ oc apply -f application-console-plugin-nvidia-gpu.yaml
 oc patch consoles.operator.openshift.io cluster --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "console-plugin-nvidia-gpu" }]' --type=json
 
 
+echo -e "\n====================="
+echo -e "=   Observability   ="
+echo -e "=====================\n"
+
+echo -e "\nLabel all non-gpu worker nodes for simplicity. Not for production use"
+for node in $(oc get nodes -l node-role.kubernetes.io/worker -o name); do
+    # Check if the node does not have a GPU-related label or resource
+    if ! oc describe $node | grep -q "nvidia.com/gpu"; then
+        # Label the node as a non-GPU worker
+        oc label $node node-role.kubernetes.io/infra=
+    fi
+done
+
+echo -e "\tEnable User Workload monitoring for TrustAI."
+oc apply -f https://raw.githubusercontent.com/alvarolop/quarkus-observability-app/refs/heads/main/apps/application-ocp-monitoring.yaml
+
 echo -e "\n======================"
 echo -e "= MinIO Installation ="
 echo -e "======================\n"
