@@ -12,6 +12,7 @@ source ./aws-env-vars
 CREATE_GPU_MACHINESETS=true
 INSTALL_MINIO=true
 INSTALL_ODF=false
+INSTALL_MONITORING=true
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g5.4xlarge
 
@@ -44,7 +45,7 @@ echo -e "\n=================="
 echo -e "=    GPU INFRA   ="
 echo -e "==================\n"
 
-if [ "$CREATE_GPU_MACHINESETS" = true ]; then
+if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo "Adding GPU nodes to the cluster. Adding three availability zones for the future, but only one node in AZ a."
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
@@ -67,7 +68,7 @@ else
     echo "Skip creation of NVIDIA gpu nodes..."
 fi
 
-if [ "$INSTALL_ODF" = true ]; then
+if [[ "$INSTALL_ODF" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     # Precheck to ensure there are at least 3 worker nodes without taints for GPU
     echo -e "\nPrecheck: Ensuring there are at least 3 non-GPU worker nodes available..."
@@ -113,23 +114,29 @@ echo -e "\n====================="
 echo -e "=   Observability   ="
 echo -e "=====================\n"
 
-echo -e "\nLabel all non-gpu worker nodes for simplicity. Not for production use"
-for node in $(oc get nodes -l node-role.kubernetes.io/worker -o name); do
-    # Check if the node does not have a GPU-related label or resource
-    if ! oc describe $node | grep -q "nvidia.com/gpu"; then
-        # Label the node as a non-GPU worker
-        oc label $node node-role.kubernetes.io/infra=
-    fi
-done
+if [[ "$INSTALL_MONITORING" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
-echo -e "\tEnable User Workload monitoring for TrustAI."
-oc apply -f https://raw.githubusercontent.com/alvarolop/quarkus-observability-app/refs/heads/main/apps/application-ocp-monitoring.yaml
+    echo -e "\nLabel all non-gpu worker nodes for simplicity. Not for production use"
+    for node in $(oc get nodes -l node-role.kubernetes.io/worker -o name); do
+        # Check if the node does not have a GPU-related label or resource
+        if ! oc describe $node | grep -q "nvidia.com/gpu"; then
+            # Label the node as a non-GPU worker
+            oc label $node node-role.kubernetes.io/infra=
+        fi
+    done
+
+    echo -e "\tEnable User Workload monitoring for TrustAI."
+    oc apply -f https://raw.githubusercontent.com/alvarolop/quarkus-observability-app/refs/heads/main/apps/application-ocp-monitoring.yaml
+
+else
+    echo -e "\nSkip Monitoring configuration..."
+fi 
 
 echo -e "\n======================"
 echo -e "= MinIO Installation ="
 echo -e "======================\n"
 
-if [ "$INSTALL_MINIO" = true ]; then
+if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     echo -e "1) Trigger the ArgoCD application to install MinIO instance"
     oc apply -f application-minio.yaml
@@ -167,7 +174,7 @@ echo -e "\n======================"
 echo -e "=  ODF Installation  ="
 echo -e "======================\n"
 
-if [ "$INSTALL_ODF" = true ]; then
+if [[ "$INSTALL_ODF" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     echo -e "\n1) Label all non-GPU worker nodes to storage nodes for simplicity. Not for production use"
     for node in $(oc get nodes -l node-role.kubernetes.io/worker -o name | grep -v "gpu-worker"); do
@@ -255,7 +262,7 @@ echo -e "\n=========================="
 echo -e "= Post Install utilities ="
 echo -e "==========================\n"
 
-if [ "$CREATE_RHOAI_ENV" = true ]; then
+if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "Trigger the ArgoCD application to deploy the RHOAI Playground environment"
     oc apply -f application-rhoai-playground-env.yaml
 else
