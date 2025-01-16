@@ -14,9 +14,10 @@ spec:
     path: components/milvus
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
+    helm:
+      values: |
+        clusterDomain: $CLUSTER_DOMAIN
   syncPolicy:
     automated:
       prune: false
       selfHeal: false
-    # syncOptions:
-    #   - CreateNamespace=true

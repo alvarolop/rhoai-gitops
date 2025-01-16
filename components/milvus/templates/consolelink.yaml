@@ -1,0 +1,14 @@
+{{- if .Values.clusterDomain }}
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: {{ .Release.Namespace }}-attu
+spec:
+  href: "https://attu-{{ .Release.Namespace }}.apps.{{ .Values.clusterDomain }}"
+  location: ApplicationMenu
+  text: "Milvus | Attu"
+  applicationMenu:
+    section: OpenShift Self Managed Services
+    imageURL: "https://attu-{{ .Release.Namespace }}.apps.{{ .Values.clusterDomain }}/attu.svg"
+{{- end }}

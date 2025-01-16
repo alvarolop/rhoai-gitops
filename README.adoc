@@ -524,14 +524,17 @@ https://github.com/rh-aiservices-bu/llm-on-openshift/blob/main/vector-databases/
 
 [source, bash]
 ----
-oc apply -f application-milvus.yaml
+cat application-milvus.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    envsubst | oc apply -f -
 ----
 
 or you can deploy it manually with the following command:
 
 [source, bash]
 ----
-oc apply -f components/milvus
+helm template components/milvus --namespace="milvus" \
+    --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') | oc apply -f -
 ----
 
 The password for the Attu GUI is `root` / `Milvus`.
