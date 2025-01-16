@@ -58,12 +58,20 @@ spec:
             # - name: RAG_RELEVANCE_THRESHOLD
             #   value: "milvus"
             # Embeddings configuration
+            # Option 1: OpenAI
             - name: RAG_EMBEDDING_ENGINE
               value: "openai"
             - name: RAG_OPENAI_API_BASE_URL
-              value: "https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local"
+              value: "https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/v1"
             - name: RAG_EMBEDDING_MODEL
               value: "nomic-embed-text-v1"
+            # Option 2: Ollama
+            # - name: RAG_EMBEDDING_ENGINE
+            #   value: "ollama"
+            # - name: RAG_OLLAMA_BASE_URL
+            #   value: "https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local"
+            # - name: RAG_EMBEDDING_MODEL
+            #   value: "nomic-embed-text-v1"
             {{- end }}
           ports:
             - name: http

@@ -314,7 +314,53 @@ curl --cacert /etc/pki/ca-trust/source/anchors/service-ca.crt https://mistral-7b
 
 # Check Completion (It might be /v1/chat/completions)
 curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"model": "mistral-7b","prompt": "San Francisco is a"}'
+
+# Embeddings
+curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"model": "mistral-7b","prompt": "San Francisco is a"}'
 ----
+
+
+.Embeddings
+[source, bash]
+----
+curl -s -X 'POST' \
+  "https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/v1/embeddings" \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "model": "nomic-embed-text-v1",
+  "input": ["En un lugar de la Mancha..."]
+}'
+
+# API Endpoints:
+# * Ollama => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/api/embed
+# * OpenAI => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/embeddings
+----
+
+
+
+
+
+
+
+
+
+== Monitoring models with TrustyAI
+
+To ensure that machine-learning models are transparent, fair, and reliable, data scientists can use TrustyAI in OpenShift AI to monitor their data science models. Data scientists can monitor their data science models in OpenShift AI for *Bias* and *Data Drift*.
+
+
+[source, bash]
+----
+TRUSTY_ROUTE=$(oc get route/trustyai-service --template="https://{{.spec.host}}")
+
+
+----
+
+
+
+
+
 
 
 
@@ -461,7 +507,8 @@ or you can deploy it manually with the following command:
 ----
 helm template components/open-webui --namespace="open-webui" \
     --set llmInferenceService.url="https://mistral-7b.mistral-7b.svc.cluster.local/v1" \
-    --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') | oc apply -f -
+    --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    --set rag.enable="true" | oc apply -f -
 ----
 
 
