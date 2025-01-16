@@ -11,4 +11,4 @@ llmInferenceService:
 clusterDomain: ""
 
 rag:
-  enable: false
+  enabled: false

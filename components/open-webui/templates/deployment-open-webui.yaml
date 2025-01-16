@@ -45,7 +45,7 @@ spec:
               value: /etc/pki/ca-trust/source/anchors/service-ca.crt
             - name: WEBUI_AUTH
               value: "False"
-            {{- if .Values.rag.enable }}
+            {{- if .Values.rag.enabled }}
             # VectorDB
             - name: VECTOR_DB
               value: "milvus"

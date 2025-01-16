@@ -508,7 +508,7 @@ or you can deploy it manually with the following command:
 helm template components/open-webui --namespace="open-webui" \
     --set llmInferenceService.url="https://mistral-7b.mistral-7b.svc.cluster.local/v1" \
     --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    --set rag.enable="true" | oc apply -f -
+    --set rag.enabled="true" | oc apply -f -
 ----
 
 
