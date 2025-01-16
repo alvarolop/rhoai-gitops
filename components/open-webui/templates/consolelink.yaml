@@ -10,5 +10,5 @@ spec:
   text: Open WebUI
   applicationMenu:
     section: OpenShift Self Managed Services
-    imageURL: https://open-webui-open-webui.apps.ocp.sandbox557.opentlc.com/favicon/favicon-96x96.png
+    imageURL: "https://open-webui-{{ .Release.Namespace }}.apps.{{ .Values.clusterDomain }}/favicon/favicon-96x96.png"
 {{- end }}
