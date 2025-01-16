@@ -10,5 +10,5 @@ spec:
   text: "Milvus | Attu"
   applicationMenu:
     section: OpenShift Self Managed Services
-    imageURL: "https://attu-{{ .Release.Namespace }}.apps.{{ .Values.clusterDomain }}/attu.svg"
+    imageURL: "https://images.crunchbase.com/image/upload/c_pad,h_170,w_170,f_auto,b_white,q_auto:eco,dpr_1/qa7uilyathgvb36hsfrf"
 {{- end }}

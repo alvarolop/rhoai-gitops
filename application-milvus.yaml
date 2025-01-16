@@ -9,6 +9,7 @@ metadata:
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
+    namespace: milvus
   project: default
   source:
     path: components/milvus
