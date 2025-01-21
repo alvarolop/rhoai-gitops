@@ -51,8 +51,6 @@ spec:
               value: "milvus"
             - name: MILVUS_URI
               value: "http://root:Milvus@vectordb-milvus.milvus.svc.cluster.local:19530"
-            # - name: RAG_TOP_K
-            #   value: "milvus"
             # - name: RAG_RELEVANCE_THRESHOLD
             #   value: "milvus"
             # - name: RAG_RELEVANCE_THRESHOLD

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: serve-mistral-7b
   name: serve-mistral-7b
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'

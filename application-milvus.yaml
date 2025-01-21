@@ -5,7 +5,7 @@ metadata:
   labels:
     app: milvus
   name: milvus
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'

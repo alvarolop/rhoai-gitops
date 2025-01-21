@@ -5,7 +5,7 @@ metadata:
   labels:
     app: minio
   name: minio
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'

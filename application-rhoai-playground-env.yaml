@@ -5,7 +5,7 @@ metadata:
   labels:
     app: rhoai-playground-env
   name: rhoai-playground-env
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'

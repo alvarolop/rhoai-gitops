@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ocp-lightspeed
   name: ocp-lightspeed
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'

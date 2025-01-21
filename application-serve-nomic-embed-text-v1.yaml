@@ -5,7 +5,7 @@ metadata:
   labels:
     app: serve-nomic-embed-text-v1
   name: serve-nomic-embed-text-v1
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: console-plugin-nvidia-gpu
   name: console-plugin-nvidia-gpu
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'

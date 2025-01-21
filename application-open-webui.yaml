@@ -5,7 +5,7 @@ metadata:
   labels:
     app: open-webui
   name: open-webui
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
@@ -21,8 +21,8 @@ spec:
           url: $LLM_INFERENCE_SERVICE_URL
           apiKey: "" # Set this to an empty string if no API key is needed
         clusterDomain: $CLUSTER_DOMAIN
-        # rag:
-        #   enabled: true
+        rag:
+          enabled: true
   syncPolicy:
     automated:
       prune: false

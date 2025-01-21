@@ -5,7 +5,7 @@ metadata:
   labels:
     app: rhoai-dependencies
   name: rhoai-dependencies
-  namespace: gitops
+  namespace: openshift-gitops
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
