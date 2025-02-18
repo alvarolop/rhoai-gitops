@@ -63,8 +63,6 @@ image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rh
 
 * *dashboard*: Provides the RHOAI dashboard.
 
-* *datasciencepipelines*: This enables you to build portable machine learning workflows. Requires the OpenShift Pipelines Operator to be present before enabling the data science pipelines.
-
 * *kserve*: RHOAI uses Kserve to serve large language models that can scale based on demand. Requires the OpenShift Serverless and the OpenShift Service Mesh operators to be present before enabling the component. Does not support enabled ModelMeshServing at the same time.
 
 * *kueue*: Kueue component configuration. It is not yet in Technology Preview
