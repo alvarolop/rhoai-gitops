@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: minio
-  namespace: {{ .Values.Namespace }}
+  namespace: {{ .Values.namespace }}
 spec:
   accessModes:
     - ReadWriteOnce

@@ -3,7 +3,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: minio
-  namespace: {{ .Values.Namespace }}
+  namespace: {{ .Values.namespace }}
 spec:
   ipFamilies:
     - IPv4

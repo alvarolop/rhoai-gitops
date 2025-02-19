@@ -3,7 +3,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: minio
-  namespace: {{ .Values.Namespace }}
+  namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
   selector:

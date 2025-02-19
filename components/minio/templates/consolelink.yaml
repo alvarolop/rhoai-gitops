@@ -3,9 +3,9 @@
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
 metadata:
-  name: {{ .Values.Namespace }}-attu
+  name: {{ .Values.namespace }}-attu
 spec:
-  href: "https://minio-ui-{{ .Values.Namespace }}.apps.{{ .Values.clusterDomain }}"
+  href: "https://minio-ui-{{ .Values.namespace }}.apps.{{ .Values.clusterDomain }}"
   location: ApplicationMenu
   text: Minio UI
   applicationMenu:
