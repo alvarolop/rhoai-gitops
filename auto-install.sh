@@ -158,7 +158,7 @@ if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "\n3) Let's wait until all the pods are up and running"
     while oc get pods -n $MINIO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
 
-    ./prerequisites/s3-bucket/create-minio-s3-bucket.sh
+    ./prerequisites/s3-bucket/create-minio-s3-bucket.sh minio minio
 
 else
     echo "Skip installation of MinIO..."
