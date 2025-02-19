@@ -17,7 +17,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: minio-user
+            claimName: minio
       containers:
         - resources:
             limits:
@@ -48,12 +48,12 @@ spec:
             - name: MINIO_ROOT_USER
               valueFrom:
                 secretKeyRef:
-                  name: minio
+                  name: minio-user
                   key: minio_root_user
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: minio
+                  name: minio-user
                   key: minio_root_password
           ports:
             - containerPort: 9000

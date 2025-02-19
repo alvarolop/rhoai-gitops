@@ -138,31 +138,25 @@ echo -e "======================\n"
 
 if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
+    MINIO_NAMESPACE="minio"
+    MINIO_SERVICE_NAME="minio"
+    MINIO_ADMIN_USERNAME="minio"
+    MINIO_ADMIN_PASSWORD="minio123"
+
     echo -e "1) Trigger the ArgoCD application to install MinIO instance"
-    oc apply -f application-minio.yaml
+    cat application-minio.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    MINIO_NAMESPACE=$MINIO_NAMESPACE MINIO_SERVICE_NAME=$MINIO_SERVICE_NAME \
+    MINIO_ADMIN_USERNAME=$MINIO_ADMIN_USERNAME MINIO_ADMIN_PASSWORD=$MINIO_ADMIN_PASSWORD \
+    envsubst | oc apply -f -
 
     echo -e "\n2) Wait 10 seconds for resources to be created"
     for i in {10..1}; do
-    echo -ne "\tTime left: $i seconds.\r"
-    sleep 1
+        echo -ne "\tTime left: $i seconds.\r"; sleep 1
     done
 
     echo -e "\n3) Let's wait until all the pods are up and running"
-    while oc get pods -n ic-shared-minio | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
-
-    oc apply -f - <<-EOF
-    apiVersion: console.openshift.io/v1
-    kind: ConsoleLink
-    metadata:
-      name: minio-route
-    spec:
-      href: "$(oc get routes -n ic-shared-minio minio-ui --template='https://{{ .spec.host }}')"
-      location: ApplicationMenu
-      text: Minio UI
-      applicationMenu:
-        section: OpenShift Self Managed Services
-        imageURL: https://elest.io/images/softwares/63/logo.png
-EOF
+    while oc get pods -n $MINIO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
 
     ./prerequisites/s3-bucket/create-minio-s3-bucket.sh
 

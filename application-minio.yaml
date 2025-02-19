@@ -9,12 +9,20 @@ metadata:
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: ic-shared-minio
   project: default
   source:
     path: components/minio
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
+    helm:
+      values: |
+        clusterDomain: $CLUSTER_DOMAIN
+        namespace: $MINIO_NAMESPACE
+        service:
+          name: $MINIO_SERVICE_NAME
+        adminUser:
+          username: $MINIO_ADMIN_USERNAME
+          password: $MINIO_ADMIN_PASSWORD
   syncPolicy:
     automated:
       prune: false

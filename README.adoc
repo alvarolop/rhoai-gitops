@@ -479,7 +479,21 @@ This demo is fully oriented to use the default and production ready capabilities
 
 [source, bash]
 ----
-oc apply -f application-minio.yaml
+cat application-minio.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    MINIO_NAMESPACE="minio" MINIO_SERVICE_NAME="minio" \
+    MINIO_ADMIN_USERNAME="minio" MINIO_ADMIN_PASSWORD="minio123" \
+    envsubst | oc apply -f -
+----
+
+or you can deploy it manually with the following command:
+
+[source, bash]
+----
+helm template components/minio \
+    --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    --set namespace="minio" --set service.name="minio" \
+    --set adminUser.username="minio" --set adminUser.password="minio123" | oc apply -f -
 ----
 
 User and password is `minio` / `minio123`.
