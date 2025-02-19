@@ -1,0 +1,14 @@
+{{- if .Values.clusterDomain }}
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: {{ .Values.Namespace }}-attu
+spec:
+  href: "https://minio-ui-{{ .Values.Namespace }}.apps.{{ .Values.clusterDomain }}"
+  location: ApplicationMenu
+  text: Minio UI
+  applicationMenu:
+    section: OpenShift Self Managed Services
+    imageURL: https://elest.io/images/softwares/63/logo.png
+{{- end }}

@@ -3,6 +3,7 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: minio-ui
+  namespace: {{ .Values.Namespace }}
 spec:
   to:
     kind: Service

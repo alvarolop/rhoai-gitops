@@ -3,6 +3,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: minio
+  namespace: {{ .Values.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -16,7 +17,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: minio
+            claimName: minio-user
       containers:
         - resources:
             limits:

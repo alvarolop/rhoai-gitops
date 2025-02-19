@@ -1,0 +1,11 @@
+# Default values for minio.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+clusterDomain: "opentlc.com"
+namespace: minio
+service:
+  name: minio
+adminUser:
+  username: minio
+  password: minio123
