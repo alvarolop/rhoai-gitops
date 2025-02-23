@@ -41,6 +41,8 @@ spec:
           persistence:
             enabled: true
             size: 100Gi
+          # https://github.com/docker-library/mysql/issues/1048
+          extraFlags: "--mysql-native-password=ON"
   syncPolicy:
     automated:
       prune: false
