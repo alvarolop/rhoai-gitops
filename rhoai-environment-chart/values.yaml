@@ -39,11 +39,14 @@ pipelinesConnection:
   secretName: dspa-pipelines-connection-secret
   type: s3
   scheme: http
-  awsS3Endpoint: minio-service.ic-shared-minio.svc.cluster.local
+  awsS3Endpoint: minio.minio.svc.cluster.local
   awsS3Port: "9000"
 
 distributedWorkloads:
   enabled: true
+
+modelTunning:
+  enabled: false
 
 # # Example with ODF
 # pipelinesConnection:

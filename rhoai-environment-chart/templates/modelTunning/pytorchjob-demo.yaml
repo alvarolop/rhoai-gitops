@@ -1,0 +1,44 @@
+{{- if .Values.modelTunning.enabled }}
+---
+apiVersion: kubeflow.org/v1
+kind: PyTorchJob
+metadata:
+  name: kfto-demo
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+spec:
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: Never
+      template:
+        spec:
+          containers:
+            - env:
+                - name: SFT_TRAINER_CONFIG_JSON_PATH
+                  value: /etc/config/config.json
+              image: 'quay.io/modh/fms-hf-tuning:release'
+              imagePullPolicy: IfNotPresent
+              name: pytorch
+              volumeMounts:
+                - mountPath: /etc/config
+                  name: config-volume
+                - mountPath: /data/input
+                  name: dataset-volume
+                - mountPath: /data/output
+                  name: model-volume
+          volumes:
+            - configMap:
+                items:
+                  - key: config.json
+                    path: config.json
+                name: training-config
+              name: config-volume
+            - configMap:
+                name: twitter-complaints
+              name: dataset-volume
+            - name: model-volume
+              persistentVolumeClaim:
+                claimName: trained-model
+  runPolicy:
+    suspend: false
+{{- end }}

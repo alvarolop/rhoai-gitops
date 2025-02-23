@@ -14,12 +14,3 @@ resources:
   - distributed-workloads
   # - rhoai-custom-notebooks # Create Custom Notebooks
   # - rhoai-runtimes
-
-# helmGlobals:
-#   chartHome: .
-
-# helmCharts:
-# - name: rhoai-environment-chart
-#   includeCRDs: false
-#   releaseName: rhoai-playground
-#   version: 0.1.0

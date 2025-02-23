@@ -1,0 +1,14 @@
+{{- if .Values.modelTunning.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: trained-model
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+{{- end }}
