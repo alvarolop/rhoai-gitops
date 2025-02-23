@@ -7,6 +7,4 @@ resources:
   - resourceflavor-default-flavor.yaml
 
   # The Kueue ClusterQueue object manages a pool of cluster resources such as pods, CPUs, memory, and accelerators.
-  - clusterqueue.yaml
-
-  - localqueue-playground.yaml
+  - clusterqueue-cluster-queue.yaml
