@@ -7,8 +7,8 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-05"
 spec:
-  # channel: managed-services
-  channel: tech-preview-v1
+  # channel: tech-preview-v1 # For OCP < 4.16
+  channel: stable
   installPlanApproval: Automatic
   name: authorino-operator
   source: redhat-operators

@@ -20,14 +20,14 @@ AWS_GPU_INSTANCE=g5.4xlarge
 ## Do not modify anything from this line
 #####################################
 
-# Print environment variables
-# echo -e "\n===================="
-# echo -e "ENVIRONMENT VARIABLES:"
-# echo -e " * LOKI_BUCKET: $LOKI_BUCKET"
-# echo -e " * LOKI_SECRET_NAMESPACE: $LOKI_SECRET_NAMESPACE"
-# echo -e " * TEMPO_BUCKET: $TEMPO_BUCKET"
-# echo -e " * TEMPO_SECRET_NAMESPACE: $TEMPO_SECRET_NAMESPACE"
-# echo -e "====================\n"
+Print environment variables
+echo -e "\n===================="
+echo -e "ENVIRONMENT VARIABLES:"
+echo -e " * LOKI_BUCKET: $LOKI_BUCKET"
+echo -e " * LOKI_SECRET_NAMESPACE: $LOKI_SECRET_NAMESPACE"
+echo -e " * TEMPO_BUCKET: $TEMPO_BUCKET"
+echo -e " * TEMPO_SECRET_NAMESPACE: $TEMPO_SECRET_NAMESPACE"
+echo -e "====================\n"
 
 # Check if the user is logged in 
 if ! oc whoami &> /dev/null; then
@@ -224,6 +224,9 @@ oc apply -f application-rhoai-model-registry-mysql.yaml
 
 echo -ne "\nWaiting for model-registry-mysql-crt certificate to be ready..."
 while [[ $(oc get certificate model-registry-mysql-crt -n model-registry-mysql -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo -n "." && sleep 5; done; echo -n -e "  [OK]\n"
+
+echo -ne "\nTriggering recreation of the mysql pod after long time waiting..."
+oc delete pods -n model-registry-mysql --all
 
 echo -e "\nLet's wait until all the pods are up and running"
 while oc get pods -n model-registry-mysql | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
