@@ -5,7 +5,7 @@ metadata:
   name: authorino-operator
   namespace: openshift-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "-05"
+    argocd.argoproj.io/sync-wave: "-30"
 spec:
   # channel: tech-preview-v1 # For OCP < 4.16
   channel: stable
