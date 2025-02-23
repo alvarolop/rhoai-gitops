@@ -17,4 +17,4 @@ resources:
   - operator-servicemesh
   
   # Support for authentication of server models
-  # - operator-authorino
+  - operator-authorino
