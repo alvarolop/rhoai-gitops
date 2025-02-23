@@ -30,7 +30,7 @@ spec:
     host: mysql.rhoai-model-registries-mysql.svc.cluster.local
     passwordSecret:
       key: database-password
-      name: testing-registry-db
+      name: default-registry-db
     port: 3306
     skipDBCreation: false
     username: root

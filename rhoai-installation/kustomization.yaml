@@ -13,6 +13,6 @@ resources:
 
   - distributed-workloads
 
-  - model-registry
+  # - model-registry
   # - rhoai-custom-notebooks # Create Custom Notebooks
   # - rhoai-runtimes

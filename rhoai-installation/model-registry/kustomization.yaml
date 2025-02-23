@@ -4,4 +4,4 @@ kind: Kustomization
 
 resources:
   - modelregistry-default.yaml
-  - secret-testing-registry-db.yaml
+  - secret-default-registry-db.yaml
