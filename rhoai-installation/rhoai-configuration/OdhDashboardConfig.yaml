@@ -15,7 +15,7 @@ spec:
     disableBYONImageStream: false
     disableClusterManager: false
     disableCustomServingRuntimes: false
-    disableDistributedWorkloads: true
+    disableDistributedWorkloads: false
     disableISVBadges: false
     disableInfo: false
     disableKServe: false
