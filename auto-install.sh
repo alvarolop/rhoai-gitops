@@ -219,6 +219,15 @@ echo -e "\n======================"
 echo -e "= RHOAI Installation ="
 echo -e "======================\n"
 
+echo -e "Deploy MySQL database on a provided namespace to support Model Registry"
+oc apply -f application-rhoai-model-registry-mysql.yaml
+
+echo -ne "\nWaiting for model-registry-mysql-crt certificate to be ready..."
+while [[ $(oc get certificate model-registry-mysql-crt -n model-registry-mysql -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo -n "." && sleep 5; done; echo -n -e "  [OK]\n"
+
+echo -e "\nLet's wait until all the pods are up and running"
+while oc get pods -n model-registry-mysql | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
+
 echo -e "Trigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
 

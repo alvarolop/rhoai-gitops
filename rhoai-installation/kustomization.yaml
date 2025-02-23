@@ -7,7 +7,6 @@ labels:
       app.kubernetes.io/instance: rhoai
 
 resources:
-  # Actual installation of RHOAI operator
   - operator-rhoai
   
   - rhoai-configuration # Configure RHOAI cluster
