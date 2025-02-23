@@ -264,18 +264,16 @@ See the following https://ai-on-openshift.io/odh-rhoai/single-stack-serving-cert
 
 === Managing distributed workloads
 
-You can use the distributed workloads feature to queue, scale, and manage the resources required to run data science workloads across multiple nodes in an OpenShift cluster simultaneously. There are three components that take a relevant part in this feature:
+You can use the distributed workloads feature to queue, scale, and manage the resources required to run data science workloads across multiple nodes in an OpenShift cluster simultaneously. These three components need to be enabled on the RHOAI installation configuration:
 
 * *CodeFlare*: Secures deployed Ray clusters and grants access to their URLs.
 * *KubeRay*: Manages remote Ray clusters on OpenShift for running distributed compute workloads.
 * *Kueue*: Manages quotas and how distributed workloads consume them, and manages the queueing of distributed workloads with respect to quotas.
 
-These three components need to be enabled on the RHOAI installation configuration.
-
+If you want to try this feature, I recommend you to follow the RH documentation, which points to the following https://github.com/project-codeflare/codeflare-sdk/tree/main/demo-notebooks/guided-demos[Guided Demos].
 
 * Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/managing_openshift_ai/managing-distributed-workloads_managing-rhoai[Installation guide].
 * Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/working_with_distributed_workloads/index[Configuration guide].
-
 
 
 After everything is configured, you can use the Model Tunning example from the Helm chart to see some stats:
@@ -288,7 +286,6 @@ helm template ./rhoai-environment-chart \
     -s templates/modelTunning/pvc-trained-model.yaml \
     -s templates/modelTunning/pytorchjob-demo.yaml \
     --set modelTunning.enabled=true | oc apply -f -
-
 ----
 
 

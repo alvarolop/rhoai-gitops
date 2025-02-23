@@ -20,7 +20,7 @@ AWS_GPU_INSTANCE=g5.4xlarge
 ## Do not modify anything from this line
 #####################################
 
-Print environment variables
+# Print environment variables
 echo -e "\n===================="
 echo -e "ENVIRONMENT VARIABLES:"
 echo -e " * LOKI_BUCKET: $LOKI_BUCKET"
@@ -222,14 +222,14 @@ echo -e "======================\n"
 echo -e "Deploy MySQL database on a provided namespace to support Model Registry"
 oc apply -f application-rhoai-model-registries-mysql.yaml
 
-echo -ne "\nWaiting for model-registry-mysql-crt certificate to be ready..."
-while [[ $(oc get certificate model-registry-mysql-crt -n model-registry-mysql -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo -n "." && sleep 5; done; echo -n -e "  [OK]\n"
+echo -ne "\nWaiting for mysql-crt certificate to be ready..."
+while [[ $(oc get certificate mysql-crt -n rhoai-model-registries-mysql -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo -n "." && sleep 5; done; echo -n -e "  [OK]\n"
 
 echo -ne "Triggering recreation of the mysql pod after long time waiting..."
-oc delete pods -n model-registry-mysql --all
+oc delete pods -n rhoai-model-registries-mysql --all
 
 echo -e "Waiting until all the pods are up and running"
-while oc get pods -n model-registry-mysql | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
+while oc get pods -n rhoai-model-registries-mysql | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
 
 echo -e "\nTrigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
@@ -255,42 +255,3 @@ else
 fi
 
 echo "That's all!! RHOAI should be up and running!! :)"
- 
-
-
-
-
-
-# echo -e "\nWaiting for ObjectBucketClaim for Tempo to be ready..."
-
-# until [[ "$(oc get objectbucketclaim tempo-bucket-odf -n openshift-tempo-operator -o jsonpath='{.status.phase}')" == "Bound" ]]; do
-#     echo "Waiting for ObjectBucketClaim 'tempo-bucket-odf' to be bound..."
-#     sleep 10
-# done
-
-# echo "ObjectBucketClaim 'tempo-bucket-odf' is ready."
-
-
-
-#
-# This section is no longer  needed as Kiali is not required for this
-# 
-
-# Get the list of install plans with manual approval and not in Complete status
-# echo "Looking for an existing approved Kiali InstallPlan..."
-# approved_plan=$(oc get installplan -n openshift-operators -o jsonpath='{.items[?(@.spec.approval=="Manual" && @.status.phase=="Complete")].metadata.name}' 2>/dev/null | grep 'kiali' | head -n 1)
-
-# if [[ -n "$approved_plan" ]]; then
-#   echo "An approved InstallPlan for Kiali already exists: ${approved_plan}. Skipping approval process."
-# else
-#   echo "No approved Kiali InstallPlan found. Looking for a pending InstallPlan to approve..."
-#   install_plan=$(oc get installplan -n openshift-operators -o jsonpath='{.items[?(@.spec.approval=="Manual")].metadata.name}' 2>/dev/null | grep -v 'Complete' | grep 'kiali' | head -n 1)
-
-#   if [[ -n "$install_plan" ]]; then
-#     echo "Pending InstallPlan found: ${install_plan}, approving..."
-#     oc patch installplan "$install_plan" -n openshift-operators --type merge --patch '{"spec": {"approved": true}}'
-#     echo "InstallPlan ${install_plan} approved."
-#   else
-#     echo "No pending InstallPlan found, continuing..."
-#   fi
-# fi
