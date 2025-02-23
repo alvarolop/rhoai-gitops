@@ -1,0 +1,39 @@
+---
+apiVersion: modelregistry.opendatahub.io/v1alpha1
+kind: ModelRegistry
+metadata:
+  annotations:
+    openshift.io/description: Default registry for models
+    openshift.io/display-name: Default Registry
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: default-registry
+  namespace: rhoai-model-registries
+spec:
+  grpc:
+    port: 9090
+  istio:
+    gateway:
+      grpc:
+        gatewayRoute: enabled
+        port: 443
+        tls:
+          mode: SIMPLE
+      istioIngress: ingressgateway
+      rest:
+        gatewayRoute: enabled
+        port: 443
+        tls:
+          mode: SIMPLE
+    tlsMode: ISTIO_MUTUAL
+  mysql:
+    database: model-registry-db
+    host: mysql.rhoai-model-registries-mysql.svc.cluster.local
+    passwordSecret:
+      key: database-password
+      name: testing-registry-db
+    port: 3306
+    skipDBCreation: false
+    username: root
+  rest:
+    port: 8080
+    serviceRoute: disabled
