@@ -9,6 +9,6 @@ metadata:
 spec:
   name: rhods-operator
   installPlanApproval: Automatic
-  channel: stable 
+  channel: fast # stable 
   source: redhat-operators
   sourceNamespace: openshift-marketplace

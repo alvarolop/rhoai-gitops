@@ -14,6 +14,15 @@ spec:
     path: rhoai-installation
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
+    # kustomize:
+    #   patches:
+    #     - target:
+    #         kind: Subscription
+    #         name: rhods-operator
+    #       patch: |-
+    #         - op: replace
+    #           path: /spec/channel
+    #           value: stable
   syncPolicy:
     automated:
       prune: false
