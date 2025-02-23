@@ -42,6 +42,9 @@ pipelinesConnection:
   awsS3Endpoint: minio-service.ic-shared-minio.svc.cluster.local
   awsS3Port: "9000"
 
+distributedWorkloads:
+  enabled: true
+
 # # Example with ODF
 # pipelinesConnection:
 #   storageBackend: odf

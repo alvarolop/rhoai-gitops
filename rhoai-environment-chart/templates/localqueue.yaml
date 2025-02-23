@@ -1,0 +1,13 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: LocalQueue
+metadata:
+  name: {{ .Values.dataScienceProjectNamespace }}-queue
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    kueue.x-k8s.io/default-queue: "true"
+spec:
+  clusterQueue: cluster-queue
+{{- end }}

@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # The Kueue ResourceFlavor object describes the resource variations that are available in a cluster.
+  - resourceflavor-default-flavor.yaml
+
+  # The Kueue ClusterQueue object manages a pool of cluster resources such as pods, CPUs, memory, and accelerators.
+  - clusterqueue.yaml
+
+  - localqueue-playground.yaml

@@ -220,45 +220,24 @@ echo -e "= RHOAI Installation ="
 echo -e "======================\n"
 
 echo -e "Deploy MySQL database on a provided namespace to support Model Registry"
-oc apply -f application-rhoai-model-registry-mysql.yaml
+oc apply -f application-rhoai-model-registries-mysql.yaml
 
 echo -ne "\nWaiting for model-registry-mysql-crt certificate to be ready..."
 while [[ $(oc get certificate model-registry-mysql-crt -n model-registry-mysql -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo -n "." && sleep 5; done; echo -n -e "  [OK]\n"
 
-echo -ne "\nTriggering recreation of the mysql pod after long time waiting..."
+echo -ne "Triggering recreation of the mysql pod after long time waiting..."
 oc delete pods -n model-registry-mysql --all
 
-echo -e "\nLet's wait until all the pods are up and running"
+echo -e "Waiting until all the pods are up and running"
 while oc get pods -n model-registry-mysql | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
 
-echo -e "Trigger the ArgoCD application to install RHOAI instance"
+echo -e "\nTrigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
 
-
-# echo -e "\tCopy the cluster certificates to RHOAI namespace for Single-model serving."
-# # https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/#procedure
-# # Wait until the 'istio-system' namespace exists
-# until oc get namespace istio-system >/dev/null 2>&1; do
-#   echo "Namespace 'istio-system' not found. Retrying in 5 seconds..."
-#   sleep 5
-# done
-
-# # Check if the secret already exists in the target namespace
-# if oc get secret ingress-certs -n istio-system >/dev/null 2>&1; then
-#     echo "Secret 'ingress-certs' already exists in namespace 'istio-system'. Skipping creation."
-# else
-#     echo "Secret 'ingress-certs' does not exist in namespace 'istio-system'. Creating it now."
-#     oc create secret generic ingress-certs --type=kubernetes.io/tls -n istio-system \
-#         --from-literal=tls.crt="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 --decode)" \
-#         --from-literal=tls.key="$(oc get secret ingress-certs -n openshift-ingress -o jsonpath='{.data.tls\.key}' | base64 --decode)"
-#     echo "Secret 'ingress-certs' created successfully in namespace 'istio-system'."
-# fi
-
-echo -e "\nLet's wait until all the pods are up and running"
+echo -e "Waiting until all the pods are up and running"
 while oc get pods -n redhat-ods-applications | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
 
-echo ""
-echo "You should be able now to access the RHOAI dashboard"
+echo -e "\nYou should be able now to access the RHOAI dashboard"
 
 echo "If you access the RHOAI dashboard > Settings > Cluster Settings and any of the model servings are not available, try restarting the dashboard pods:"
 echo -e "\toc delete pods -l app=rhods-dashboard -n redhat-ods-applications"

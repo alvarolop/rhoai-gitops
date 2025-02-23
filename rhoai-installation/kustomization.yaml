@@ -10,6 +10,8 @@ resources:
   - operator-rhoai
   
   - rhoai-configuration # Configure RHOAI cluster
+
+  - distributed-workloads
   # - rhoai-custom-notebooks # Create Custom Notebooks
   # - rhoai-runtimes
 
