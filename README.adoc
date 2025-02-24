@@ -293,9 +293,9 @@ helm template ./rhoai-environment-chart \
 You can also see some stats from the RHOAI dasboard:
 
 
-image::distributed-workload-metrics.png["Distributed Workload - Metrics", width=70%]
+image::distributed-workload-metrics.png["Distributed Workload - Metrics"]
 
-image::distributed-workload-status.png["Distributed Workload - Status", width=70%]
+image::distributed-workload-status.png["Distributed Workload - Status"]
 
 
 
