@@ -272,8 +272,10 @@ You can use the distributed workloads feature to queue, scale, and manage the re
 
 If you want to try this feature, I recommend you to follow the RH documentation, which points to the following https://github.com/project-codeflare/codeflare-sdk/tree/main/demo-notebooks/guided-demos[Guided Demos].
 
-* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/managing_openshift_ai/managing-distributed-workloads_managing-rhoai[Installation guide].
-* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/working_with_distributed_workloads/index[Configuration guide].
+
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/installing_and_uninstalling_openshift_ai_self-managed/index#updating-installation-status-of-openshift-ai-components-using-web-console_component-install[Installation guide].
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/managing_openshift_ai/managing-distributed-workloads_managing-rhoai[Configuration guide].
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/working_with_distributed_workloads/index[Usage guide].
 
 
 After everything is configured, you can use the Model Tunning example from the Helm chart to see some stats:
@@ -288,11 +290,19 @@ helm template ./rhoai-environment-chart \
     --set modelTunning.enabled=true | oc apply -f -
 ----
 
+You can also see some stats from the RHOAI dasboard:
+
+
+image::distributed-workload-metrics.png["Distributed Workload - Metrics", width=70%]
+
+image::distributed-workload-status.png["Distributed Workload - Status", width=70%]
+
 
 
 
 === Model Registry
 
+OpenShift AI now includes the posibility to deploy a model registries to store community and customized AI models. 
 
 
 * Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/configuring_the_model_registry_component[Installation guide].
@@ -301,6 +311,19 @@ helm template ./rhoai-environment-chart \
 
 
 
+
+
+=== Monitoring models with TrustyAI
+
+To ensure that machine-learning models are transparent, fair, and reliable, data scientists can use TrustyAI in OpenShift AI to monitor their data science models. Data scientists can monitor their data science models in OpenShift AI for *Bias* and *Data Drift*.
+
+
+[source, bash]
+----
+TRUSTY_ROUTE=$(oc get route/trustyai-service --template="https://{{.spec.host}}")
+
+
+----
 
 
 
@@ -382,17 +405,6 @@ curl -s -X 'POST' \
 
 
 
-== Monitoring models with TrustyAI
-
-To ensure that machine-learning models are transparent, fair, and reliable, data scientists can use TrustyAI in OpenShift AI to monitor their data science models. Data scientists can monitor their data science models in OpenShift AI for *Bias* and *Data Drift*.
-
-
-[source, bash]
-----
-TRUSTY_ROUTE=$(oc get route/trustyai-service --template="https://{{.spec.host}}")
-
-
-----
 
 
 
@@ -634,3 +646,10 @@ The password for the Attu GUI is `root` / `Milvus`.
 * https://github.com/alpha-hack-program/doc-bot
 * https://github.com/alpha-hack-program/ai-studio-rhoai/tree/main
 * https://github.com/davidseve/mlops/tree/main
+* https://github.com/redhat-na-ssa/hobbyist-guide-to-rhoai/blob/main/docs/10-demo-distributed_workloads.md
+
+
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+E0223 23:48:09.323659     1 mysql_metadata_source.cc:174] MySQL database was not initialized. Please ensure your MySQL server is running. Also, this error might be caused by starting from MySQL 8.0, mysql_native_password used by MLMD is not supported as a default for authentication plugin. Please follow <https://dev.mysql.com/blog-archive/upgrading-to-mysql-8-0-default-authentication-plugin-considerations/>to fix this issue.
+F0223 23:48:09.323763     1 metadata_store_server_main.cc:617] Check failed: absl::OkStatus() == status (OK vs. INTERNAL: mysql_real_connect failed: errno: , error:  [mysql-error-info='']) MetadataStore cannot be created with the given connection config.
+*** Check failure stack trace: ***
