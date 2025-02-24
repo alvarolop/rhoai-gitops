@@ -37,7 +37,8 @@ spec:
       managementState: Managed
     workbenches:
       managementState: Managed
-    # trainingoperator:
-    #   managementState: Removed
+    # Kubeflow Training Operator to tune models
+    trainingoperator:
+      managementState: Managed
     trustyai:
       managementState: Managed
