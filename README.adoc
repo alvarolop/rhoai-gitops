@@ -302,12 +302,43 @@ image::distributed-workload-status.png["Distributed Workload - Status"]
 
 === Model Registry
 
-OpenShift AI now includes the posibility to deploy a model registries to store community and customized AI models. 
+OpenShift AI now includes the possibility to deploy a model registry to store community and customized AI models. This model registry uses a `mysql` database as backend to store metadata and artifacts from your applications. Once deployed, your training pipelines can add an extra step putting model metadata to the registry.
 
+Using RHOAI Model Registry you have a centralized source of models as well as a simple way to deploy prepared models:
 
-* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/configuring_the_model_registry_component[Installation guide].
-* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/managing_model_registries[Configuration guide].
+image::model-registry-dashboard.png["Model Registry - Dashboard"]
 
+Here you can find examples of REST requests to query model metadata:
+
+[source, bash]
+----
+MODEL_REGISTRY_NAME=default
+MODEL_REGISTRY_HOST=$(oc get routes -n istio-system -l app.kubernetes.io/instance=${MODEL_REGISTRY_NAME} -o json | jq -r '.items[].status.ingress[].host | select(contains("-rest"))')
+TOKEN=$(oc whoami -t)
+
+# List models
+curl -s "https://${MODEL_REGISTRY_HOST}/api/model_registry/v1alpha3/registered_models?pageSize=100&orderBy=ID&sortOrder=DESC" \
+  -H "accept: application/json" \
+  -H "Authorization: Bearer ${TOKEN}" | jq .
+
+# List all model versions 
+MODEL_NAME="test"
+MODEL_ID="4"
+
+curl -s "https://${MODEL_REGISTRY_HOST}/api/model_registry/v1alpha3/registered_model?name=${MODEL_NAME}&externalId=${MODEL_ID}" \
+  -H "accept: application/json" \
+  -H "Authorization: Bearer ${TOKEN}" | jq .
+
+curl -s "https://${MODEL_REGISTRY_HOST}/api/model_registry/v1alpha3/registered_models/${MODEL_ID}/versions?name=${MODEL_NAME}&pageSize=100&orderBy=ID&sortOrder=DESC" \
+  -H "accept: application/json" \
+  -H "Authorization: Bearer ${TOKEN}" | jq .
+----
+
+If you want to try this feature, I recommend you to follow the RH documentation:
+
+* Documentation step 1: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/configuring_the_model_registry_component[Configuring the model registry component].
+* Documentation step 2: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/managing_model_registries[Managing Model Registries].
+* Documentation step 3: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/working_with_model_registries/index[Workign with Model Registries].
 
 
 

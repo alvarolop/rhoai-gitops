@@ -6,7 +6,7 @@ metadata:
     openshift.io/description: Default registry for models
     openshift.io/display-name: Default Registry
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-  name: default
+  name: pro
   namespace: rhoai-model-registries
 spec:
   grpc:
