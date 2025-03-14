@@ -5,7 +5,7 @@ metadata:
   name: nfd
   namespace: openshift-nfd
   annotations:
-    argocd.argoproj.io/sync-wave: "-15"
+    argocd.argoproj.io/sync-wave: "-05"
 spec:
   channel: stable 
   installPlanApproval: Automatic
