@@ -15,14 +15,14 @@ spec:
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
     kustomize:
-      patches:
-        - target:
-            kind: Subscription
-            name: odf-operator
-          patch: |-
-            - op: replace
-              path: /spec/channel
-              value: stable-4.17
+      # patches:
+      #   - target:
+      #       kind: Subscription
+      #       name: odf-operator
+      #     patch: |-
+      #       - op: replace
+      #         path: /spec/channel
+      #         value: stable-4.17
   syncPolicy:
     automated:
       prune: false

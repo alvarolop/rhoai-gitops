@@ -16,13 +16,13 @@ spec:
     targetRevision: main
     kustomize:
       patches:
-        - target:
-            kind: NodeFeatureDiscovery
-            name: nfd-instance
-          patch: |-
-            - op: replace
-              path: /spec/operand/image
-              value: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.17
+        # - target:
+        #     kind: NodeFeatureDiscovery
+        #     name: nfd-instance
+        #   patch: |-
+        #     - op: replace
+        #       path: /spec/operand/image
+        #       value: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.17
         - target:
             kind: Subscription
             name: authorino-operator
