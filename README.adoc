@@ -268,7 +268,7 @@ This setup includes a preconfigured OpenShift project designed as a RHOAI Data S
 [.button]
 link:rhoai-experiments/README.adoc[Explore RHOAI Experiments]
 
-![Custom Button](https://raw.githubusercontent.com/alvarolop/rhoai-gitops/refs/heads/main/docs/button/explore-button.svg?sanitize=true)
+image::https://raw.githubusercontent.com/alvarolop/rhoai-gitops/refs/heads/main/docs/button/explore-button.svg[Tux,250,350]
 
 
 
