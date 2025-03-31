@@ -268,7 +268,7 @@ This setup includes a preconfigured OpenShift project designed as a RHOAI Data S
 [.button]
 link:rhoai-experiments/README.adoc[Explore RHOAI Experiments]
 
-image::./docs/button/explore-button.svg[Embedded,opts=inline]
+image::./button/explore-button.svg[Embedded,opts=inline]
 
 
 
