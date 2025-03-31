@@ -265,7 +265,7 @@ See the following https://ai-on-openshift.io/odh-rhoai/single-stack-serving-cert
 
 This setup includes a preconfigured OpenShift project designed as a RHOAI Data Science Project. Explore and experiment with prebuilt pipelines to unlock powerful data analysis capabilities. Dive into RHOAI Pipelines and Experiments by clicking the button below:
 
-image::https://raw.githubusercontent.com/alvarolop/rhoai-gitops/refs/heads/main/docs/button/explore-button.svg[Explore RHOAI Experiments,opts=inline]
+image::https://raw.githubusercontent.com/alvarolop/rhoai-gitops/refs/heads/main/docs/images/button/explore-button.svg[Explore RHOAI Experiments,opts=inline]
 
 
 === Managing distributed workloads
