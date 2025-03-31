@@ -14,7 +14,7 @@ spec:
   source:
     # Bitnami helm repo in OCI format
     repoURL: registry-1.docker.io/bitnamicharts
-    targetRevision: 12.3.1
+    targetRevision: 12.3.2
     chart: mysql
     helm:
       releaseName: mysql
