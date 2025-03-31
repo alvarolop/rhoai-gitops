@@ -261,6 +261,16 @@ See the following https://ai-on-openshift.io/odh-rhoai/single-stack-serving-cert
 
 
 
+=== RHOAI Experiments
+
+This setup includes a preconfigured OpenShift project designed as a RHOAI Data Science Project. Explore and experiment with prebuilt pipelines to unlock powerful data analysis capabilities. Dive into RHOAI Pipelines and Experiments by clicking the button below:
+
+[.button]
+link:rhoai-experiments/README.adoc[Explore RHOAI Experiments]
+
+![Custom Button](https://raw.githubusercontent.com/alvarolop/rhoai-gitops/refs/heads/main/docs/button/explore-button.svg?sanitize=true)
+
+
 
 === Managing distributed workloads
 
@@ -353,7 +363,7 @@ To ensure that machine-learning models are transparent, fair, and reliable, data
 ----
 TRUSTY_ROUTE=$(oc get route/trustyai-service --template="https://{{.spec.host}}")
 
-
+# WIP
 ----
 
 
