@@ -2,7 +2,7 @@
 
 set -e
 
-source ./aws-env-vars
+source ./aws-env-vars # TODO: Check when it is needed
 
 #####################################
 # Set your environment variables here
@@ -25,13 +25,13 @@ REQUIRED_MEMORY_Gi="70"
 #####################################
 
 # Print environment variables
-echo -e "\n===================="
-echo -e "ENVIRONMENT VARIABLES:"
-echo -e " * LOKI_BUCKET: $LOKI_BUCKET"
-echo -e " * LOKI_SECRET_NAMESPACE: $LOKI_SECRET_NAMESPACE"
-echo -e " * TEMPO_BUCKET: $TEMPO_BUCKET"
-echo -e " * TEMPO_SECRET_NAMESPACE: $TEMPO_SECRET_NAMESPACE"
-echo -e "====================\n"
+# echo -e "\n===================="
+# echo -e "ENVIRONMENT VARIABLES:"
+# echo -e " * LOKI_BUCKET: $LOKI_BUCKET"
+# echo -e " * LOKI_SECRET_NAMESPACE: $LOKI_SECRET_NAMESPACE"
+# echo -e " * TEMPO_BUCKET: $TEMPO_BUCKET"
+# echo -e " * TEMPO_SECRET_NAMESPACE: $TEMPO_SECRET_NAMESPACE"
+# echo -e "====================\n"
 
 # Check if the user is logged in 
 if ! oc whoami &> /dev/null; then
@@ -194,7 +194,11 @@ if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "\n3) Let's wait until all the pods are up and running"
     while oc get pods -n $MINIO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done
 
-    ./prerequisites/s3-bucket/create-minio-s3-bucket.sh minio minio
+    if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+        ./prerequisites/s3-bucket/create-minio-s3-bucket.sh minio minio # TODO: remove the AWS dependency
+    else
+        echo "Skip creation of RHOAI Playground environment MinIO Bucket..."
+    fi
 
 else
     echo "Skip installation of MinIO..."
@@ -273,6 +277,11 @@ while oc get pods -n rhoai-model-registries-mysql | grep -v "Running\|Completed\
 
 echo -e "\nTrigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
+
+echo -e "\nWait 5 seconds for resources to be created"
+for i in {5..1}; do
+    echo -ne "\tTime left: $i seconds.\r"; sleep 1
+done
 
 echo -e "Waiting until all the pods are up and running"
 while oc get pods -n redhat-ods-applications | grep -v "Running\|Completed\|NAME"; do echo "Waiting..."; sleep 10; done

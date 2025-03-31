@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 AWS_VARS_FILE=aws-env-vars
 NOTEBOOK_NAMESPACE=rhoai-playground

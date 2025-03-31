@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NOTEBOOK_NAMESPACE=rhoai-playground
 
