@@ -1,0 +1,21 @@
+<svg viewBox="0 0 600 100">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial, sans-serif; text-align: center;">
+      <style>
+        .button {
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          font-size: 16px;
+        }
+        .button:hover {
+          background-color: #0056b3;
+        }
+      </style>
+      <a href="https://github.com/alvarolop/rhoai-gitops/tree/main/rhoai-experiments" class="button">Explore RHOAI Experiments</a>
+    </div>
+  </foreignObject>
+</svg>
