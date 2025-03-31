@@ -240,17 +240,20 @@ echo -e "\n==================="
 echo -e "= GPU NODES READY ="
 echo -e "===================\n"
 
-echo "This script waits until there is at least one node discovered as NVIDIA GPU node by the Node Feature Discovery Operator."
-echo "It checks every 15 seconds to see if nodes with the feature.node.kubernetes.io/pci-10de.present=true label are available."
-echo "0x10de is the PCI vendor ID that is assigned to NVIDIA."
-# https://docs.nvidia.com/datacenter/cloud-native/openshift/24.6.2/install-nfd.html#verify-that-the-node-feature-discovery-operator-is-functioning-correctly
+if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+    echo "This script waits until there is at least one node discovered as NVIDIA GPU node by the Node Feature Discovery Operator."
+    echo "It checks every 15 seconds to see if nodes with the feature.node.kubernetes.io/pci-10de.present=true label are available."
+    echo "0x10de is the PCI vendor ID that is assigned to NVIDIA."
+    # https://docs.nvidia.com/datacenter/cloud-native/openshift/24.6.2/install-nfd.html#verify-that-the-node-feature-discovery-operator-is-functioning-correctly
 
-while [[ $(oc get nodes -l feature.node.kubernetes.io/pci-10de.present=true -o go-template='{{ len .items }}') -eq 0 ]]; do
-  echo "No nodes found, waiting..."
-  sleep 15
-done
-echo "Nodes found!"
-
+    while [[ $(oc get nodes -l feature.node.kubernetes.io/pci-10de.present=true -o go-template='{{ len .items }}') -eq 0 ]]; do
+    echo "No nodes found, waiting..."
+    sleep 15
+    done
+    echo "Nodes found!"
+else
+    echo "Skip creation of NVIDIA gpu nodes..."
+fi
 
 echo -e "\n======================"
 echo -e "= RHOAI Installation ="
