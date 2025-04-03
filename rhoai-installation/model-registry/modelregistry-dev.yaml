@@ -18,7 +18,6 @@ spec:
         port: 443
         tls:
           mode: SIMPLE
-      istioIngress: ingressgateway
       rest:
         gatewayRoute: enabled
         port: 443
