@@ -267,7 +267,7 @@ This setup includes a preconfigured OpenShift project designed as a RHOAI Data S
 
 ++++
 <div align="center">
-  <a href="rhoai-experiments/README.adoc" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 16px;">Explore RHOAI Experiments</a>
+  <a href="rhoai-experiments/README.md" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 16px;">Explore RHOAI Experiments</a>
 </div>
 ++++
 
@@ -590,7 +590,7 @@ helm template components/minio \
 User and password is `minio` / `minio123`.
 
 * https://blog.stderr.at/gitopscollection/2024-05-17-configure-minio-buckets/
-
+* https://github.com/redhat-ai-services/helm-charts/tree/main/charts/minio
 
 === Open WebUI
 
