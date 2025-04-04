@@ -28,8 +28,8 @@ Below is a table summarizing each experiment in this repository:
 | Ex 02: Data Passing Between Components | A pipeline with two components that pass data between them.      | Component dependencies, input/output handling.        |
 | Ex 03A: Create Run in RHOAI | A pipeline that automatically executes itself as a Run in RHOAI.          | Component dependencies, upload.        
 | Ex 03B: Create Pipeline in RHOAI | A pipeline that automatically creates itself in RHOAI.          | Component dependencies, upload.                 |
-| Ex 03: Model Training           | A pipeline that preprocesses data and trains a machine learning model. | Data preparation, model training, persistent volumes. |
 | Ex 04: Conditional Execution    | A workflow that branches based on data quality checks.          | Conditional logic, validation gates.                  |
+| Ex 04: Model Training           | A pipeline that preprocesses data and trains a machine learning model. | Data preparation, model training, persistent volumes. |
 | Ex 05: Hyperparameter Tuning    | A pipeline that performs hyperparameter tuning using `Katib`.   | Search spaces, optimization algorithms, AutoML.       |
 | Ex 06: Model Registry Integration | A pipeline that registers trained models in the Model Registry.  | Model registration, metadata management, model versioning. |
 | Ex 07: Docling Ingestion        | Converts PDF documents to structured Markdown.                  | File processing, text extraction, format conversion.   |
@@ -43,11 +43,15 @@ Below is a table summarizing each experiment in this repository:
 python rhoai-experiments/01-hello-world/pipeline.py
 ```
 
+Then, you need to navigate to the `RHOAI Dashboard` > `Data Science Pipelines` > `Pipelines`. Select the namespace with a DSPA and import the pipeline from file.
+
 ### Ex 02: Data Passing between components
 
 ```bash
 python rhoai-experiments/02-data-passing/pipeline.py
 ```
+
+Then, you need to navigate to the `RHOAI Dashboard` > `Data Science Pipelines` > `Pipelines`. Select the namespace with a DSPA and import the pipeline from file.
 
 ### Ex 03A: Create a Pipeline Run
 
@@ -62,7 +66,7 @@ python rhoai-experiments/03-upload-kfp/pipeline-run.py
 ```bash
 export KUBEFLOW_ENDPOINT=$(oc get route ds-pipeline-dspa -n rhoai-playground --template="https://{{.spec.host}}")
 export BEARER_TOKEN=$(oc whoami --show-token)
-python rhoai-experiments/03-upload-kfp/pipeline-run.py
+python rhoai-experiments/03-upload-kfp/pipeline-pipeline.py
 ```
 
 
