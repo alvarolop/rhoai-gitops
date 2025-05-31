@@ -2,8 +2,6 @@
 
 set -e
 
-source ./aws-env-vars # TODO: Check when it is needed
-
 #####################################
 # Set your environment variables here
 #####################################
