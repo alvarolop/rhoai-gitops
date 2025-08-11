@@ -1,5 +1,5 @@
 ---
-apiVersion: modelregistry.opendatahub.io/v1alpha1
+apiVersion: modelregistry.opendatahub.io/v1beta1
 kind: ModelRegistry
 metadata:
   annotations:
@@ -11,19 +11,6 @@ metadata:
 spec:
   grpc:
     port: 9090
-  istio:
-    gateway:
-      grpc:
-        gatewayRoute: enabled
-        port: 443
-        tls:
-          mode: SIMPLE
-      rest:
-        gatewayRoute: enabled
-        port: 443
-        tls:
-          mode: SIMPLE
-    tlsMode: ISTIO_MUTUAL
   mysql:
     database: model_registry_db
     host: mysql.rhoai-model-registries-mysql
@@ -31,7 +18,6 @@ spec:
       key: database-password
       name: model-registry-db
     port: 3306
-    skipDBCreation: false
     username: root
   rest:
     port: 8080
