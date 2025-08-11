@@ -19,6 +19,7 @@ spec:
     disableISVBadges: false
     disableInfo: false
     disableKServe: false
+    disableModelCatalog: false
     disableModelMesh: false
     disableModelServing: false
     disablePerformanceMetrics: false
