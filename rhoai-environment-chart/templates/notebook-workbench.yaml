@@ -116,7 +116,7 @@ spec:
           --openshift-sar={"verb":"get","resource":"notebooks","resourceAPIGroup":"kubeflow.org","resourceName":"{{ .Values.workbench.name }}","namespace":"$(NAMESPACE)"}
         - >-
           --logout-url=$DASHBOARD_ROUTE/projects/{{ .Values.dataScienceProjectNamespace }}?notebookLogout={{ .Values.workbench.name }}
-        - '--client-id={{ .Values.workbench.name }}-{{ .Values.dataScienceProjectNamespace }}-oauth-client
+        - '--client-id={{ .Values.workbench.name }}-{{ .Values.dataScienceProjectNamespace }}-oauth-client'
         - '--client-secret-file=/etc/oauth/client/secret'
         - '--scope=user:info user:check-access'
         env:
