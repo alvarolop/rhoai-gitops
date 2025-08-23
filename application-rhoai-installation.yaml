@@ -11,18 +11,27 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: rhoai-installation
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
-    # kustomize:
-    #   patches:
-    #     - target:
-    #         kind: Subscription
-    #         name: rhods-operator
-    #       patch: |-
-    #         - op: replace
-    #           path: /spec/channel
-    #           value: stable
+    chart: rhoai-installation-chart
+    helm:
+      values: |
+        global:
+          culling:
+            enabled: true
+        
+        modelRegistry:
+          enabled: true
+          mysql:
+            enabled: true
+            namespace: rhoai-model-registries-mysql
+            name: mysql
+            persistence:
+              enabled: true
+              size: 30Gi
+        
+        distributedWorkloads:
+          enabled: true
   syncPolicy:
     automated:
       prune: false

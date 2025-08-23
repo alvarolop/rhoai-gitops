@@ -17,7 +17,7 @@ spec:
     disableBYONImageStream: false
     disableClusterManager: false
     disableCustomServingRuntimes: false
-    disableDistributedWorkloads: false
+    disableDistributedWorkloads: {{ not .Values.distributedWorkloads.enabled }}
     disableFineTuning: false  # Technology Preview - hides Model customization menu
     disableHardwareProfiles: true  # Technology Preview - overrides disableAcceleratorProfiles when false
     disableHome: false
@@ -31,7 +31,7 @@ spec:
     disableLMEval: false  # Technology Preview - Model evaluation runs
     disableModelCatalog: false  # Technology Preview - Model catalog menu
     disableModelMesh: false
-    disableModelRegistry: false  # Technology Preview - Model registry menu
+    disableModelRegistry: {{ not .Values.modelRegistry.enabled }}  # Technology Preview - Model registry menu
     disableModelRegistrySecureDB: false  # Technology Preview - CA certificate section
     disableModelServing: false
     disableNIMModelServing: false

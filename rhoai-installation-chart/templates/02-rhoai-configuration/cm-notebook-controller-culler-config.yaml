@@ -1,3 +1,4 @@
+{{- if .Values.global.culling.enabled }}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -11,5 +12,6 @@ data:
   ENABLE_CULLING: 'true'
   # The maximum allotted time to scale an inactive notebook to zero (in minutes)
   CULL_IDLE_TIME: '300'
-  # The polling frequency to check for a notebook’s last known activity (in minutes)
+  # The polling frequency to check for a notebook's last known activity (in minutes)
   IDLENESS_CHECK_PERIOD: '5'
+{{- end }}

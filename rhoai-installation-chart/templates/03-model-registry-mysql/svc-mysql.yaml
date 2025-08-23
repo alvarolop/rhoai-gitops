@@ -1,0 +1,19 @@
+{{- if and .Values.modelRegistry.enabled .Values.modelRegistry.mysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.modelRegistry.mysql.name }}
+  namespace: {{ .Values.modelRegistry.mysql.namespace }}
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: {{ .Values.modelRegistry.mysql.name }}-tls
+    argocd.argoproj.io/sync-wave: "-10"
+  labels:
+    app: {{ .Values.modelRegistry.mysql.name }}
+spec:
+  ports:
+    - port: 3306
+      name: mysql
+  clusterIP: None
+  selector:
+    app: {{ .Values.modelRegistry.mysql.name }}
+{{- end }}

@@ -1,4 +1,6 @@
+{{- if .Values.distributedWorkloads.enabled }}
 ---
+# The Kueue ClusterQueue object manages a pool of cluster resources such as pods, CPUs, memory, and accelerators.
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
@@ -20,3 +22,4 @@ spec:
         nominalQuota: '5'
       # - name: "amd.com/gpu"
       #   nominalQuota: 5
+{{- end }}

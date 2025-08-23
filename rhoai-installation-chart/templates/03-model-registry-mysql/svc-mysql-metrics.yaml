@@ -1,0 +1,17 @@
+{{- if and .Values.modelRegistry.enabled .Values.modelRegistry.mysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.modelRegistry.mysql.name }}-metrics
+  namespace: {{ .Values.modelRegistry.mysql.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+  labels:
+    app: {{ .Values.modelRegistry.mysql.name }}
+spec:
+  ports:
+    - port: 9104
+      name: metrics
+  selector:
+    app: {{ .Values.modelRegistry.mysql.name }}
+{{- end }}

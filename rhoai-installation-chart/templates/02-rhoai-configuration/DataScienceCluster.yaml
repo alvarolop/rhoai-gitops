@@ -36,13 +36,13 @@ spec:
     kueue:
       defaultClusterQueueName: default
       defaultLocalQueueName: default
-      managementState: Managed
+      managementState: {{ if .Values.distributedWorkloads.enabled }}Managed{{ else }}Removed{{ end }}
     llamastackoperator:
       managementState: Managed
     modelmeshserving:
       managementState: Managed
     modelregistry:
-      managementState: Managed
+      managementState: {{ if .Values.modelRegistry.enabled }}Managed{{ else }}Removed{{ end }}
       registriesNamespace: rhoai-model-registries
     ray:
       managementState: Managed

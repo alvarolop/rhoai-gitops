@@ -1,3 +1,4 @@
+{{- if .Values.modelRegistry.enabled }}
 ---
 apiVersion: modelregistry.opendatahub.io/v1beta1
 kind: ModelRegistry
@@ -13,12 +14,20 @@ spec:
     port: 9090
   mysql:
     database: model_registry_db
-    host: mysql.rhoai-model-registries-mysql
+    host: mysql.rhoai-model-registries-mysql.svc.cluster.local
     passwordSecret:
       key: database-password
       name: model-registry-db
     port: 3306
     username: root
+    sslRootCertificateConfigMap:
+      key: ca-bundle.crt
+      name: odh-trusted-ca-bundle
   rest:
     port: 8080
     serviceRoute: disabled
+  oauthProxy:
+    port: 8443
+    routePort: 443
+    serviceRoute: enabled
+{{- end }}

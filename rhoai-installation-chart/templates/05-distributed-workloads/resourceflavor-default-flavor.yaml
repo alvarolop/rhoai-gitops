@@ -1,4 +1,6 @@
+{{- if .Values.distributedWorkloads.enabled }}
 ---
+#The Kueue ResourceFlavor object describes the resource variations that are available in a cluster.
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ResourceFlavor
 metadata:
@@ -10,3 +12,4 @@ spec:
   - effect: NoSchedule
     operator: Exists
     key: nvidia.com/gpu
+{{- end }}

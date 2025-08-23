@@ -1,0 +1,8 @@
+{{- if and .Values.modelRegistry.enabled .Values.modelRegistry.mysql.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.modelRegistry.mysql.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-15"
+{{- end }}

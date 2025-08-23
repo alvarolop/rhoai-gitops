@@ -1,0 +1,78 @@
+{{- if and .Values.modelRegistry.enabled .Values.modelRegistry.mysql.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.modelRegistry.mysql.name }}
+  namespace: {{ .Values.modelRegistry.mysql.namespace }}
+  annotations:
+    openshift.io/scc: "anyuid"
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  serviceName: "{{ .Values.modelRegistry.mysql.name }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.modelRegistry.mysql.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.modelRegistry.mysql.name }}
+    spec:
+      serviceAccountName: {{ .Values.modelRegistry.mysql.name }}
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: {{ .Values.modelRegistry.mysql.name }}
+          image: mysql:8.4
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--character-set-server=utf8mb4"
+            - "--collation-server=utf8mb4_unicode_ci"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.modelRegistry.mysql.name }}-credentials
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.modelRegistry.mysql.name }}-credentials
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.modelRegistry.mysql.name }}-credentials
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.modelRegistry.mysql.name }}-credentials
+                  key: MYSQL_DATABASE
+            # https://github.com/docker-library/mysql/issues/1048
+            - name: MYSQL_DEFAULT_AUTHENTICATION_PLUGIN
+              value: "mysql_native_password"
+            - name: MYSQL_ROOT_HOST
+              value: "%"
+            - name: MYSQL_INITDB_SKIP_TZINFO
+              value: "1"
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "no"
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsUser: 999
+            runAsGroup: 999
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: {{ .Values.modelRegistry.mysql.name }}-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: {{ .Values.modelRegistry.mysql.name }}-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.modelRegistry.mysql.name }}-persistent-storage
+{{- end }}

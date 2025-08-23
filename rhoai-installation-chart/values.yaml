@@ -1,0 +1,21 @@
+# Default values for rhoai-installation-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  culling:
+    enabled: true
+
+modelRegistry:
+  enabled: true
+  mysql:
+    enabled: true
+    namespace: rhoai-model-registries-mysql
+    name: mysql
+    persistence:
+      enabled: true
+      size: 30Gi
+
+distributedWorkloads:
+  enabled: true
+
