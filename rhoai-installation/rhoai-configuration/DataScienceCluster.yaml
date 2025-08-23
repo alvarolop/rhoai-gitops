@@ -17,16 +17,27 @@ spec:
     dashboard:
       managementState: Managed
     datasciencepipelines:
+      argoWorkflowsControllers:
+        managementState: Managed
+      managementState: Managed
+    feastoperator:
       managementState: Managed
     kserve:
-      managementState: Managed
+      nim:
+        managementState: Managed
+      rawDeploymentServiceConfig: Headless
       serving:
         ingressGateway:
           certificate:
             type: OpenshiftDefaultIngress
         managementState: Managed
         name: knative-serving
+      managementState: Managed
     kueue:
+      defaultClusterQueueName: default
+      defaultLocalQueueName: default
+      managementState: Managed
+    llamastackoperator:
       managementState: Managed
     modelmeshserving:
       managementState: Managed
@@ -36,6 +47,7 @@ spec:
     ray:
       managementState: Managed
     workbenches:
+      workbenchNamespace: rhods-notebooks
       managementState: Managed
     # Kubeflow Training Operator to tune models
     trainingoperator:

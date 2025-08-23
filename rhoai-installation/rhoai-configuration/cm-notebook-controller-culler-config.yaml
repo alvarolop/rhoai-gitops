@@ -7,6 +7,9 @@ metadata:
   labels:
     opendatahub.io/dashboard: 'true'
 data:
-  CULL_IDLE_TIME: '300'
+  # Specifies if the culling feature is enabled or disabled (this is false by default)
   ENABLE_CULLING: 'true'
+  # The maximum allotted time to scale an inactive notebook to zero (in minutes)
+  CULL_IDLE_TIME: '300'
+  # The polling frequency to check for a notebook’s last known activity (in minutes)
   IDLENESS_CHECK_PERIOD: '5'

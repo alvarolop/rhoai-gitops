@@ -11,23 +11,41 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   dashboardConfig:
+    # Core functionality options
     disableAcceleratorProfiles: false
+    disableAdminConnectionTypes: false
     disableBYONImageStream: false
     disableClusterManager: false
     disableCustomServingRuntimes: false
     disableDistributedWorkloads: false
-    disableISVBadges: false
+    disableFineTuning: false  # Technology Preview - hides Model customization menu
+    disableHardwareProfiles: true  # Technology Preview - overrides disableAcceleratorProfiles when false
+    disableHome: false
     disableInfo: false
+    disableISVBadges: false
     disableKServe: false
-    disableModelCatalog: false
+    disableKServeAuth: false
+    disableKServeMetrics: false
+    disableKServeRaw: false
+    disableKueue: false  # Technology Preview - Kueue-enabled hardware profiles
+    disableLMEval: false  # Technology Preview - Model evaluation runs
+    disableModelCatalog: false  # Technology Preview - Model catalog menu
     disableModelMesh: false
+    disableModelRegistry: false  # Technology Preview - Model registry menu
+    disableModelRegistrySecureDB: false  # Technology Preview - CA certificate section
     disableModelServing: false
+    disableNIMModelServing: false
     disablePerformanceMetrics: false
     disablePipelines: false
+    disableProjectScoped: false
     disableProjectSharing: false
     disableProjects: false
+    disableServingRuntimeParams: false
+    disableStorageClasses: false
     disableSupport: false
     disableTracking: false
+    disableTrustyBiasMetrics: false
+    disableUserManagement: false
     enablement: true
   groupsConfig:
     adminGroups: rhods-admins
