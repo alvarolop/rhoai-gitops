@@ -120,16 +120,23 @@ done
 
 # Wait for all operators to be in 'Succeeded' state
 echo -e "\n3️⃣ Waiting for all operators to be in 'Succeeded' state..."
-until [[ -z $(oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' | grep -v "Succeeded") ]]; do
-    echo "⏳ Some operators are not in 'Succeeded' state, retrying in 20 seconds..."
-    oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' | grep -v "Succeeded"
+until [[ -z $(oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true) ]]; do
+    echo "⏳ Some operators are not in 'Succeeded' state, retrying in 10 seconds..."
+    oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true
     sleep 10
 done
 echo -e "\t✅ All operators are in 'Succeeded' state."
 
-echo -e "\t🎮 Enable the NVIDIA GPU Console Plugin to view metrics in the Cluster Overview."
-oc apply -f application-console-plugin-nvidia-gpu.yaml
-oc patch consoles.operator.openshift.io cluster --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "console-plugin-nvidia-gpu" }]' --type=json
+# Disabled: https://github.com/rh-ecosystem-edge/console-plugin-nvidia-gpu/issues/71
+# echo -e "\t🎮 Enable the NVIDIA GPU Console Plugin to view metrics in the Cluster Overview."
+# oc apply -f application-console-plugin-nvidia-gpu.yaml
+# echo -e "\t🎮 NVIDIA GPU Console Plugin is deployed."
+# # Only patch if the plugin is not already enabled
+# if ! oc get consoles.operator.openshift.io cluster -o jsonpath='{.spec.plugins}' | grep -q "console-plugin-nvidia-gpu"; then
+#     oc patch consoles.operator.openshift.io cluster --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "console-plugin-nvidia-gpu" }]' --type=json
+# else
+#     echo -e "\tℹ️  NVIDIA GPU Console Plugin already enabled, skipping patch."
+# fi
 
 
 echo -e "\n📊 ====================="
