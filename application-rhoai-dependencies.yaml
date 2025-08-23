@@ -14,22 +14,22 @@ spec:
     path: rhoai-dependencies
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
-    kustomize:
-      patches:
-        # - target:
-        #     kind: NodeFeatureDiscovery
-        #     name: nfd-instance
-        #   patch: |-
-        #     - op: replace
-        #       path: /spec/operand/image
-        #       value: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.18
-        # - target:
-        #     kind: Subscription
-        #     name: authorino-operator
-        #   patch: |-
-        #     - op: replace
-        #       path: /spec/channel
-        #       value: tech-preview-v1
+    # kustomize:
+    #   patches:
+    #     - target:
+    #         kind: NodeFeatureDiscovery
+    #         name: nfd-instance
+    #       patch: |-
+    #         - op: replace
+    #           path: /spec/operand/image
+    #           value: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.18
+    #     - target:
+    #         kind: Subscription
+    #         name: authorino-operator
+    #       patch: |-
+    #         - op: replace
+    #           path: /spec/channel
+    #           value: tech-preview-v1
   syncPolicy:
     automated:
       prune: false
