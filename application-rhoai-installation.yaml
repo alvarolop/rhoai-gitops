@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
-    chart: rhoai-installation-chart
+    path: rhoai-installation-chart
     helm:
       values: |
         global:
