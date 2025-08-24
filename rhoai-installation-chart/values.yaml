@@ -19,3 +19,21 @@ modelRegistry:
 distributedWorkloads:
   enabled: true
 
+featureStore:
+  enabled: true
+  example:
+    enabled: false
+    name: sample
+    namespace: rhoai-feature-store
+    feastProject: credit_scoring_local
+    feastProjectDir:
+      git:
+        url: https://github.com/feast-dev/feast-credit-score-local-tutorial
+        ref: 598a270
+    persistence:
+      online:
+        size: 5Gi
+      offline:
+        size: 5Gi
+      registry:
+        size: 5Gi

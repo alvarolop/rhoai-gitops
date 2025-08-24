@@ -21,7 +21,7 @@ spec:
         managementState: Managed
       managementState: Managed
     feastoperator:
-      managementState: Managed
+      managementState: {{ if .Values.featureStore.enabled }}Managed{{ else }}Removed{{ end }}
     kserve:
       nim:
         managementState: Managed
