@@ -1,0 +1,40 @@
+{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+---
+apiVersion: feast.dev/v1alpha1
+kind: FeatureStore
+metadata:
+  name: {{ .Values.featureStore.example.name }}
+  namespace: {{ .Values.featureStore.example.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  feastProject: {{ .Values.featureStore.example.feastProject }}
+  services:
+    offlineStore:
+      persistence:
+        file:
+          type: duckdb
+          pvc:
+            ref:
+              name: "feast-{{ .Values.featureStore.example.name }}-offline"
+            mountPath: /data/offline
+
+    onlineStore:
+      persistence:
+        file:
+          path: online_store.db
+          pvc:
+            ref:
+              name: "feast-{{ .Values.featureStore.example.name }}-online"
+            mountPath: /data/online
+    registry:
+      local:
+        persistence:
+          file:
+            path: registry.db
+            pvc:
+              ref:
+                name: "feast-{{ .Values.featureStore.example.name }}-registry"
+              mountPath: /data/registry
+    ui: {}
+{{- end }}
