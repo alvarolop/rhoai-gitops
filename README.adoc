@@ -324,11 +324,11 @@ Here you can find examples of REST requests to query model metadata:
 [source, bash]
 ----
 MODEL_REGISTRY_NAME=default
-MODEL_REGISTRY_HOST=$(oc get routes -n istio-system -l app.kubernetes.io/instance=${MODEL_REGISTRY_NAME} -o json | jq -r '.items[].status.ingress[].host | select(contains("-rest"))')
+MODEL_REGISTRY_HOST=$(oc get route default-https -n rhoai-model-registries -o go-template='https://{{.spec.host}}')
 TOKEN=$(oc whoami -t)
 
 # List models
-curl -s "https://${MODEL_REGISTRY_HOST}/api/model_registry/v1alpha3/registered_models?pageSize=100&orderBy=ID&sortOrder=DESC" \
+curl -s "$MODEL_REGISTRY_HOST/api/model_registry/v1alpha3/registered_models?pageSize=100&orderBy=ID&sortOrder=DESC" \
   -H "accept: application/json" \
   -H "Authorization: Bearer ${TOKEN}" | jq .
 
@@ -336,11 +336,11 @@ curl -s "https://${MODEL_REGISTRY_HOST}/api/model_registry/v1alpha3/registered_m
 MODEL_NAME="test"
 MODEL_ID="4"
 
-curl -s "https://${MODEL_REGISTRY_HOST}/api/model_registry/v1alpha3/registered_model?name=${MODEL_NAME}&externalId=${MODEL_ID}" \
+curl -s "$MODEL_REGISTRY_HOST/api/model_registry/v1alpha3/registered_model?name=${MODEL_NAME}&externalId=${MODEL_ID}" \
   -H "accept: application/json" \
   -H "Authorization: Bearer ${TOKEN}" | jq .
 
-curl -s "https://${MODEL_REGISTRY_HOST}/api/model_registry/v1alpha3/registered_models/${MODEL_ID}/versions?name=${MODEL_NAME}&pageSize=100&orderBy=ID&sortOrder=DESC" \
+curl -s "$MODEL_REGISTRY_HOST/api/model_registry/v1alpha/registered_models/${MODEL_ID}/versions?name=${MODEL_NAME}&pageSize=100&orderBy=ID&sortOrder=DESC" \
   -H "accept: application/json" \
   -H "Authorization: Bearer ${TOKEN}" | jq .
 ----
