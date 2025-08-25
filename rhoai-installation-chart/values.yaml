@@ -19,6 +19,9 @@ modelRegistry:
 distributedWorkloads:
   enabled: true
 
+llamaStack:
+  enabled: true
+
 featureStore:
   enabled: true
   example:

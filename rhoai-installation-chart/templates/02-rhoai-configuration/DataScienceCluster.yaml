@@ -38,7 +38,7 @@ spec:
       defaultLocalQueueName: default
       managementState: {{ if .Values.distributedWorkloads.enabled }}Managed{{ else }}Removed{{ end }}
     llamastackoperator:
-      managementState: Managed
+      managementState: {{ if .Values.llamaStack.enabled }}Managed{{ else }}Removed{{ end }}
     modelmeshserving:
       managementState: Managed
     modelregistry:
