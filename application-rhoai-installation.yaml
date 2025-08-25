@@ -32,6 +32,9 @@ spec:
         
         distributedWorkloads:
           enabled: true
+
+        llamaStack:
+          enabled: true
         
         featureStore:
           enabled: true
