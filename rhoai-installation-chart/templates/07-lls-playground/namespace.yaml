@@ -1,8 +1,0 @@
-{{- if and .Values.llamaStack.playground.enabled }}
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ .Values.llamaStack.playground.namespace }}
-{{- end }}
-

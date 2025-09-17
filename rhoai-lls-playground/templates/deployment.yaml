@@ -1,10 +1,9 @@
-{{- if and .Values.llamaStack.playground.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: llama-stack-playground
-  namespace: {{ .Values.llamaStack.playground.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app.kubernetes.io/name: llama-stack-playground
     app.kubernetes.io/version: "latest"
@@ -29,7 +28,7 @@ spec:
               - ALL
             readOnlyRootFilesystem: false
             runAsNonRoot: true
-          image: "quay.io/rh-aiservices-bu/llama-stack-playground:0.2.18"
+          image: {{ .Values.app.image | quote }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -43,9 +42,9 @@ spec:
             - name: STREAMLIT_SERVER_PORT
               value: "8501"
             - name: LLAMA_STACK_ENDPOINT
-              value: "http://llamastack-service:8321"
+              value: {{ .Values.llamaStack.endpoint | quote }}
             - name: DEFAULT_MODEL
-              value: "llama32-3b"
+              value: {{ .Values.app.defaultModel | quote }}
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -68,4 +67,3 @@ spec:
             requests:
               cpu: 500m
               memory: 512Mi
-{{- end }}

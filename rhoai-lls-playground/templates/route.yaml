@@ -1,10 +1,9 @@
-{{- if and .Values.llamaStack.playground.enabled }}
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: llama-stack-playground
-  namespace: {{ .Values.llamaStack.playground.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app.kubernetes.io/name: llama-stack-playground
     app.kubernetes.io/version: "latest"
@@ -18,4 +17,3 @@ spec:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
-{{- end }}

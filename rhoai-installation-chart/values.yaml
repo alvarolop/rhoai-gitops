@@ -21,9 +21,6 @@ distributedWorkloads:
 
 llamaStack:
   enabled: true
-  playground:
-    enabled: true
-    namespace: lls-playground
 
 featureStore:
   enabled: true
