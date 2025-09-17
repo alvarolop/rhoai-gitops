@@ -9,7 +9,7 @@ global:
 
 # Application configuration
 app:
-  image: "quay.io/rh-aiservices-bu/llama-stack-playground:0.2.18"
+  image: "quay.io/rh-aiservices-bu/llama-stack-playground:0.2.11"
   defaultModel: "llama-4-scout-17b-16e-w4a16"
 
 # External service configuration

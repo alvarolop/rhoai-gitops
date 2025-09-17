@@ -1,4 +1,4 @@
-{{- if .Values.clusterDomain }}
+{{- if .Values.global.clusterDomain }}
 
 ---
 apiVersion: console.openshift.io/v1
@@ -11,5 +11,5 @@ spec:
   text: LLS Playground
   applicationMenu:
     section: OpenShift Self Managed Services
-    imageURL: https://elest.io/images/softwares/63/logo.png
+    imageURL: https://static.wikia.nocookie.net/fortnite_gamepedia/images/3/3a/T-T-Icon-BR-SM-Athena-SupplyLlama-01.png
 {{- end }}
