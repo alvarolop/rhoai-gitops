@@ -564,6 +564,28 @@ oc apply -k components/ocp-lightspeed
 
 
 
+=== LLS Playground
+
+The Llama Stack Playground is an application that allows you to test the Llama Stack LLM and Agent capabilities.
+
+[source, bash]
+----
+cat application-lls-playground.yaml | \
+  CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+  LLS_ENDPOINT="http://llama-stack-service.intelligent-cd.svc.cluster.local:8321" \
+  envsubst | oc apply -f -
+----
+
+or you can deploy it manually with the following command:
+
+[source, bash]
+----
+helm template components/lls-playground \
+  --set global.clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+  --set llamaStack.endpoint="http://llama-stack-service.intelligent-cd.svc.cluster.local:8321" \
+  | oc apply -f -
+----
+
 === MinIO
 
 This demo is fully oriented to use the default and production ready capabilities provided by OpenShift. However, if your current deployment already uses minio and you cannot change it, you can optionally deploy a MinIO application in a side namespace using the following ArgoCD application. *This application is included in the `auto-install.sh` automation*:
