@@ -16,10 +16,10 @@ spec:
     targetRevision: main
     helm:
       values: |
-        clusterDomain: $CLUSTER_DOMAIN
+        global:
+          clusterDomain: $CLUSTER_DOMAIN
         llamaStack:
           endpoint: $LLS_ENDPOINT
-
   syncPolicy:
     automated:
       prune: false
