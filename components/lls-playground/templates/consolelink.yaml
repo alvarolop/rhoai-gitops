@@ -1,0 +1,15 @@
+{{- if .Values.clusterDomain }}
+
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: {{ .Values.global.namespace }}-lls-playground
+spec:
+  href: "https://pg-{{ .Values.global.namespace }}.apps.{{ .Values.global.clusterDomain }}"
+  location: ApplicationMenu
+  text: LLS Playground
+  applicationMenu:
+    section: OpenShift Self Managed Services
+    imageURL: https://elest.io/images/softwares/63/logo.png
+{{- end }}

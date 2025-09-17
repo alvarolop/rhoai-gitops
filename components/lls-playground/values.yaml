@@ -5,6 +5,7 @@
 # Global configuration
 global:
   namespace: lls-playground
+  clusterDomain: "opentlc.com"
 
 # Application configuration
 app:
@@ -13,4 +14,4 @@ app:
 
 # External service configuration
 llamaStack:
-  endpoint: "http://llama-stack-service.intelligent-cd:8321"
+  endpoint: "http://llama-stack-service:8321"

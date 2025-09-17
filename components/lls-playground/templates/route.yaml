@@ -2,7 +2,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: llama-stack-playground
+  name: pg
   namespace: {{ .Values.global.namespace }}
   labels:
     app.kubernetes.io/name: llama-stack-playground
