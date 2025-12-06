@@ -19,6 +19,7 @@ resources:
 
   # Required for llm-d
   - operator-lws
+  - operator-rhcl
 
   # Required for GPUaaS
   - operator-kueue
