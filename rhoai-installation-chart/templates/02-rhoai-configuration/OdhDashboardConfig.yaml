@@ -20,7 +20,6 @@ spec:
     disableClusterManager: false
     disableCustomServingRuntimes: false
     disableDistributedWorkloads: {{ not .Values.distributedWorkloads.enabled }}
-    disableFineTuning: false  # Technology Preview - hides Model customization menu
     disableHardwareProfiles: true  # Technology Preview - overrides disableAcceleratorProfiles when false
     disableHome: false
     disableInfo: false

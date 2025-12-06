@@ -59,21 +59,38 @@ The following diagram depicts the general architecture of a RHOAI deployment, in
 image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rhoaiarch/architecture/assets/architecture.svg[RHOAI Architecture]
 
 
-* *codeflare*: Codeflare is an IBM software stack for developing and scaling machine-learning and Python workloads. It uses and needs the Ray component. 
+* *aipipelines*: This enables you to build portable machine learning workflows. It is based on Kubeflow Pipelines and you don't need to install OCP Pipelines operator. (Formerly known as `datasciencepipelines`)
 
 * *dashboard*: Provides the RHOAI dashboard.
 
-* *datasciencepipelines*: This enables you to build portable machine learning workflows. It is based on Argo Workflows and you don't need to install OCP Pipelines operator.
+* *feastoperator*: Feast is an open-source feature store for machine learning. It helps manage, store, and serve features for training and inference, enabling feature reuse across ML projects. NOTE: Removed by default, must be explicitly enabled.
 
-* *kserve*: RHOAI uses Kserve to serve large language models that can scale based on demand. Requires the OpenShift Serverless and the OpenShift Service Mesh operators to be present before enabling the component. Does not support enabled ModelMeshServing at the same time.
+* *kserve*: RHOAI uses Kserve to serve large language models that can scale based on demand.
 
-* *kueue*: Kueue component configuration. It is not yet in Technology Preview
+* *kueue*: Kueue is a Kubernetes-native job queueing system that provides quota management, resource sharing, and prioritization for batch workloads. Supports configuration of default cluster and local queue names. NOTE: It is installed separately as an OpenShift component, that's why it should be set to `Unmanaged`.
 
-* *modelmeshserving*: KServe also offers a component for general-purpose model serving, called ModelMesh Mesh Serving. Activate this component to serve small and medium size models. Does not support enabled Kserve at the same time.
+* *llamastackoperator*: Llama Stack is a set of APIs and tools for building AI applications with Meta's Llama models. This operator helps deploy and manage Llama-based AI applications on OpenShift. NOTE: Removed by default, must be explicitly enabled.
+
+* *modelregistry*: Model Registry provides a central repository for data scientists to store, version, and manage machine learning models. It enables model governance, lineage tracking, and sharing across teams. Requires specifying a `registriesNamespace` for model registry deployments.
 
 * *ray*: Component to run the data science code in a distributed manner.
 
+* *trainingoperator*: Training Operator provides Kubernetes-native support for distributed training of machine learning models using popular frameworks like PyTorch, TensorFlow, and MPI.
+
+* *trustyai*: TrustyAI provides AI explainability and fairness monitoring capabilities. It helps data scientists and ML engineers understand model behavior, detect bias, and ensure AI transparency and accountability.
+
 * *workbenches*: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
+
+
+=== Deprecated Components
+
+The following components have been deprecated and are no longer available in the DataScienceCluster configuration:
+
+* *codeflare* (Deprecated): Codeflare was an IBM software stack for developing and scaling machine-learning and Python workloads. Its functionality has been integrated into other components like Ray and the Training Operator.
+
+* *datasciencepipelines* (Renamed): This component has been renamed to `aipipelines`. Update your configurations accordingly.
+
+* *modelmeshserving* (Deprecated): ModelMesh Serving was used for serving small and medium size models. Its functionality has been consolidated into `kserve`, which now handles model serving for all model sizes.
 
 
 
@@ -84,22 +101,24 @@ Installing RHOAI is not as simple as installing and configuring other operators 
 
 1. If the installation is IPI AWS, it will create MachineSets for nodes with NVIDIA GPUs (Currently, `g5.4xlarge`).
 2. Install all the operators that RHOAI depends on: 
-    * Service Mesh and Serverless to enable KServe and allow Single-Model serving platform.
+    * Red Hat OpenShift Leader Worker Set Operator to manage leader worker sets. This is a requirement for **llm-d** feature.
+    * Red Hat Build of Kueue to manage distributed workloads. This is a requirement for **GPUaaS** feature.
     * Node Feature Discovery and Nvidia GPU Operator to discover and configure nodes with GPU.
     * Authorino, to enable token authorization for models deployed with RHOAI.
-3. Install and configure OpenShift Data Foundation (ODF) in Multicloud Object Gateway (MCG) mode. This is a lightweight alternative that allows us to use the AWS S3 object storage the same way that we will then use Object storage on Baremetal using ODF.
-4. Installs the actual RHOAI operator and configures the installation with some defaults, enabling NVIDIA acceleration and Single-Model Serving.
+    * **Note**: Single-Model Serving (Model Mesh Serving) is not supported anymore in RHOAI 3.0, so Service Mesh 2.x and Serverless operators are not installed as prerequisites.
+3. Optionally install and configure OpenShift Data Foundation (ODF) in Multicloud Object Gateway (MCG) mode. This is a lightweight alternative that allows us to use the AWS S3 object storage the same way that we will then use Object storage on Baremetal using ODF.
+4. Installs the actual RHOAI operator and configures the installation with some defaults, enabling NVIDIA acceleration and **llm-d** feature.
 5. Deploys a new Data Science Project called `RHOAI Playground` enabling pipelines and deploying a basic `Notebook` for testing.
 
 
-=== Installation on non-4.18 OCP
+=== Installation on non-4.20 OCP
 
-Some of the components deployed in this repo are bound to an specific version of OpenShift. If you want to deploy RHOAI on an older version (For example 4.17), you have to make the following modifications:
+Some of the components deployed in this repo are bound to an specific version of OpenShift. If you want to deploy RHOAI on an older version (For example 4.19), you have to make the following modifications:
 
-* Change the image for the Node Feature Discovery container to the one for 4.17:
-    ** In `./rhoai-dependencies/operator-nfd/nodefeaturediscovery-nfd-instance.yaml`, the `.spec.operand.image` field should have value `registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.17`.
+* Change the image for the Node Feature Discovery container to the one for 4.19:
+    ** In `./rhoai-dependencies/operator-nfd/nodefeaturediscovery-nfd-instance.yaml`, the `.spec.operand.image` field should have value `registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.19`.
 * Change the channel of ODF:
-    ** In `./ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.17`.
+    ** In `./ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.19`.
 
 
 
