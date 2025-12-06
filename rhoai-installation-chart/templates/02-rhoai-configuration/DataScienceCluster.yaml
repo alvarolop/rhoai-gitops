@@ -14,23 +14,17 @@ spec:
   components:
     dashboard:
       managementState: Managed
-    aipipelines:
+    datasciencepipelines:
       argoWorkflowsControllers:
         managementState: Managed
       managementState: Managed
     feastoperator:
       managementState: {{ if .Values.featureStore.enabled }}Managed{{ else }}Removed{{ end }}
     kserve:
+      managementState: Managed
       nim:
         managementState: Managed
       rawDeploymentServiceConfig: Headless
-      serving:
-        ingressGateway:
-          certificate:
-            type: OpenshiftDefaultIngress
-        managementState: Managed
-        name: knative-serving
-      managementState: Managed
     kueue:
       defaultClusterQueueName: default
       defaultLocalQueueName: default
