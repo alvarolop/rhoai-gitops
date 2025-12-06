@@ -13,8 +13,17 @@ resources:
   - operator-nvidia-gpu
 
   # KServe Installation for Single-model server
-  - operator-serverless
-  - operator-servicemesh
+  # Not supported anymore in RHOAI 3.0
+  # - operator-serverless
+  # - operator-servicemesh
+
+  # Required for llm-d
+  - operator-lws
+
+  # Required for GPUaaS
+  - operator-kueue
   
   # Support for authentication of server models
   - operator-authorino
+
+

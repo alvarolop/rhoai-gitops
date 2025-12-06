@@ -1,0 +1,12 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-lws-operator
+  namespace: openshift-lws-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "-05"
+spec:
+  targetNamespaces:
+  - openshift-lws-operator
+  upgradeStrategy: Default
