@@ -27,8 +27,4 @@ spec:
   rest:
     port: 8080
     serviceRoute: disabled
-  oauthProxy:
-    port: 8443
-    routePort: 443
-    serviceRoute: enabled
 {{- end }}
