@@ -12,11 +12,9 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   components:
-    codeflare:
-      managementState: Managed
     dashboard:
       managementState: Managed
-    datasciencepipelines:
+    aipipelines:
       argoWorkflowsControllers:
         managementState: Managed
       managementState: Managed
@@ -36,11 +34,9 @@ spec:
     kueue:
       defaultClusterQueueName: default
       defaultLocalQueueName: default
-      managementState: {{ if .Values.distributedWorkloads.enabled }}Managed{{ else }}Removed{{ end }}
+      managementState: {{ if .Values.distributedWorkloads.enabled }}Unmanaged{{ else }}Removed{{ end }}
     llamastackoperator:
       managementState: {{ if .Values.llamaStack.enabled }}Managed{{ else }}Removed{{ end }}
-    modelmeshserving:
-      managementState: Managed
     modelregistry:
       managementState: {{ if .Values.modelRegistry.enabled }}Managed{{ else }}Removed{{ end }}
       registriesNamespace: rhoai-model-registries
