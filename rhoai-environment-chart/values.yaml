@@ -24,7 +24,7 @@ workbench:
   name: notebook
   displayName: Notebook
   namespace: rhoai-playground
-  image: pytorch:2024.2
+  image: pytorch:2025.2
   resources:
     limits:
       cpu: '3'
