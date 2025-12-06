@@ -6,7 +6,6 @@ set -e
 # Set your environment variables here
 #####################################
 
-
 CREATE_GPU_MACHINESETS=true
 INSTALL_MINIO=true
 INSTALL_ODF=false
