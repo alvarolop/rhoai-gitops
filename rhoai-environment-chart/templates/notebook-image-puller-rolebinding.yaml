@@ -1,0 +1,19 @@
+---
+# This RoleBinding grants the workbench ServiceAccount permission to pull images
+# from the redhat-ods-applications namespace where RHOAI images are stored
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.workbench.name }}-image-puller
+  namespace: redhat-ods-applications
+  labels:
+    app: {{ .Values.workbench.name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-puller
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.workbench.name }}
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+
