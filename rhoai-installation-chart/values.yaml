@@ -12,6 +12,8 @@ modelRegistry:
     enabled: true
     namespace: rhoai-model-registries-mysql
     name: mysql
+    metrics:
+      enabled: false
     persistence:
       enabled: true
       size: 30Gi
