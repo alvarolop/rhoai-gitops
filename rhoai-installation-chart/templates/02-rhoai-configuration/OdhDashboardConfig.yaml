@@ -20,7 +20,6 @@ spec:
     disableClusterManager: false
     disableCustomServingRuntimes: false
     disableDistributedWorkloads: {{ not .Values.distributedWorkloads.enabled }}
-    disableHardwareProfiles: true  # Technology Preview - overrides disableAcceleratorProfiles when false
     disableHome: false
     disableInfo: false
     disableISVBadges: false
