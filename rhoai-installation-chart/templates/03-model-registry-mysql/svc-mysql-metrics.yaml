@@ -1,4 +1,5 @@
 {{- if and .Values.modelRegistry.enabled .Values.modelRegistry.mysql.enabled }}
+{{- if .Values.modelRegistry.mysql.metrics.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,4 +15,5 @@ spec:
       name: metrics
   selector:
     app: {{ .Values.modelRegistry.mysql.name }}
+{{- end }}
 {{- end }}

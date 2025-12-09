@@ -270,8 +270,8 @@ echo -e "🤖 ======================\n"
 echo -e "\n🚀 Trigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
 
-echo -e "\n⏰ Wait 5 seconds for resources to be created"
-for i in {5..1}; do
+echo -e "\n⏰ Wait 15 seconds for resources to be created"
+for i in {15..1}; do
     echo -ne "\t⏰ Time left: $i seconds.\r"; sleep 1
 done
 

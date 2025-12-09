@@ -1,4 +1,5 @@
 {{- if and .Values.modelRegistry.enabled .Values.modelRegistry.mysql.enabled }}
+{{- if .Values.modelRegistry.mysql.metrics.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -21,4 +22,5 @@ spec:
       interval: 30s
       path: /metrics
       scheme: http
+{{- end }}
 {{- end }}
