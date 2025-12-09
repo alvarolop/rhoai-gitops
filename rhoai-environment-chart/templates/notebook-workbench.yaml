@@ -3,14 +3,13 @@ apiVersion: kubeflow.org/v1
 kind: Notebook
 metadata:
   annotations:
-    notebooks.opendatahub.io/inject-oauth: "true"
+    notebooks.opendatahub.io/inject-auth: "true"
     notebooks.opendatahub.io/last-image-selection: "{{ .Values.workbench.image }}"
     notebooks.opendatahub.io/last-size-selection: Small
-    notebooks.opendatahub.io/oauth-logout-url: >-
-      $DASHBOARD_ROUTE/projects/{{ .Values.dataScienceProjectNamespace }}?notebookLogout={{ .Values.workbench.name }}
     opendatahub.io/image-display-name: PyTorch
     {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
-    opendatahub.io/accelerator-name: migrated-gpu
+    opendatahub.io/hardware-profile-name: default-profile
+    opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
     {{- else }}
     openshift.io/description: This is an example Workbench using the PyTorch Image
@@ -36,18 +35,19 @@ spec:
             --ServerApp.password=''
             --ServerApp.base_url=/notebook/{{ .Values.dataScienceProjectNamespace }}/{{ .Values.workbench.name }}
             --ServerApp.quit_button=False
-            --ServerApp.tornado_settings={"user":"admin","hub_host":"$DASHBOARD_ROUTE","hub_prefix":"/projects/{{ .Values.dataScienceProjectNamespace }}"}
         - name: JUPYTER_IMAGE
           value: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/{{ .Values.workbench.image }}
-        - name: PIP_CERT
-          value: /etc/pki/tls/custom-certs/ca-bundle.crt
         - name: REQUESTS_CA_BUNDLE
           value: /etc/pki/tls/custom-certs/ca-bundle.crt
         - name: SSL_CERT_FILE
           value: /etc/pki/tls/custom-certs/ca-bundle.crt
         - name: PIPELINES_SSL_SA_CERTS
           value: /etc/pki/tls/custom-certs/ca-bundle.crt
+        - name: KF_PIPELINES_SSL_SA_CERTS
+          value: /etc/pki/tls/custom-certs/ca-bundle.crt
         - name: GIT_SSL_CAINFO
+          value: /etc/pki/tls/custom-certs/ca-bundle.crt
+        - name: PIP_CERT
           value: /etc/pki/tls/custom-certs/ca-bundle.crt
         image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/{{ .Values.workbench.image }}
         imagePullPolicy: Always
@@ -90,63 +90,51 @@ spec:
             nvidia.com/gpu: '{{ .Values.workbench.resources.requests.nvidiaGpu }}'
             {{- end }}
         volumeMounts:
-        - mountPath: /opt/app-root/src
-          name: {{ .Values.workbench.name }}
+        - mountPath: /opt/app-root/src/
+          name: {{ .Values.workbench.name }}-storage
         - mountPath: /dev/shm
           name: shm
         - mountPath: /etc/pki/tls/custom-certs/ca-bundle.crt
           name: trusted-ca
           readOnly: true
           subPath: ca-bundle.crt
+        - mountPath: /opt/app-root/pipeline-runtimes/
+          name: runtime-images
         workingDir: /opt/app-root/src
       - args:
-        - '--provider=openshift'
-        - '--https-address=:8443'
-        - '--http-address='
-        - '--openshift-service-account={{ .Values.workbench.name }}'
-        - '--cookie-secret-file=/etc/oauth/config/cookie_secret'
-        - '--cookie-expire=24h0m0s'
-        - '--tls-cert=/etc/tls/private/tls.crt'
-        - '--tls-key=/etc/tls/private/tls.key'
-        - '--upstream=http://localhost:8888'
-        - '--upstream-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
-        - '--email-domain=*'
-        - '--skip-provider-button'
-        - '--client-id={{ .Values.workbench.name }}-{{ .Values.dataScienceProjectNamespace }}-oauth-client'
-        - '--client-secret-file=/etc/oauth/client/secret'
-        - '--scope=user:info user:check-access'
-        - >-
-          --openshift-sar={"verb":"get","resource":"notebooks","resourceAPIGroup":"kubeflow.org","resourceName":"{{ .Values.workbench.name }}","namespace":"$(NAMESPACE)"}
-        - >-
-          --logout-url=$DASHBOARD_ROUTE/projects/{{ .Values.dataScienceProjectNamespace }}?notebookLogout={{ .Values.workbench.name }}
-
-        env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4f8d66597feeb32bb18699326029f9a71a5aca4a57679d636b876377c2e95695
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8888/
+        - --logtostderr=true
+        - --v=10
+        - --proxy-endpoints-port=8444
+        - --config-file=/etc/kube-rbac-proxy/config-file.yaml
+        - --tls-cert-file=/etc/tls/private/tls.crt
+        - --tls-private-key-file=/etc/tls/private/tls.key
+        - --auth-header-fields-enabled=true
+        - --auth-header-user-field-name=X-Auth-Request-User
+        - --auth-header-groups-field-name=X-Auth-Request-Groups
+        image: registry.redhat.io/rhoai/odh-kube-auth-proxy-rhel9@sha256:657bc0b43fe2da3211d80dc5085f57dccb451c30b1a254b87b4876745c414d36
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
           httpGet:
-            path: /oauth/healthz
-            port: oauth-proxy
+            path: /healthz
+            port: 8444
             scheme: HTTPS
           initialDelaySeconds: 30
           periodSeconds: 5
           successThreshold: 1
           timeoutSeconds: 1
-        name: oauth-proxy
+        name: kube-rbac-proxy
         ports:
         - containerPort: 8443
-          name: oauth-proxy
+          name: kube-rbac-proxy
           protocol: TCP
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /oauth/healthz
-            port: oauth-proxy
+            path: /healthz
+            port: 8444
             scheme: HTTPS
           initialDelaySeconds: 5
           periodSeconds: 5
@@ -160,10 +148,10 @@ spec:
             cpu: 100m
             memory: 64Mi
         volumeMounts:
-        - mountPath: /etc/oauth/config
-          name: oauth-config
+        - mountPath: /etc/kube-rbac-proxy
+          name: kube-rbac-proxy-config
         - mountPath: /etc/tls/private
-          name: tls-certificates
+          name: kube-rbac-proxy-tls-certificates
       enableServiceLinks: false
       serviceAccountName: {{ .Values.workbench.name }}
       {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
@@ -173,7 +161,7 @@ spec:
           operator: Exists
       {{- end }}
       volumes:
-      - name: {{ .Values.workbench.name }}
+      - name: {{ .Values.workbench.name }}-storage
         persistentVolumeClaim:
           claimName: {{ .Values.workbench.name }}-storage
       - emptyDir:
@@ -186,11 +174,15 @@ spec:
           name: workbench-trusted-ca-bundle
           optional: true
         name: trusted-ca
-      - name: oauth-config
+      - configMap:
+          name: pipeline-runtime-images
+          optional: true
+        name: runtime-images
+      - configMap:
+          defaultMode: 420
+          name: {{ .Values.workbench.name }}-kube-rbac-proxy-config
+        name: kube-rbac-proxy-config
+      - name: kube-rbac-proxy-tls-certificates
         secret:
           defaultMode: 420
-          secretName: {{ .Values.workbench.name }}-oauth-config
-      - name: tls-certificates
-        secret:
-          defaultMode: 420
-          secretName: {{ .Values.workbench.name }}-tls
+          secretName: {{ .Values.workbench.name }}-kube-rbac-proxy-tls
