@@ -14,7 +14,6 @@ metadata:
 spec:
   dashboardConfig:
     # Core functionality options
-    disableAcceleratorProfiles: false
     disableAdminConnectionTypes: false
     disableBYONImageStream: false
     disableClusterManager: false
