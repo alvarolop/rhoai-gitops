@@ -24,6 +24,9 @@ distributedWorkloads:
 llamaStack:
   enabled: true
 
+llm_d:
+  enabled: false
+
 featureStore:
   enabled: true
   example:

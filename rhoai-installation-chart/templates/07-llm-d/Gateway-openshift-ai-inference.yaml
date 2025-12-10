@@ -1,3 +1,4 @@
+{{ if .Values.llm_d.enabled }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -27,3 +28,4 @@ spec:
             kind: Secret
             name: default-gateway-tls
         mode: Terminate
+{{- end }}

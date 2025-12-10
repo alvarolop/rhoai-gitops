@@ -1,3 +1,4 @@
+{{ if .Values.llm_d.enabled }}
 ---
 apiVersion: kuadrant.io/v1beta1
 kind: Kuadrant
@@ -7,3 +8,4 @@ metadata:
   annotations:
     # argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "15"
+{{- end }}

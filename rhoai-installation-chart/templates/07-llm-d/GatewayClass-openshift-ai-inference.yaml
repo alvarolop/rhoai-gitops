@@ -1,3 +1,4 @@
+{{ if .Values.llm_d.enabled }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -8,3 +9,4 @@ metadata:
     argocd.argoproj.io/sync-wave: "5"
 spec:
   controllerName: openshift.io/gateway-controller/v1
+{{- end }}
