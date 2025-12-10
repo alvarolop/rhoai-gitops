@@ -100,6 +100,8 @@ spec:
           subPath: ca-bundle.crt
         - mountPath: /opt/app-root/pipeline-runtimes/
           name: runtime-images
+        - mountPath: /opt/app-root/runtimes	
+          name: elyra-dsp-details
         workingDir: /opt/app-root/src
       - args:
         - --secure-listen-address=0.0.0.0:8443
@@ -186,3 +188,5 @@ spec:
         secret:
           defaultMode: 420
           secretName: {{ .Values.workbench.name }}-kube-rbac-proxy-tls
+      - mountPath: /opt/app-root/runtimes	
+        name: elyra-dsp-details
