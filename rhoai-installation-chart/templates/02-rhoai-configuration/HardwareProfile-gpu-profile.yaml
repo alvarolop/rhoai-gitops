@@ -6,6 +6,9 @@ metadata:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
     opendatahub.io/display-name: gpu-profile
+    opendatahub.io/description: Provides a baseline hardware profile for GPU workloads with 1 GPU, 1 CPUs
+      and 12Gi memory by default, adjustable up to 4 GPUs, 8 CPUs and 24Gi memory.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: gpu-profile
   namespace: redhat-ods-applications
 spec:
