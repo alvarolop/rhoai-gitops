@@ -188,5 +188,4 @@ spec:
         secret:
           defaultMode: 420
           secretName: {{ .Values.workbench.name }}-kube-rbac-proxy-tls
-      - mountPath: /opt/app-root/runtimes	
-        name: elyra-dsp-details
+      - name: elyra-dsp-details
