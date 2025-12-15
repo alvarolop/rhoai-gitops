@@ -7,6 +7,7 @@ set -e
 #####################################
 
 CREATE_GPU_MACHINESETS=true
+GPU_NODE_COUNT=1  # Total GPU nodes to distribute across AZs (a, b, c)
 INSTALL_MINIO=true
 INSTALL_ODF=false
 INSTALL_MONITORING=true
@@ -67,21 +68,26 @@ echo -e "🖥️ =    GPU INFRA   ="
 echo -e "🖥️ ==================\n"
 
 if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-    echo "🎯 Adding GPU nodes to the cluster. Adding three availability zones for the future, but only one node in AZ a."
+    # Distribute GPU_NODE_COUNT across AZs: a gets extra first, then b, then c
+    REPLICAS_A=$(( (GPU_NODE_COUNT + 2) / 3 ))
+    REPLICAS_B=$(( (GPU_NODE_COUNT + 1) / 3 ))
+    REPLICAS_C=$(( GPU_NODE_COUNT / 3 ))
+
+    echo "🎯 Adding $GPU_NODE_COUNT GPU node(s) to the cluster (AZ a: $REPLICAS_A, b: $REPLICAS_B, c: $REPLICAS_C)"
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="a" -p REPLICAS=1 | \
+        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="a" -p REPLICAS=$REPLICAS_A | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="b" -p REPLICAS=0 | \
+        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="b" -p REPLICAS=$REPLICAS_B | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="c" -p REPLICAS=0 | \
+        -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="c" -p REPLICAS=$REPLICAS_C | \
         oc apply -n openshift-machine-api -f -
 
     echo -e "\n⚠️  Remember, those nodes are tainted with 'nvidia.com/gpu:NoSchedule' by default. Modify the template or update the node definition if you want to run normal workloads"
