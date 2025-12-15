@@ -269,29 +269,6 @@ The `DataSciencePipelineApplication` requires an S3-compatible storage solution 
 
 
 
-=== Reusing Router Certificates
-
-NOTE: This is already included in the automation, so you don't have to do anything with this section.
-
-By default, the Single Stack Serving in Openshift AI *uses a self-signed certificate generated at installation* for the endpoints that are created when deploying a server. This can be counter-intuitive because if you already have certificates configured on your OpenShift cluster, they will be used by default for other types of endpoints like Routes.
-
-See the following https://ai-on-openshift.io/odh-rhoai/single-stack-serving-certificate/#procedure[blog entry] to understand what is done in the automation.
-
-
-
-
-=== RHOAI Experiments
-
-This setup includes a preconfigured OpenShift project designed as a RHOAI Data Science Project. Explore and experiment with prebuilt pipelines to unlock powerful data analysis capabilities. Dive into RHOAI Pipelines and Experiments by clicking the button below:
-
-++++
-<div align="center">
-  <a href="rhoai-experiments/README.md" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 16px;">Explore RHOAI Experiments</a>
-</div>
-++++
-
-
-
 === Managing distributed workloads
 
 You can use the distributed workloads feature to queue, scale, and manage the resources required to run data science workloads across multiple nodes in an OpenShift cluster simultaneously. These three components need to be enabled on the RHOAI installation configuration:
@@ -374,17 +351,27 @@ If you want to try this feature, I recommend you to follow the RH documentation:
 
 
 
-=== Monitoring models with TrustyAI
-
-To ensure that machine-learning models are transparent, fair, and reliable, data scientists can use TrustyAI in OpenShift AI to monitor their data science models. Data scientists can monitor their data science models in OpenShift AI for *Bias* and *Data Drift*.
 
 
-[source, bash]
-----
-TRUSTY_ROUTE=$(oc get route/trustyai-service --template="https://{{.spec.host}}")
 
-# WIP
-----
+== Monitoring, Safety and Evaluation
+
+* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.0/html-single/monitoring_your_ai_systems/index[Monitoring]**: To ensure the transparency, fairness, and reliability of your data science models in OpenShift AI for *Bias* and *Data Drift*. Configure and set up TrustyAI for your project, and then perform the following checks:
+
+  ** Bias: Check for unfair patterns or biases in data and model predictions to ensure your model's decisions are unbiased.
+  ** Data drift: Detect changes in input data distributions over time by comparing the latest real-world data to the original training data. Comparing the data identifies shifts or deviations that could impact model performance, ensuring that the model remains accurate and reliable.
+
+* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.0/html-single/enabling_ai_safety_with_guardrails/index[Safety]**: To ensure that your machine-learning models are transparent, fair, and reliable. The TrustyAI Guardrails Orchestrator service is a tool to invoke detections on text generation inputs and outputs, as well as standalone detections.
+
+* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.0/html-single/evaluating_ai_systems/index[Evaluation]**: To ensure your OpenShift AI models for accuracy, relevance, and consistency. Evaluate your AI systems to generate an analysis of your model's ability by using the following TrustyAI tools:
+  ** LM-Eval: Use TrustyAI to monitor your LLM against a range of different evaluation tasks and to ensure the accuracy and quality of its output. Features such as summarization, language toxicity, and question-answering accuracy are assessed to inform and improve your model parameters.
+  ** RAGAS: Use Retrieval-Augmented Generation Assessment (RAGAS) with TrustyAI to measure and improve the quality of your RAG systems in OpenShift AI. RAGAS provides objective metrics that assess retrieval quality, answer relevance, and factual consistency.
+  ** Llama Stack: Use Llama Stack components and providers with TrustyAI to evaluate and work with LLMs.
+
+
+
+
+
 
 
 
@@ -458,104 +445,6 @@ curl -s -X 'POST' \
 # * OpenAI => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/embeddings
 ----
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-== OpenShift Data Foundation
-
-TIP: This section is already fully automated in the GitOps deployment during the `auto-install.sh`, but if you need to deploy it manually, you can follow the steps from this section.
-
-=== ODF Installation and configuration
-
-This section will guide you on how we are deploying ODF to provide internal S3 storage on our cluster. 
-
-WARNING: Make sure to have at least three worker nodes!!
-
-1. Install the ODF operator.
-+
-[source, bash]
-----
-oc apply -k ocp-odf/odf-operator
-----
-+
-2. Install the ODF cluster
-+ 
-[source, bash]
-----
-oc apply -f ocp-odf/storagecluster-ocs-storagecluster.yaml
-----
-+
-3. Install RadosGW to provide S3 storage based on Ceph on OCP clusters deployed on Cloud Providers:
-+ 
-[source, bash]
-----
-oc apply -k ocp-odf/radosgw
-----
-
-This https://red-hat-storage.github.io/ocs-training/training/ocs4/ocs4-enable-rgw.html[workshop guide] is a good read to understand the RadosGW configuration.
-
-
-[NOTE]
-====
-
-If you want to test your ODF deployment, not with a real use-case, but with a funny example, 
-
->> link:ocp-odf/pizza-hat/README.adoc[Click Here] <<
-====
-
-
-=== ODF S3 configuration and testing
-
-Let's now test our configuration and create a bucket to store a model in ODF.
-
-1. Create a bucket:
-+
-[source, bash]
-----
-oc apply -k ocp-odf/rhoai-models
-----
-+
-2. Create a secret with the credentials
-+
-[source, bash]
-----
-oc create secret generic hf-creds --from-env-file=hf-creds -n rhoai-models
-----
-
-==== Wanna check the status from your laptop?
-
-You just need to retrieve the credentials to the bucket and point to the bucket route url:
-
-[source, bash]
-----
-export AWS_ACCESS_KEY_ID=$(oc get secret models -n rhoai-models -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 --decode)
-export AWS_SECRET_ACCESS_KEY=$(oc get secret models -n rhoai-models -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 --decode)
-export BUCKET_HOST=$(oc get route s3-rgw -n openshift-storage --template='{{ .spec.host }}')
-export BUCKET_PORT=$(oc get configmap models -n rhoai-models -o jsonpath='{.data.BUCKET_PORT}')
-export BUCKET_NAME="models"
-export MODEL_NAME="ibm-granite/granite-3.0-1b-a400m-instruct"
-----
-
-And then execute normal `aws-cli` commands against the bucket:
-
-[source, bash]
-----
-aws s3 ls s3://${BUCKET_NAME}/$MODEL_NAME/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
-----
 
 
 
@@ -730,9 +619,3 @@ The password for the Attu GUI is `root` / `Milvus`.
 * https://github.com/alpha-hack-program/ai-studio-rhoai/tree/main
 * https://github.com/davidseve/mlops/tree/main
 * https://github.com/redhat-na-ssa/hobbyist-guide-to-rhoai/blob/main/docs/10-demo-distributed_workloads.md
-
-
-WARNING: Logging before InitGoogleLogging() is written to STDERR
-E0223 23:48:09.323659     1 mysql_metadata_source.cc:174] MySQL database was not initialized. Please ensure your MySQL server is running. Also, this error might be caused by starting from MySQL 8.0, mysql_native_password used by MLMD is not supported as a default for authentication plugin. Please follow <https://dev.mysql.com/blog-archive/upgrading-to-mysql-8-0-default-authentication-plugin-considerations/>to fix this issue.
-F0223 23:48:09.323763     1 metadata_store_server_main.cc:617] Check failed: absl::OkStatus() == status (OK vs. INTERNAL: mysql_real_connect failed: errno: , error:  [mysql-error-info='']) MetadataStore cannot be created with the given connection config.
-*** Check failure stack trace: ***

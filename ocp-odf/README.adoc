@@ -1,0 +1,81 @@
+= OpenShift Data Foundation
+
+TIP: This section is already fully automated in the GitOps deployment during the `auto-install.sh`, but if you need to deploy it manually, you can follow the steps from this section.
+
+== ODF Installation and configuration
+
+This section will guide you on how we are deploying ODF to provide internal S3 storage on our cluster. 
+
+WARNING: Make sure to have at least three worker nodes!!
+
+1. Install the ODF operator.
++
+[source, bash]
+----
+oc apply -k ocp-odf/odf-operator
+----
++
+2. Install the ODF cluster
++ 
+[source, bash]
+----
+oc apply -f ocp-odf/storagecluster-ocs-storagecluster.yaml
+----
++
+3. Install RadosGW to provide S3 storage based on Ceph on OCP clusters deployed on Cloud Providers:
++ 
+[source, bash]
+----
+oc apply -k ocp-odf/radosgw
+----
+
+This https://red-hat-storage.github.io/ocs-training/training/ocs4/ocs4-enable-rgw.html[workshop guide] is a good read to understand the RadosGW configuration.
+
+
+[NOTE]
+====
+
+If you want to test your ODF deployment, not with a real use-case, but with a funny example, 
+
+>> link:ocp-odf/pizza-hat/README.adoc[Click Here] <<
+====
+
+
+=== ODF S3 configuration and testing
+
+Let's now test our configuration and create a bucket to store a model in ODF.
+
+1. Create a bucket:
++
+[source, bash]
+----
+oc apply -k ocp-odf/rhoai-models
+----
++
+2. Create a secret with the credentials
++
+[source, bash]
+----
+oc create secret generic hf-creds --from-env-file=hf-creds -n rhoai-models
+----
+
+=== Wanna check the status from your laptop?
+
+You just need to retrieve the credentials to the bucket and point to the bucket route url:
+
+[source, bash]
+----
+export AWS_ACCESS_KEY_ID=$(oc get secret models -n rhoai-models -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 --decode)
+export AWS_SECRET_ACCESS_KEY=$(oc get secret models -n rhoai-models -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 --decode)
+export BUCKET_HOST=$(oc get route s3-rgw -n openshift-storage --template='{{ .spec.host }}')
+export BUCKET_PORT=$(oc get configmap models -n rhoai-models -o jsonpath='{.data.BUCKET_PORT}')
+export BUCKET_NAME="models"
+export MODEL_NAME="ibm-granite/granite-3.0-1b-a400m-instruct"
+----
+
+And then execute normal `aws-cli` commands against the bucket:
+
+[source, bash]
+----
+aws s3 ls s3://${BUCKET_NAME}/$MODEL_NAME/ --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT
+----
