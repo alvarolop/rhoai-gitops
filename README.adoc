@@ -368,7 +368,7 @@ If you want to try this feature, I recommend you to follow the RH documentation:
   ** RAGAS: Use Retrieval-Augmented Generation Assessment (RAGAS) with TrustyAI to measure and improve the quality of your RAG systems in OpenShift AI. RAGAS provides objective metrics that assess retrieval quality, answer relevance, and factual consistency.
   ** Llama Stack: Use Llama Stack components and providers with TrustyAI to evaluate and work with LLMs.
 
-
+* **https://github.com/vllm-project/guidellm[GuideLLM]**: A platform for evaluating how language models perform under real workloads and configurations. It is part of the vLLM project and is a tool for evaluating the performance of language models.
 
 
 
