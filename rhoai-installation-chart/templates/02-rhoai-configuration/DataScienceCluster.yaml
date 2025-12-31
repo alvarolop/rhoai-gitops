@@ -43,4 +43,4 @@ spec:
     trainingoperator:
       managementState: Managed
     trustyai:
-      managementState: Managed
+      managementState: {{ if .Values.trustyai.enabled }}Managed{{ else }}Removed{{ end }}

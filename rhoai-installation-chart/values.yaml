@@ -27,6 +27,9 @@ llamaStack:
 llm_d:
   enabled: false
 
+trustyai:
+  enabled: true
+
 featureStore:
   enabled: true
   example:
