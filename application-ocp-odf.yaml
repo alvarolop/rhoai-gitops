@@ -14,7 +14,7 @@ spec:
     path: ocp-odf
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
-    kustomize:
+    # kustomize:
       # patches:
       #   - target:
       #       kind: Subscription
@@ -22,7 +22,7 @@ spec:
       #     patch: |-
       #       - op: replace
       #         path: /spec/channel
-      #         value: stable-4.17
+      #         value: stable-4.19
   syncPolicy:
     automated:
       prune: false

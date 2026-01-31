@@ -254,7 +254,7 @@ echo -e "\n🚀 ==================="
 echo -e "🚀 = GPU NODES READY ="
 echo -e "🚀 ===================\n"
 
-if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$GPU_NODE_COUNT" -gt 0 ]]; then
     echo "🔍 This script waits until there is at least one node discovered as NVIDIA GPU node by the Node Feature Discovery Operator."
     echo "🔎 It checks every 15 seconds to see if nodes with the feature.node.kubernetes.io/pci-10de.present=true label are available."
     echo "💡 0x10de is the PCI vendor ID that is assigned to NVIDIA."
@@ -266,7 +266,7 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     done
     echo "🎉 Nodes found!"
 else
-    echo "⏭️  Skip creation of NVIDIA gpu nodes..."
+    echo "⏭️  Skip waiting for NVIDIA gpu nodes..."
 fi
 
 echo -e "\n🤖 ======================"
