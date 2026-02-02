@@ -180,7 +180,7 @@ echo -e "🔧 =====================\n"
 if [[ "$INSTALL_PIPELINES" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     echo -e "\n🚰 Install the OCP Pipelines operator to load Kubeflow pipelines to RHOAI"
-    oc apply -k ocp-pipelines
+    oc apply -f application-ocp-pipelines.yaml
 else
     echo -e "\n⏭️  Skip OCP Pipelines installation..."
 fi 
