@@ -4,6 +4,8 @@ kind: Job
 metadata:
   name: enable-pipelines-plugin
   namespace: openshift-operators
+  labels:
+    app: ocp-pipelines
 spec:
   completions: 1
   parallelism: 1
