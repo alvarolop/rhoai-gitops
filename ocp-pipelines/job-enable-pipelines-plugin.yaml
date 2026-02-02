@@ -1,0 +1,30 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: enable-pipelines-plugin
+  namespace: openshift-operators
+spec:
+  completions: 1
+  parallelism: 1
+  backoffLimit: 10
+  activeDeadlineSeconds: 240
+  template:
+    spec:
+      containers:
+      - name: enable-plugin
+        image: registry.redhat.io/openshift4/ose-cli-rhel9:latest
+        imagePullPolicy: Always
+        command:
+          - /bin/bash
+          - -c
+          - |
+            if ! oc get console.operator.openshift.io cluster -o yaml | grep "pipelines-console-plugin";
+            then
+              oc patch console.operator.openshift.io cluster --type=json \
+              --patch '[{"op":"add","path":"/spec/plugins/-","value":"pipelines-console-plugin"}]'
+            fi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: enable-pipelines-plugin
+      terminationGracePeriodSeconds: 30
