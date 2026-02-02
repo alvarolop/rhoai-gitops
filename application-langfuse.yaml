@@ -1,0 +1,144 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: langfuse
+  name: langfuse
+  namespace: openshift-gitops
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: langfuse
+  project: default
+  source:
+    # https://github.com/langfuse/langfuse-k8s
+    repoURL: https://langfuse.github.io/langfuse-k8s
+    targetRevision: "1.5.18"
+    chart: langfuse
+    helm:
+      values: |
+        # Dev-only values. Change all secrets and nextauth.url for production.
+        langfuse:
+          nextauth:
+            url: "https://langfuse-langfuse.apps.$CLUSTER_DOMAIN"
+            secret:
+              value: "dev-nextauth-secret-change-in-production"
+          salt:
+            value: "dev-salt-change-in-production-openssl-rand-base64-32"
+          encryptionKey:
+            value: "0000000000000000000000000000000000000000000000000000000000000000"
+          # Headless init: org + project for AI agents / LlamaStack telemetry (https://langfuse.com/self-hosting/administration/headless-initialization)
+          additionalEnv:
+            - name: LANGFUSE_INIT_ORG_ID
+              value: "telemetry"
+            - name: LANGFUSE_INIT_ORG_NAME
+              value: "Telemetry & Observability"
+            - name: LANGFUSE_INIT_PROJECT_ID
+              value: "ai-agents"
+            - name: LANGFUSE_INIT_PROJECT_NAME
+              value: "AI Agents & LLM Telemetry"
+            - name: LANGFUSE_INIT_PROJECT_PUBLIC_KEY
+              value: "lf_pk_telemetry_ai_agents"
+            - name: LANGFUSE_INIT_PROJECT_SECRET_KEY
+              value: "lf_sk_telemetry_ai_agents"
+            - name: LANGFUSE_INIT_PROJECT_RETENTION
+              value: "30"
+            - name: LANGFUSE_INIT_USER_EMAIL
+              value: "admin@example.org"
+            - name: LANGFUSE_INIT_USER_NAME
+              value: "Telemetry Admin"
+            - name: LANGFUSE_INIT_USER_PASSWORD
+              value: "password"
+        postgresql:
+          auth:
+            username: postgres
+            password: "dev-postgres-password-change-in-production"
+        clickhouse:
+          # Single-user: 1 replica instead of 3 (saves 2 pods)
+          replicaCount: 1
+          # Disable ON CLUSTER queries for single-replica (avoids cluster config issues)
+          clusterEnabled: false
+          auth:
+            password: "dev-clickhouse-password-change-in-production"
+          # Single-user: 1 ZooKeeper replica instead of 3 (saves 2 pods)
+          zookeeper:
+            replicaCount: 1
+        redis:
+          auth:
+            password: "dev-redis-password-change-in-production"
+        # s3:
+        #   auth:
+        #     rootUser: "minio"
+        #     rootPassword: "minio123"
+        # Use MinIO deployed in another namespace (vars: MINIO_NAMESPACE, MINIO_SERVICE_NAME, MINIO_ADMIN_USERNAME, MINIO_ADMIN_PASSWORD from auto-install.sh)
+        s3:
+          deploy: false
+          bucket: "langfuse-bucket"
+          region: "auto"
+          endpoint: "http://$MINIO_SERVICE_NAME.$MINIO_NAMESPACE.svc.cluster.local:9000"
+          forcePathStyle: true
+          accessKeyId:
+            value: "$MINIO_ADMIN_USERNAME"
+          secretAccessKey:
+            value: "$MINIO_ADMIN_PASSWORD"
+          eventUpload:
+            prefix: "events/"
+          batchExport:
+            prefix: "exports/"
+          mediaUpload:
+            prefix: "media/"
+        extraManifests:
+          # Grant anyuid SCC to Bitnami subchart service accounts (fix Clickhouse, Postgres, Redis)
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: RoleBinding
+            metadata:
+              name: langfuse-bitnami-anyuid
+              namespace: langfuse
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: system:openshift:scc:anyuid
+            subjects:
+              - kind: ServiceAccount
+                name: langfuse-clickhouse
+                namespace: langfuse
+              - kind: ServiceAccount
+                name: langfuse-postgresql
+                namespace: langfuse
+              - kind: ServiceAccount
+                name: langfuse-redis-primary
+                namespace: langfuse
+          - apiVersion: route.openshift.io/v1
+            kind: Route
+            metadata:
+              name: langfuse
+              namespace: langfuse
+            spec:
+              host: "langfuse-langfuse.apps.$CLUSTER_DOMAIN"
+              port:
+                targetPort: 3000
+              tls:
+                termination: edge
+                insecureEdgeTerminationPolicy: Redirect
+              to:
+                kind: Service
+                name: langfuse-web
+                weight: 100
+          - apiVersion: console.openshift.io/v1
+            kind: ConsoleLink
+            metadata:
+              name: langfuse
+            spec:
+              href: "https://langfuse-langfuse.apps.$CLUSTER_DOMAIN"
+              location: ApplicationMenu
+              text: Langfuse
+              applicationMenu:
+                section: OpenShift Self Managed Services
+                imageURL: "https://avatars.githubusercontent.com/u/134601687?s=48&v=4"
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

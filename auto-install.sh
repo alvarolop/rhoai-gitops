@@ -7,10 +7,11 @@ set -e
 #####################################
 
 CREATE_GPU_MACHINESETS=true
-GPU_NODE_COUNT=1  # Total GPU nodes to distribute across AZs (a, b, c)
+GPU_NODE_COUNT=0  # Total GPU nodes to distribute across AZs (a, b, c)
 INSTALL_MINIO=true
 INSTALL_ODF=false
 INSTALL_MONITORING=true
+INSTALL_LANGFUSE=true
 INSTALL_PIPELINES=true
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g5.4xlarge
@@ -22,14 +23,20 @@ REQUIRED_MEMORY_Gi="70"
 ## Do not modify anything from this line
 #####################################
 
-# Print environment variables
-# echo -e "\n===================="
-# echo -e "ENVIRONMENT VARIABLES:"
-# echo -e " * LOKI_BUCKET: $LOKI_BUCKET"
-# echo -e " * LOKI_SECRET_NAMESPACE: $LOKI_SECRET_NAMESPACE"
-# echo -e " * TEMPO_BUCKET: $TEMPO_BUCKET"
-# echo -e " * TEMPO_SECRET_NAMESPACE: $TEMPO_SECRET_NAMESPACE"
-# echo -e "====================\n"
+# Print feature toggles and GPU config
+echo -e "\n===================="
+echo -e "FEATURE TOGGLES & CONFIG:"
+echo -e " * CREATE_GPU_MACHINESETS: $CREATE_GPU_MACHINESETS"
+echo -e " * GPU_NODE_COUNT: $GPU_NODE_COUNT"
+echo -e " * AWS_GPU_INSTANCE: $AWS_GPU_INSTANCE"
+echo -e " * INSTALL_MINIO: $INSTALL_MINIO"
+echo -e " * INSTALL_ODF: $INSTALL_ODF"
+echo -e " * INSTALL_MONITORING: $INSTALL_MONITORING"
+echo -e " * INSTALL_PIPELINES: $INSTALL_PIPELINES"
+echo -e " * INSTALL_LANGFUSE: $INSTALL_LANGFUSE"
+echo -e " * CREATE_RHOAI_ENV: $CREATE_RHOAI_ENV"
+echo -e " * REQUIRED_MEMORY_Gi: $REQUIRED_MEMORY_Gi"
+echo -e "====================\n"
 
 # Check if the user is logged in 
 if ! oc whoami &> /dev/null; then
@@ -299,6 +306,21 @@ if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     oc apply -f application-rhoai-playground-env.yaml
 else
     echo "⏭️  Skip creation of RHOAI Playground environment..."
+fi
+
+if [[ "$INSTALL_LANGFUSE" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+    echo "🚀 Installing Langfuse via ArgoCD application"
+    MINIO_NAMESPACE="${MINIO_NAMESPACE:-minio}"
+    MINIO_SERVICE_NAME="${MINIO_SERVICE_NAME:-minio}"
+    MINIO_ADMIN_USERNAME="${MINIO_ADMIN_USERNAME:-minio}"
+    MINIO_ADMIN_PASSWORD="${MINIO_ADMIN_PASSWORD:-minio123}"
+    cat application-langfuse.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    MINIO_NAMESPACE=$MINIO_NAMESPACE MINIO_SERVICE_NAME=$MINIO_SERVICE_NAME \
+    MINIO_ADMIN_USERNAME=$MINIO_ADMIN_USERNAME MINIO_ADMIN_PASSWORD=$MINIO_ADMIN_PASSWORD \
+    envsubst | oc apply -f -
+else
+    echo "⏭️  Skip installation of Langfuse (requires INSTALL_LANGFUSE and INSTALL_MINIO enabled)..."
 fi
 
 echo "🎊 That's all!! RHOAI should be up and running!! :)"

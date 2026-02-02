@@ -402,15 +402,6 @@ oc create secret generic hf-creds --from-env-file=hf-creds -n granite-1b-a400m
 ----
 
 
-.nomic-embed-text-v1
-[source, bash]
-----
-oc apply -f application-serve-nomic-embed-text-v1.yaml
-sleep 4
-oc create secret generic hf-creds --from-env-file=hf-creds -n nomic-embed-text-v1
-----
-
-
 .Testing LLM certificates
 [source, bash]
 ----
@@ -428,17 +419,6 @@ curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions
 ----
 
 
-.Embeddings
-[source, bash]
-----
-curl -s -X 'POST' \
-  "https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/v1/embeddings" \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "model": "nomic-embed-text-v1",
-  "input": ["En un lugar de la Mancha..."]
-}'
 
 # API Endpoints:
 # * Ollama => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/api/embed
@@ -576,9 +556,24 @@ The password for the Attu GUI is `root` / `Milvus`.
 
 
 
+=== Langfuse
 
+https://langfuse.com/self-hosting/deployment/kubernetes-helm[Langfuse] is an open-source platform for tracing, logging, and monitoring AI applications. It provides a unified view of your AI pipeline, allowing you to troubleshoot issues, optimize performance, and improve reliability.
 
+[source, bash]
+----
+oc apply -f application-langfuse.yaml
+----
 
+or you can deploy it manually with the following command:
+
+[source, bash]
+----
+helm repo add langfuse https://langfuse.github.io/langfuse-k8s
+helm repo update
+
+helm install langfuse langfuse/langfuse -n langfuse --create-namespace
+----
 
 
 == Extra documentation
