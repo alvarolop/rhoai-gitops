@@ -67,27 +67,10 @@ spec:
         redis:
           auth:
             password: "dev-redis-password-change-in-production"
-        # s3:
-        #   auth:
-        #     rootUser: "minio"
-        #     rootPassword: "minio123"
-        # Use MinIO deployed in another namespace (vars: MINIO_NAMESPACE, MINIO_SERVICE_NAME, MINIO_ADMIN_USERNAME, MINIO_ADMIN_PASSWORD from auto-install.sh)
         s3:
-          deploy: false
-          bucket: "langfuse-bucket"
-          region: "auto"
-          endpoint: "http://$MINIO_SERVICE_NAME.$MINIO_NAMESPACE.svc.cluster.local:9000"
-          forcePathStyle: true
-          accessKeyId:
-            value: "$MINIO_ADMIN_USERNAME"
-          secretAccessKey:
-            value: "$MINIO_ADMIN_PASSWORD"
-          eventUpload:
-            prefix: "events/"
-          batchExport:
-            prefix: "exports/"
-          mediaUpload:
-            prefix: "media/"
+          auth:
+            rootUser: "minio"
+            rootPassword: "minio123"
         extraManifests:
           # Grant anyuid SCC to Bitnami subchart service accounts (fix Clickhouse, Postgres, Redis)
           - apiVersion: rbac.authorization.k8s.io/v1
