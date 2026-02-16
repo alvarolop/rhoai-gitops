@@ -1,0 +1,53 @@
+---
+# S4 (Super Simple Storage Service) - https://github.com/rh-aiservices-bu/s4/tree/main/charts/s4
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: s4
+  name: s4
+  namespace: openshift-gitops
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: $S4_NAMESPACE
+  project: default
+  source:
+    repoURL: https://github.com/rh-aiservices-bu/s4.git
+    path: charts/s4
+    targetRevision: main
+    helm:
+      valueFiles: []
+      values: |
+        replicaCount: 1
+        s3:
+          endpoint: "http://localhost:7480"
+          region: $S4_S3_REGION
+          accessKeyId: $S4_S3_ACCESS_KEY
+          secretAccessKey: $S4_S3_SECRET_KEY
+        auth:
+          enabled: true
+          username: $S4_AUTH_USERNAME
+          password: $S4_AUTH_PASSWORD
+        storage:
+          data:
+            size: $S4_STORAGE_SIZE
+        route:
+          enabled: true
+          host: ""
+          tls:
+            termination: edge
+            insecureEdgeTerminationPolicy: Redirect
+          # Expose S3 API via OpenShift Route (same TLS as Web UI)
+          s3Api:
+            enabled: true
+            host: ""
+            tls:
+              termination: edge
+              insecureEdgeTerminationPolicy: Redirect
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

@@ -13,6 +13,7 @@ INSTALL_ODF=false
 INSTALL_MONITORING=true
 INSTALL_LANGFUSE=true
 INSTALL_PIPELINES=true
+INSTALL_S4=true
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g5.4xlarge
 
@@ -22,6 +23,33 @@ REQUIRED_MEMORY_Gi="70"
 #####################################
 ## Do not modify anything from this line
 #####################################
+
+# Countdown that can be skipped by pressing 'q'. Usage: countdown_with_skip <seconds>
+countdown_with_skip() {
+  local secs=$1
+  local i=$secs key
+  while [[ $i -gt 0 ]]; do
+    echo -ne "\t⏰ Time left: $i seconds. Press q to skip.\r"
+    read -t 1 -n 1 key 2>/dev/null || true
+    [[ "${key,,}" == "q" ]] && { echo -ne "\n\t⏭️  Skipped.\n"; return; }
+    sleep 1
+    i=$((i - 1))
+  done
+  echo -ne "\n"
+}
+
+# Wait up to N seconds; return 0 if user presses 'q' (skip), 1 when full wait completed. Usage: wait_with_skip <seconds>
+wait_with_skip() {
+  local n=$1
+  local i=0 key
+  while [[ $i -lt $n ]]; do
+    read -t 1 -n 1 key 2>/dev/null || true
+    [[ "${key,,}" == "q" ]] && return 0
+    sleep 1
+    i=$((i + 1))
+  done
+  return 1
+}
 
 # Print feature toggles and GPU config
 echo -e "\n===================="
@@ -34,6 +62,7 @@ echo -e " * INSTALL_ODF: $INSTALL_ODF"
 echo -e " * INSTALL_MONITORING: $INSTALL_MONITORING"
 echo -e " * INSTALL_PIPELINES: $INSTALL_PIPELINES"
 echo -e " * INSTALL_LANGFUSE: $INSTALL_LANGFUSE"
+echo -e " * INSTALL_S4: $INSTALL_S4"
 echo -e " * CREATE_RHOAI_ENV: $CREATE_RHOAI_ENV"
 echo -e " * REQUIRED_MEMORY_Gi: $REQUIRED_MEMORY_Gi"
 echo -e "====================\n"
@@ -125,17 +154,14 @@ oc apply -f application-rhoai-dependencies.yaml
 
 
 echo -e "\n2️⃣ Wait 20 seconds for Subscriptions to be applied"
-for i in {20..1}; do
-  echo -ne "\t⏰ Time left: $i seconds.\r"
-  sleep 1
-done
+countdown_with_skip 20
 
 # Wait for all operators to be in 'Succeeded' state
 echo -e "\n3️⃣ Waiting for all operators to be in 'Succeeded' state..."
 until [[ -z $(oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true) ]]; do
-    echo "⏳ Some operators are not in 'Succeeded' state, retrying in 10 seconds..."
+    echo "⏳ Some operators are not in 'Succeeded' state, retrying in 10 seconds... (press q to skip)"
     oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true
-    sleep 10
+    wait_with_skip 10 && break
 done
 echo -e "\t✅ All operators are in 'Succeeded' state."
 
@@ -186,7 +212,7 @@ else
 fi 
 
 echo -e "\n🗂️ ======================"
-echo -e "🗂️ = MinIO Installation ="
+echo -e "🗂️ = S3 Storage Backends ="
 echo -e "🗂️ ======================\n"
 
 if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
@@ -196,6 +222,7 @@ if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     MINIO_ADMIN_USERNAME="minio"
     MINIO_ADMIN_PASSWORD="minio123"
 
+    echo -e "--- MinIO ---"
     echo -e "1️⃣ Trigger the ArgoCD application to install MinIO instance"
     cat application-minio.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
@@ -204,21 +231,61 @@ if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     envsubst | oc apply -f -
 
     echo -e "\n2️⃣ Wait 10 seconds for resources to be created"
-    for i in {10..1}; do
-        echo -ne "\t⏰ Time left: $i seconds.\r"; sleep 1
-    done
+    countdown_with_skip 10
 
     echo -e "\n3️⃣ Let's wait until all the pods are up and running"
-    while oc get pods -n $MINIO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "⏳ Waiting..."; sleep 10; done
+    while oc get pods -n $MINIO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
 
     if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-        ./prerequisites/s3-bucket/create-minio-s3-bucket.sh minio minio # TODO: remove the AWS dependency
+        ./prerequisites/s3-bucket/create-minio-s3-bucket.sh "$MINIO_NAMESPACE" "$MINIO_SERVICE_NAME" # TODO: remove the AWS dependency
     else
         echo "⏭️  Skip creation of RHOAI Playground environment MinIO Bucket..."
     fi
 
 else
     echo "⏭️  Skip installation of MinIO..."
+fi
+
+# --- S4 (Super Simple Storage Service) - placeholder ---
+if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+
+    S4_NAMESPACE="s4"
+    S4_S3_ACCESS_KEY="s4admin"
+    S4_S3_SECRET_KEY="s4secret"
+    S4_S3_REGION="us-east-1"
+    S4_S3_ENDPOINT="http://localhost:7480"
+    # UI auth (required when auth.enabled=true; defaults aligned with S3 credentials)
+    S4_AUTH_USERNAME="${S4_AUTH_USERNAME:-s4admin}"
+    S4_AUTH_PASSWORD="${S4_AUTH_PASSWORD:-s4secret}"
+    S4_STORAGE_SIZE="10Gi"
+
+    echo -e "\n--- S4 ---"
+    echo -e "1️⃣ Trigger the ArgoCD application to install S4 instance"
+    cat application-s4.yaml | \
+    S4_NAMESPACE=$S4_NAMESPACE S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+    S4_S3_REGION=$S4_S3_REGION S4_AUTH_USERNAME=$S4_AUTH_USERNAME S4_AUTH_PASSWORD=$S4_AUTH_PASSWORD \
+    S4_STORAGE_SIZE=$S4_STORAGE_SIZE \
+    envsubst | oc apply -f -
+
+    echo -e "\n2️⃣ Wait 10 seconds for resources to be created"
+    countdown_with_skip 10
+
+    echo -e "\n3️⃣ Waiting for S4 pod to be ready..."
+    until oc get pods -n "$S4_NAMESPACE" --no-headers 2>/dev/null | grep -q Running; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
+    echo -e "\t✅ S4 is deployed in namespace $S4_NAMESPACE."
+
+    echo -e "\n4️⃣ Creating ConsoleLink for S4 (Application Menu → OpenShift Self Managed Services)"
+    S4_ROUTE_HOST=$(oc get route -n "$S4_NAMESPACE" s4 -o jsonpath='{.spec.host}' 2>/dev/null || true)
+    if [[ -n "$S4_ROUTE_HOST" ]]; then
+        S4_HREF="https://${S4_ROUTE_HOST}"
+        cat prerequisites/s4/consolelink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
+        echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
+    else
+        echo -e "\t⚠️  S4 route not found; skipping ConsoleLink. Create it later with: oc get route -n $S4_NAMESPACE s4 -o jsonpath='{.spec.host}'"
+    fi
+
+else
+    echo "⏭️  Skip installation of S4..."
 fi
 
 echo -e "\n💾 ======================"
@@ -249,8 +316,8 @@ if [[ "$INSTALL_ODF" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     until [[ "$(oc get storagecluster ocs-storagecluster -n openshift-storage -o jsonpath='{.status.phase}')" == "Ready" && \
             #  "$(oc get cephcluster -n openshift-storage -o jsonpath='{.items[0].status.ceph.health}')" == "HEALTH_OK" && \
             "$(oc get noobaa noobaa -n openshift-storage -o jsonpath='{.status.phase}')" == "Ready" ]]; do
-        echo "⏳ Waiting for StorageCluster and components to be fully ready..."
-        sleep 30
+        echo "⏳ Waiting for StorageCluster and components to be fully ready... (press q to skip)"
+        wait_with_skip 30 && break
     done
     echo "✅ StorageCluster is ready and all components are healthy."
 else
@@ -268,8 +335,8 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$GPU_NODE_CO
     # https://docs.nvidia.com/datacenter/cloud-native/openshift/24.6.2/install-nfd.html#verify-that-the-node-feature-discovery-operator-is-functioning-correctly
 
     while [[ $(oc get nodes -l feature.node.kubernetes.io/pci-10de.present=true -o go-template='{{ len .items }}') -eq 0 ]]; do
-    echo "⏳ No nodes found, waiting..."
-    sleep 15
+    echo "⏳ No nodes found, waiting... (press q to skip)"
+    wait_with_skip 15 && break
     done
     echo "🎉 Nodes found!"
 else
@@ -284,12 +351,10 @@ echo -e "\n🚀 Trigger the ArgoCD application to install RHOAI instance"
 oc apply -f application-rhoai-installation.yaml
 
 echo -e "\n⏰ Wait 15 seconds for resources to be created"
-for i in {15..1}; do
-    echo -ne "\t⏰ Time left: $i seconds.\r"; sleep 1
-done
+countdown_with_skip 15
 
 echo -e "⏳ Waiting until all the pods are up and running"
-while oc get pods -n redhat-ods-applications | grep -v "Running\|Completed\|NAME"; do echo "⏳ Waiting..."; sleep 10; done
+while oc get pods -n redhat-ods-applications | grep -v "Running\|Completed\|NAME"; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
 
 echo -e "\n🎉 You should be able now to access the RHOAI dashboard"
 
