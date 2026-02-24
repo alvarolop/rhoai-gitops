@@ -34,6 +34,8 @@ spec:
     modelregistry:
       managementState: {{ if .Values.modelRegistry.enabled }}Managed{{ else }}Removed{{ end }}
       registriesNamespace: rhoai-model-registries
+    mlflowoperator:
+      managementState: {{ if .Values.mlflow.enabled }}Managed{{ else }}Removed{{ end }}
     ray:
       managementState: Managed
     workbenches:

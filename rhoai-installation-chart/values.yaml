@@ -27,6 +27,10 @@ llamaStack:
 llm_d:
   enabled: false
 
+# https://access.redhat.com/articles/7136121
+mlflow:
+  enabled: true
+
 trustyai:
   enabled: true
 
