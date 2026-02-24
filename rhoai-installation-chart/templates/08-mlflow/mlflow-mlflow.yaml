@@ -4,6 +4,9 @@ apiVersion: mlflow.opendatahub.io/v1
 kind: MLflow
 metadata:
   name: mlflow
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   storage:
     accessModes:
