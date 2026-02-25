@@ -103,57 +103,57 @@ spec:
         - mountPath: /opt/app-root/runtimes	
           name: elyra-dsp-details
         workingDir: /opt/app-root/src
-      - args:
-        - --secure-listen-address=0.0.0.0:8443
-        - --upstream=http://127.0.0.1:8888/
-        - --logtostderr=true
-        - --v=10
-        - --proxy-endpoints-port=8444
-        - --config-file=/etc/kube-rbac-proxy/config-file.yaml
-        - --tls-cert-file=/etc/tls/private/tls.crt
-        - --tls-private-key-file=/etc/tls/private/tls.key
-        - --auth-header-fields-enabled=true
-        - --auth-header-user-field-name=X-Auth-Request-User
-        - --auth-header-groups-field-name=X-Auth-Request-Groups
-        image: registry.redhat.io/rhoai/odh-kube-auth-proxy-rhel9@sha256:1f4b2b9bb5061faf17299c2ae2405ab408e2b7ce349d9831eb6045990e6da005
-        imagePullPolicy: Always
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /healthz
-            port: 8444
-            scheme: HTTPS
-          initialDelaySeconds: 30
-          periodSeconds: 5
-          successThreshold: 1
-          timeoutSeconds: 1
-        name: kube-rbac-proxy
-        ports:
-        - containerPort: 8443
-          name: kube-rbac-proxy
-          protocol: TCP
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /healthz
-            port: 8444
-            scheme: HTTPS
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          successThreshold: 1
-          timeoutSeconds: 1
-        resources:
-          limits:
-            cpu: 100m
-            memory: 64Mi
-          requests:
-            cpu: 100m
-            memory: 64Mi
-        volumeMounts:
-        - mountPath: /etc/kube-rbac-proxy
-          name: kube-rbac-proxy-config
-        - mountPath: /etc/tls/private
-          name: kube-rbac-proxy-tls-certificates
+      # - args:
+      #   - --secure-listen-address=0.0.0.0:8443
+      #   - --upstream=http://127.0.0.1:8888/
+      #   - --logtostderr=true
+      #   - --v=10
+      #   - --proxy-endpoints-port=8444
+      #   - --config-file=/etc/kube-rbac-proxy/config-file.yaml
+      #   - --tls-cert-file=/etc/tls/private/tls.crt
+      #   - --tls-private-key-file=/etc/tls/private/tls.key
+      #   - --auth-header-fields-enabled=true
+      #   - --auth-header-user-field-name=X-Auth-Request-User
+      #   - --auth-header-groups-field-name=X-Auth-Request-Groups
+      #   image: registry.redhat.io/rhoai/odh-kube-auth-proxy-rhel9@sha256:1f4b2b9bb5061faf17299c2ae2405ab408e2b7ce349d9831eb6045990e6da005
+      #   imagePullPolicy: Always
+      #   livenessProbe:
+      #     failureThreshold: 3
+      #     httpGet:
+      #       path: /healthz
+      #       port: 8444
+      #       scheme: HTTPS
+      #     initialDelaySeconds: 30
+      #     periodSeconds: 5
+      #     successThreshold: 1
+      #     timeoutSeconds: 1
+      #   name: kube-rbac-proxy
+      #   ports:
+      #   - containerPort: 8443
+      #     name: kube-rbac-proxy
+      #     protocol: TCP
+      #   readinessProbe:
+      #     failureThreshold: 3
+      #     httpGet:
+      #       path: /healthz
+      #       port: 8444
+      #       scheme: HTTPS
+      #     initialDelaySeconds: 5
+      #     periodSeconds: 5
+      #     successThreshold: 1
+      #     timeoutSeconds: 1
+      #   resources:
+      #     limits:
+      #       cpu: 100m
+      #       memory: 64Mi
+      #     requests:
+      #       cpu: 100m
+      #       memory: 64Mi
+      #   volumeMounts:
+      #   - mountPath: /etc/kube-rbac-proxy
+      #     name: kube-rbac-proxy-config
+      #   - mountPath: /etc/tls/private
+      #     name: kube-rbac-proxy-tls-certificates
       enableServiceLinks: false
       serviceAccountName: {{ .Values.workbench.name }}
       {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
@@ -169,23 +169,23 @@ spec:
       - emptyDir:
           medium: Memory
         name: shm
-      - configMap:
-          items:
-          - key: ca-bundle.crt
-            path: ca-bundle.crt
-          name: workbench-trusted-ca-bundle
-          optional: true
-        name: trusted-ca
-      - configMap:
-          name: pipeline-runtime-images
-          optional: true
-        name: runtime-images
-      - configMap:
-          defaultMode: 420
-          name: {{ .Values.workbench.name }}-kube-rbac-proxy-config
-        name: kube-rbac-proxy-config
-      - name: kube-rbac-proxy-tls-certificates
-        secret:
-          defaultMode: 420
-          secretName: {{ .Values.workbench.name }}-kube-rbac-proxy-tls
-      - name: elyra-dsp-details
+      # - configMap:
+      #     items:
+      #     - key: ca-bundle.crt
+      #       path: ca-bundle.crt
+      #     name: workbench-trusted-ca-bundle
+      #     optional: true
+      #   name: trusted-ca
+      # - configMap:
+      #     name: pipeline-runtime-images
+      #     optional: true
+      #   name: runtime-images
+      # - configMap:
+      #     defaultMode: 420
+      #     name: {{ .Values.workbench.name }}-kube-rbac-proxy-config
+      #   name: kube-rbac-proxy-config
+      # - name: kube-rbac-proxy-tls-certificates
+      #   secret:
+      #     defaultMode: 420
+      #     secretName: {{ .Values.workbench.name }}-kube-rbac-proxy-tls
+      # - name: elyra-dsp-details
