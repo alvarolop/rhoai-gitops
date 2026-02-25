@@ -14,7 +14,7 @@ spec:
   components:
     dashboard:
       managementState: Managed
-    datasciencepipelines:
+    aipipelines:
       argoWorkflowsControllers:
         managementState: Managed
       managementState: Managed

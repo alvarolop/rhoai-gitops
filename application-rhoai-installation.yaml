@@ -36,6 +36,12 @@ spec:
         llamaStack:
           enabled: true
         
+        mlflow:
+          enabled: true
+        
+        trustyai:
+          enabled: true
+        
         featureStore:
           enabled: true
           example:
