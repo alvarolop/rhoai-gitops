@@ -115,7 +115,7 @@ spec:
         - --auth-header-fields-enabled=true
         - --auth-header-user-field-name=X-Auth-Request-User
         - --auth-header-groups-field-name=X-Auth-Request-Groups
-        image: registry.redhat.io/rhoai/odh-kube-auth-proxy-rhel9@sha256:657bc0b43fe2da3211d80dc5085f57dccb451c30b1a254b87b4876745c414d36
+        image: registry.redhat.io/rhoai/odh-kube-auth-proxy-rhel9:latest
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
