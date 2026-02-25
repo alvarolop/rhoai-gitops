@@ -14,8 +14,17 @@ spec:
     path: rhoai-environment-chart
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
+  ignoreDifferences:
+    # 1. Ignore the Operator-injected changes in the Notebook
+    - group: kubeflow.org
+      kind: Notebook
+      jqPathExpressions:
+        - .spec.template.spec.containers[] | select(.name == "kube-rbac-proxy")
+        - .spec.template.spec.volumes[]
+
   syncPolicy:
     automated:
       prune: false
       selfHeal: false
-    syncOptions: []
+    syncOptions:
+      - RespectIgnoreDifferences=true
