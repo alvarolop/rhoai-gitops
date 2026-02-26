@@ -45,7 +45,7 @@ spec:
         featureStore:
           enabled: true
           example:
-            enabled: false
+            enabled: true
             namespace: rhoai-feature-store
             name: sample
             feastProject: credit_scoring_local

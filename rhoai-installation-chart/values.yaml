@@ -41,6 +41,8 @@ featureStore:
     name: sample
     namespace: rhoai-feature-store
     feastProject: credit_scoring_local
+    authz:
+      enabled: false
     feastProjectDir:
       git:
         url: https://github.com/feast-dev/feast-credit-score-local-tutorial

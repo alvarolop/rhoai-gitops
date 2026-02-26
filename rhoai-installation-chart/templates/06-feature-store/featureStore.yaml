@@ -9,6 +9,14 @@ metadata:
     argocd.argoproj.io/sync-wave: "10"
 spec:
   feastProject: {{ .Values.featureStore.example.feastProject }}
+  feastProjectDir:
+    git:
+      url: https://github.com/feast-dev/feast-credit-score-local-tutorial
+      ref: eb39cae
+{{- if .Values.featureStore.example.authz.enabled }}
+  authz:
+    type: Kubernetes
+{{- end }}
   services:
     offlineStore:
       persistence:
