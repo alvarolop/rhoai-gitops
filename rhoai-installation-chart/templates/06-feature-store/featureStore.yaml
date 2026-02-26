@@ -21,32 +21,14 @@ spec:
 {{- end }}
   services:
     offlineStore:
-      persistence:
-        file:
-          type: duckdb
-          pvc:
-            ref:
-              name: "feast-{{ .Values.featureStore.example.name }}-offline"
-            mountPath: /data/offline
-
+      server:
+        logLevel: debug
     onlineStore:
-      persistence:
-        file:
-          path: online_store.db
-          pvc:
-            ref:
-              name: "feast-{{ .Values.featureStore.example.name }}-online"
-            mountPath: /data/online
+      server:
+        logLevel: debug
     registry:
       local:
-        # server:
-        #   restAPI: false
-        persistence:
-          file:
-            path: registry.db
-            pvc:
-              ref:
-                name: "feast-{{ .Values.featureStore.example.name }}-registry"
-              mountPath: /data/registry
+        server:
+          restAPI: false
     ui: {}
 {{- end }}
