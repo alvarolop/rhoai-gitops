@@ -38,15 +38,14 @@ featureStore:
   enabled: true
   example:
     enabled: false
-    name: sample
+    name: banking
     namespace: rhoai-feature-store
-    feastProject: credit_scoring_local
     authz:
       enabled: false
     feastProjectDir:
       git:
-        url: https://github.com/feast-dev/feast-credit-score-local-tutorial
-        ref: 598a270
+        url: https://github.com/alvarolop/banking-feature-store
+        ref: rbac
     persistence:
       online:
         size: 5Gi

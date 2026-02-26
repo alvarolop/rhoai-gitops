@@ -7,12 +7,14 @@ metadata:
   namespace: {{ .Values.featureStore.example.namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "10"
+  labels:
+    feature-store-ui: enabled
 spec:
-  feastProject: {{ .Values.featureStore.example.feastProject }}
+  feastProject: {{ .Values.featureStore.example.name }}
   feastProjectDir:
     git:
-      url: https://github.com/feast-dev/feast-credit-score-local-tutorial
-      ref: eb39cae
+      url: {{ .Values.featureStore.example.feastProjectDir.git.url }}
+      ref: {{ .Values.featureStore.example.feastProjectDir.git.ref }}
 {{- if .Values.featureStore.example.authz.enabled }}
   authz:
     type: Kubernetes
@@ -37,6 +39,8 @@ spec:
             mountPath: /data/online
     registry:
       local:
+        # server:
+        #   restAPI: false
         persistence:
           file:
             path: registry.db

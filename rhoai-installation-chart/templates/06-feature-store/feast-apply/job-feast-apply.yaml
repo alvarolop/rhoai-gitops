@@ -1,0 +1,57 @@
+{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: feast-apply
+  namespace: {{ .Values.featureStore.example.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "12"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  completions: 1
+  parallelism: 1
+  backoffLimit: 10
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      containers:
+      - name: feast-apply
+        image: registry.redhat.io/openshift4/ose-cli-rhel9:latest
+        imagePullPolicy: Always
+        env:
+        - name: NAMESPACE
+          value: {{ .Values.featureStore.example.namespace | quote }}
+        - name: FEAST_NAME
+          value: {{ .Values.featureStore.example.name | quote }}
+        command:
+          - /bin/bash
+          - -c
+          - |
+            set -euo pipefail
+
+            echo "Waiting for feast deployments in namespace $NAMESPACE..."
+            until oc get deployment -n "$NAMESPACE" -l "app.kubernetes.io/managed-by=feast-operator" -o name 2>/dev/null | grep -q deployment; do
+              echo "  No feast deployment found yet, retrying in 15s..."
+              sleep 15
+            done
+
+            DEPLOYMENT=$(oc get deployment -n "$NAMESPACE" \
+              -l "app.kubernetes.io/managed-by=feast-operator" \
+              -o name 2>/dev/null | head -1)
+            echo "Found deployment: $DEPLOYMENT. Waiting for rollout..."
+            oc rollout status "$DEPLOYMENT" -n "$NAMESPACE" --timeout=300s
+
+            POD_NAME=$(oc get pods -n "$NAMESPACE" \
+              -l "app.kubernetes.io/managed-by=feast-operator" \
+              --field-selector=status.phase=Running \
+              -o jsonpath='{.items[0].metadata.name}')
+            echo "Executing 'feast apply' in pod: $POD_NAME"
+            oc exec -n "$NAMESPACE" "$POD_NAME" -- feast apply
+            echo "feast apply completed successfully."
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: feast-apply-job
+      terminationGracePeriodSeconds: 30
+{{- end }}
