@@ -36,10 +36,10 @@ trustyai:
 
 featureStore:
   enabled: true
+  namespace: rhoai-feature-store
   examples:
     - enabled: true
       name: banking
-      namespace: rhoai-feature-store
       authz:
         enabled: false
       feastProjectDir:
@@ -55,7 +55,6 @@ featureStore:
           size: 5Gi
     - enabled: true
       name: music
-      namespace: rhoai-feature-store
       authz:
         enabled: false
       feastProjectDir:

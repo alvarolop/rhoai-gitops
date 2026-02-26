@@ -6,7 +6,7 @@ apiVersion: feast.dev/v1
 kind: FeatureStore
 metadata:
   name: {{ .name }}
-  namespace: {{ .namespace }}
+  namespace: {{ $.Values.featureStore.namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "10"
   labels:

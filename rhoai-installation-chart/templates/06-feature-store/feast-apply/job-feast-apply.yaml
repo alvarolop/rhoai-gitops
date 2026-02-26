@@ -6,7 +6,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: feast-apply-{{ .name }}
-  namespace: {{ .namespace }}
+  namespace: {{ $.Values.featureStore.namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "12"
     argocd.argoproj.io/hook: PostSync
@@ -24,7 +24,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: NAMESPACE
-          value: {{ .namespace | quote }}
+          value: {{ $.Values.featureStore.namespace | quote }}
         - name: FEAST_NAME
           value: {{ .name | quote }}
         command:

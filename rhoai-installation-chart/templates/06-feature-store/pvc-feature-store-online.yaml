@@ -6,7 +6,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: feast-{{ .name }}-online
-  namespace: {{ .namespace }}
+  namespace: {{ $.Values.featureStore.namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "5"
     argocd.argoproj.io/sync-options: Replace=true
