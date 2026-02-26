@@ -1,10 +1,12 @@
-{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+{{- if $.Values.featureStore.enabled }}
+{{- range $.Values.featureStore.examples }}
+{{- if .enabled }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: feast-apply-job
-  namespace: {{ .Values.featureStore.example.namespace }}
+  namespace: {{ .namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "11"
 rules:
@@ -17,4 +19,6 @@ rules:
 - apiGroups: ["apps"]
   resources: ["deployments"]
   verbs: ["get", "list", "watch"]
+{{- end }}
+{{- end }}
 {{- end }}

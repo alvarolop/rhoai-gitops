@@ -1,10 +1,12 @@
-{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+{{- if $.Values.featureStore.enabled }}
+{{- range $.Values.featureStore.examples }}
+{{- if and .enabled (dig "persistence" "registry" "size" "" .) }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: feast-{{ .Values.featureStore.example.name }}-registry
-  namespace: {{ .Values.featureStore.example.namespace }}
+  name: feast-{{ .name }}-registry
+  namespace: {{ .namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "5"
     argocd.argoproj.io/sync-options: Replace=true
@@ -13,5 +15,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.featureStore.example.persistence.registry.size }}
+      storage: {{ .persistence.registry.size }}
+{{- end }}
+{{- end }}
 {{- end }}

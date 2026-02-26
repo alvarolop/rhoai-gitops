@@ -1,10 +1,12 @@
-{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+{{- if $.Values.featureStore.enabled }}
+{{- range $.Values.featureStore.examples }}
+{{- if .enabled }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: feast-apply
-  namespace: {{ .Values.featureStore.example.namespace }}
+  name: feast-apply-{{ .name }}
+  namespace: {{ .namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "12"
     argocd.argoproj.io/hook: PostSync
@@ -22,9 +24,9 @@ spec:
         imagePullPolicy: Always
         env:
         - name: NAMESPACE
-          value: {{ .Values.featureStore.example.namespace | quote }}
+          value: {{ .namespace | quote }}
         - name: FEAST_NAME
-          value: {{ .Values.featureStore.example.name | quote }}
+          value: {{ .name | quote }}
         command:
           - /bin/bash
           - -c
@@ -49,9 +51,12 @@ spec:
               -o jsonpath='{.items[0].metadata.name}')
             echo "Executing 'feast apply' in pod: $POD_NAME"
             oc exec -n "$NAMESPACE" "$POD_NAME" -- feast apply
+            oc exec -n "$NAMESPACE" "$POD_NAME" -- feast materialize 2025-01-01T00:00:00 $(date -u +''%Y-%m-%dT%H:%M:%S'')
             echo "feast apply completed successfully."
       dnsPolicy: ClusterFirst
       restartPolicy: Never
       serviceAccountName: feast-apply-job
       terminationGracePeriodSeconds: 30
+{{- end }}
+{{- end }}
 {{- end }}

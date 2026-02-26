@@ -1,11 +1,13 @@
-{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+{{- if $.Values.featureStore.enabled }}
+{{- range $.Values.featureStore.examples }}
+{{- if .enabled }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .Values.featureStore.example.namespace }}
+  name: {{ .namespace }}
   labels:
     opendatahub.io/dashboard: 'true'
-    feature-store-ui: enabled
 {{- end }}
-
+{{- end }}
+{{- end }}

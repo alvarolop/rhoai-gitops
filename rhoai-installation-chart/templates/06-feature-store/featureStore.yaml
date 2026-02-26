@@ -1,21 +1,22 @@
-{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+{{- if $.Values.featureStore.enabled }}
+{{- range $.Values.featureStore.examples }}
+{{- if .enabled }}
 ---
 apiVersion: feast.dev/v1
 kind: FeatureStore
 metadata:
-  name: {{ .Values.featureStore.example.name }}
-  namespace: {{ .Values.featureStore.example.namespace }}
+  name: {{ .name }}
+  namespace: {{ .namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "10"
   labels:
     feature-store-ui: enabled
 spec:
-  feastProject: {{ .Values.featureStore.example.name }}
+  feastProject: {{ .name }}
   feastProjectDir:
     git:
-      url: {{ .Values.featureStore.example.feastProjectDir.git.url }}
-      ref: {{ .Values.featureStore.example.feastProjectDir.git.ref }}
-{{- if .Values.featureStore.example.authz.enabled }}
+{{ .feastProjectDir.git | toYaml | indent 6 }}
+{{- if .authz.enabled }}
   authz:
     type: Kubernetes
 {{- end }}
@@ -31,4 +32,6 @@ spec:
         server:
           restAPI: false
     ui: {}
+{{- end }}
+{{- end }}
 {{- end }}

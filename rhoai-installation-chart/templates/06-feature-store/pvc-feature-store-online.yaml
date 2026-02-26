@@ -1,10 +1,12 @@
-{{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
+{{- if $.Values.featureStore.enabled }}
+{{- range $.Values.featureStore.examples }}
+{{- if and .enabled (dig "persistence" "online" "size" "" .) }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: feast-{{ .Values.featureStore.example.name }}-online
-  namespace: {{ .Values.featureStore.example.namespace }}
+  name: feast-{{ .name }}-online
+  namespace: {{ .namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "5"
     argocd.argoproj.io/sync-options: Replace=true
@@ -13,5 +15,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.featureStore.example.persistence.online.size }}
+      storage: {{ .persistence.online.size }}
+{{- end }}
+{{- end }}
 {{- end }}
