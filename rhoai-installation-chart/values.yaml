@@ -46,19 +46,19 @@ featureStore:
         git:
           url: https://github.com/alvarolop/banking-feature-store
           ref: rbac
-      persistence:
-        online:
-          size: 5Gi
-        offline:
-          size: 5Gi
-        registry:
-          size: 5Gi
-    - enabled: true
-      name: music
-      authz:
-        enabled: false
-      feastProjectDir:
-        git:
-          url: https://github.com/rhoai-mlops/jukebox
-          ref: main
-          featureRepoPath: 7-feature_store/feature_repo
+      # persistence:
+      #   online:
+      #     size: 5Gi
+      #   offline:
+      #     size: 5Gi
+      #   registry:
+      #     size: 5Gi
+    # - enabled: true
+    #   name: music
+    #   authz:
+    #     enabled: false
+    #   feastProjectDir:
+    #     git:
+    #       url: https://github.com/rhoai-mlops/jukebox
+    #       ref: main
+    #       featureRepoPath: 7-feature_store/feature_repo
