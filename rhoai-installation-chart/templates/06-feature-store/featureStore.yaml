@@ -1,6 +1,6 @@
 {{- if and .Values.featureStore.enabled .Values.featureStore.example.enabled }}
 ---
-apiVersion: feast.dev/v1alpha1
+apiVersion: feast.dev/v1
 kind: FeatureStore
 metadata:
   name: {{ .Values.featureStore.example.name }}

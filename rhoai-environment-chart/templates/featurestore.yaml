@@ -1,0 +1,11 @@
+---
+apiVersion: feast.dev/v1
+kind: FeatureStore
+metadata:
+  name: sample
+spec:
+  feastProject: my_feast_project
+  feastProjectDir:
+    git:
+      url: https://github.com/feast-dev/feast-credit-score-local-tutorial
+      ref: 598a270
