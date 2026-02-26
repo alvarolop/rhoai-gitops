@@ -1,14 +1,9 @@
-{{- if $.Values.featureStore.enabled }}
-{{- range $.Values.featureStore.examples }}
-{{- if .enabled }}
+{{- if and $.Values.featureStore.enabled $.Values.featureStore.examples }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: feast-apply-job
-  namespace: {{ .namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "11"
-{{- end }}
-{{- end }}
 {{- end }}

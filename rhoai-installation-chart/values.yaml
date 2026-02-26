@@ -54,7 +54,7 @@ featureStore:
         registry:
           size: 5Gi
     - enabled: true
-      name: song_properties
+      name: music
       namespace: rhoai-feature-store
       authz:
         enabled: false
