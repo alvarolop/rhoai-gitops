@@ -32,19 +32,19 @@ spec:
             set -euo pipefail
 
             echo "Waiting for feast deployments in namespace $NAMESPACE..."
-            until oc get deployment -n "$NAMESPACE" -l "app.kubernetes.io/managed-by=feast-operator" -o name 2>/dev/null | grep -q deployment; do
+            until oc get deployment -n "$NAMESPACE" -l "feast.dev/name=$FEAST_NAME" -o name 2>/dev/null | grep -q deployment; do
               echo "  No feast deployment found yet, retrying in 15s..."
               sleep 15
             done
 
             DEPLOYMENT=$(oc get deployment -n "$NAMESPACE" \
-              -l "app.kubernetes.io/managed-by=feast-operator" \
+              -l "feast.dev/name=$FEAST_NAME" \
               -o name 2>/dev/null | head -1)
             echo "Found deployment: $DEPLOYMENT. Waiting for rollout..."
             oc rollout status "$DEPLOYMENT" -n "$NAMESPACE" --timeout=300s
 
             POD_NAME=$(oc get pods -n "$NAMESPACE" \
-              -l "app.kubernetes.io/managed-by=feast-operator" \
+              -l "feast.dev/name=$FEAST_NAME" \
               --field-selector=status.phase=Running \
               -o jsonpath='{.items[0].metadata.name}')
             echo "Executing 'feast apply' in pod: $POD_NAME"
