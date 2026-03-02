@@ -5,13 +5,16 @@ metadata:
   annotations:
     notebooks.opendatahub.io/inject-auth: "true"
     notebooks.opendatahub.io/last-image-selection: "{{ .Values.workbench.image }}"
-    notebooks.opendatahub.io/last-size-selection: Small
-    opendatahub.io/image-display-name: PyTorch
+    notebooks.opendatahub.io/last-image-version-git-commit-selection: 8e73cac
+    opendatahub.io/image-display-name: Jupyter | PyTorch | CUDA | Python 3.12
+    opendatahub.io/connections: ""
     {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
     opendatahub.io/hardware-profile-name: default-profile
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
     {{- else }}
+    opendatahub.io/hardware-profile-name: gpu-profile
+    opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image
     {{- end }}
     openshift.io/display-name: {{ .Values.workbench.name }}
