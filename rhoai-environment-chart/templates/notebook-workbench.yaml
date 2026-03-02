@@ -9,11 +9,11 @@ metadata:
     opendatahub.io/image-display-name: Jupyter | PyTorch | CUDA | Python 3.12
     opendatahub.io/connections: ""
     {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
-    opendatahub.io/hardware-profile-name: default-profile
+    opendatahub.io/hardware-profile-name: def-gpu-profile
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
     {{- else }}
-    opendatahub.io/hardware-profile-name: def-gpu-profile
+    opendatahub.io/hardware-profile-name: default-profile
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image
     {{- end }}
