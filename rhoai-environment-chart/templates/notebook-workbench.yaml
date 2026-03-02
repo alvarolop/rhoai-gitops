@@ -118,3 +118,23 @@ spec:
       - emptyDir:
           medium: Memory
         name: shm
+      - configMap:
+          items:
+          - key: ca-bundle.crt
+            path: ca-bundle.crt
+          name: workbench-trusted-ca-bundle
+          optional: true
+        name: trusted-ca
+      - configMap:
+          name: pipeline-runtime-images
+          optional: true
+        name: runtime-images
+      # - configMap:
+      #     defaultMode: 420
+      #     name: {{ .Values.workbench.name }}-kube-rbac-proxy-config
+      #   name: kube-rbac-proxy-config
+      - name: kube-rbac-proxy-tls-certificates
+        secret:
+          defaultMode: 420
+          secretName: {{ .Values.workbench.name }}-kube-rbac-proxy-tls
+      - name: elyra-dsp-details
