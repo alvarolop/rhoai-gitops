@@ -13,7 +13,7 @@ metadata:
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
     {{- else }}
-    opendatahub.io/hardware-profile-name: gpu-profile
+    opendatahub.io/hardware-profile-name: def-gpu-profile
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image
     {{- end }}
