@@ -12,11 +12,6 @@ resources:
   - operator-nfd
   - operator-nvidia-gpu
 
-  # KServe Installation for Single-model server
-  # Not supported anymore in RHOAI 3.0
-  # - operator-serverless
-  # - operator-servicemesh
-
   # Required for llm-d
   - operator-lws
   - operator-rhcl
@@ -27,4 +22,5 @@ resources:
   # Support for authentication of server models
   - operator-authorino
 
-
+  # Support for Training jobs scheduling
+  - operator-jobset

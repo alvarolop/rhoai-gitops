@@ -2,11 +2,11 @@
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  name: openshift-nfd
-  namespace: openshift-nfd
+  name: openshift-jobset-operator
+  namespace: openshift-jobset-operator
   annotations:
     argocd.argoproj.io/sync-wave: "-05"
 spec:
   targetNamespaces:
-    - openshift-nfd
+  - openshift-jobset-operator
   upgradeStrategy: Default
