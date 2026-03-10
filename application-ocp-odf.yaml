@@ -22,7 +22,7 @@ spec:
       #     patch: |-
       #       - op: replace
       #         path: /spec/channel
-      #         value: stable-4.19
+      #         value: stable-4.20
   syncPolicy:
     automated:
       prune: false
