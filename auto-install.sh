@@ -57,6 +57,7 @@ echo -e "FEATURE TOGGLES & CONFIG:"
 echo -e " * CREATE_GPU_MACHINESETS: $CREATE_GPU_MACHINESETS"
 echo -e " * GPU_NODE_COUNT: $GPU_NODE_COUNT"
 echo -e " * AWS_GPU_INSTANCE: $AWS_GPU_INSTANCE"
+echo -e " * AWS_GPU_AMI_ID: ${AMI_ID:-not set}"
 echo -e " * INSTALL_MINIO: $INSTALL_MINIO"
 echo -e " * INSTALL_ODF: $INSTALL_ODF"
 echo -e " * INSTALL_MONITORING: $INSTALL_MONITORING"
@@ -113,16 +114,19 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
+        -p AMI_ID="${AMI_ID:-ami-0b8c325b7499597c6}" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="a" -p REPLICAS=$REPLICAS_A | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
+        -p AMI_ID="${AMI_ID:-ami-0b8c325b7499597c6}" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="b" -p REPLICAS=$REPLICAS_B | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
+        -p AMI_ID="${AMI_ID:-ami-0b8c325b7499597c6}" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="c" -p REPLICAS=$REPLICAS_C | \
         oc apply -n openshift-machine-api -f -
 

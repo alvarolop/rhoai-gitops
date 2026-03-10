@@ -35,7 +35,7 @@ objects:
           providerSpec:
             value:
               ami:
-                id: ${AMI}
+                id: ${AMI_ID}
               apiVersion: awsproviderconfig.openshift.io/v1beta1
               blockDevices:
                 - ebs:
@@ -92,7 +92,7 @@ parameters:
     description: "Prefix that will be attached to the node name."
     required: false
     value: "gpu-"
-  - name: AMI
+  - name: AMI_ID
     description: "AMI of the CoreOS image in that AWS region."
     required: false
     value: ami-0faeeeb3d2b1aa07c
