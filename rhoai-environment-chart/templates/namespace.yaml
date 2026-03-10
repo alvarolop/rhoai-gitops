@@ -10,3 +10,4 @@ metadata:
   labels:
     # modelmesh-enabled: 'true'
     opendatahub.io/dashboard: 'true'
+    openshift.io/user-monitoring: "true"
