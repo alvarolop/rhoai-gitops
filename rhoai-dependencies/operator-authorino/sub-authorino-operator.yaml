@@ -7,7 +7,6 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-30"
 spec:
-  # channel: tech-preview-v1 # For OCP < 4.16
   channel: stable
   installPlanApproval: Automatic
   name: authorino-operator
