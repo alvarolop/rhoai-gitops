@@ -22,7 +22,7 @@ spec:
     - defaultCount: 12Gi
       displayName: Memory
       identifier: memory
-      maxCount: 24Gi
+      maxCount: 32Gi
       minCount: 1Gi
       resourceType: Memory
     - defaultCount: 1
