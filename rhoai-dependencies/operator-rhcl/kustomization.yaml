@@ -7,3 +7,4 @@ resources:
   - og-kuadrant-system.yaml
   - sub-rhcl-operator.yaml
 
+  - Kuadrant-kuadrant.yaml
