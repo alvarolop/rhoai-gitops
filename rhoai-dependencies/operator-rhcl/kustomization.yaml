@@ -8,4 +8,3 @@ resources:
   - sub-rhcl-operator.yaml
 
   - Kuadrant-kuadrant.yaml
-  - gatewayclass-maas-default-gateway.yaml

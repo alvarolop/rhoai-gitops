@@ -7,5 +7,5 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   logLevel: Normal
-  operatorLogLevel: Normal
   managementState: Managed
+  operatorLogLevel: Normal

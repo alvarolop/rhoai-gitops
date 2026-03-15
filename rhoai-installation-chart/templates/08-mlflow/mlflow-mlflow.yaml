@@ -17,4 +17,6 @@ spec:
   backendStoreUri: "sqlite:////mlflow/mlflow.db"
   artifactsDestination: "file:///mlflow/artifacts"
   serveArtifacts: true
+  image:
+    imagePullPolicy: Always
 {{- end }}
