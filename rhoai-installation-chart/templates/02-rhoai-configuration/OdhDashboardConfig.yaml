@@ -19,7 +19,6 @@ spec:
     disableClusterManager: false
     disableCustomServingRuntimes: false
     disableDistributedWorkloads: {{ not .Values.distributedWorkloads.enabled }}
-    disableHardwareProfiles: false
     disableHome: false
     disableInfo: false
     disableISVBadges: false
