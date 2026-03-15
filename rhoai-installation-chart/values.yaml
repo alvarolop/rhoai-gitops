@@ -24,6 +24,9 @@ distributedWorkloads:
 llamaStack:
   enabled: true
 
+modelsAsService:
+  enabled: true
+
 llm_d:
   enabled: false
 

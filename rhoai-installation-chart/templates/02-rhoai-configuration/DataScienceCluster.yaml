@@ -22,6 +22,8 @@ spec:
       managementState: {{ if .Values.featureStore.enabled }}Managed{{ else }}Removed{{ end }}
     kserve:
       managementState: Managed
+      modelsAsService:
+        managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
       nim:
         managementState: Managed
       rawDeploymentServiceConfig: Headless
