@@ -4,7 +4,7 @@ kind: Gateway
 metadata:
   labels:
     istio.io/rev: openshift-gateway
-  name: openshift-ai-models
+  name: openshift-ai-inference
   namespace: openshift-ingress
 spec:
   gatewayClassName: openshift-ai-inference
