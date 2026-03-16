@@ -16,6 +16,7 @@ INSTALL_PIPELINES=true
 INSTALL_S4=true
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g6.4xlarge
+AWS_DEFAULT_REGION=eu-central-1
 AMI_ID=ami-006a33223c87af648
 
 # Define the required memory
@@ -115,19 +116,22 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p AMI_ID="${AMI_ID:-ami-0b8c325b7499597c6}" \
+        -p REGION="$AWS_DEFAULT_REGION" \
+        -p AMI_ID="$AMI_ID" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="a" -p REPLICAS=$REPLICAS_A | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p AMI_ID="${AMI_ID:-ami-0b8c325b7499597c6}" \
+        -p REGION="$AWS_DEFAULT_REGION" \
+        -p AMI_ID="$AMI_ID" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="b" -p REPLICAS=$REPLICAS_B | \
         oc apply -n openshift-machine-api -f -
 
     oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
-        -p AMI_ID="${AMI_ID:-ami-0b8c325b7499597c6}" \
+        -p REGION="$AWS_DEFAULT_REGION" \
+        -p AMI_ID="$AMI_ID" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="c" -p REPLICAS=$REPLICAS_C | \
         oc apply -n openshift-machine-api -f -
 

@@ -1,3 +1,4 @@
+---
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata: 
@@ -28,10 +29,12 @@ objects:
             labels:
               node-role.kubernetes.io/${ROLE}: ""
               node-role.kubernetes.io/${PREFIX}${ROLE}: ""
-              nvidia.com/device-plugin.config: "${DEVICE_PLUGIN_CONFIG}" # Remove this if you want to disable Time-Slicing
+              # Updated to represent a generic or L4 specific config
+              nvidia.com/device-plugin.config: "${DEVICE_PLUGIN_CONFIG}"
           taints:
             - key: nvidia.com/gpu
               effect: NoSchedule
+              operator: Exists
           providerSpec:
             value:
               ami:
@@ -40,8 +43,8 @@ objects:
               blockDevices:
                 - ebs:
                     iops: 0
-                    volumeSize: 120
-                    volumeType: gp2
+                    volumeSize: 200 # Increased for heavy LLM images
+                    volumeType: gp3 # Modernized
               credentialsSecret:
                 name: aws-cloud-credentials
               deviceIndex: 0
@@ -56,7 +59,7 @@ objects:
                 - filters:
                     - name: tag:Name
                       values:
-                        - ${INFRASTRUCTURE_ID}-node 
+                        - ${INFRASTRUCTURE_ID}-node
                 - filters:
                     - name: tag:Name
                       values:
@@ -95,15 +98,14 @@ parameters:
   - name: AMI_ID
     description: "AMI of the CoreOS image in that AWS region."
     required: false
-    value: ami-0faeeeb3d2b1aa07c
+    value: ami-0b8c325b7499597c6
   - name: INSTANCE_TYPE
     description: "Instance type in AWS EC2."
     required: false
-    value: g5.4xlarge
+    value: g6.4xlarge
   - name: DEVICE_PLUGIN_CONFIG
-    description: "Device plugin config for time-slicing."
-    required: false
-    value: "A100-SXM4-40GB"
+    description: "NVIDIA config name (usually 'default' or a specific time-slicing profile)."
+    value: "default"
   - name: INFRASTRUCTURE_ID
     description: "Cluster ID."
     required: true

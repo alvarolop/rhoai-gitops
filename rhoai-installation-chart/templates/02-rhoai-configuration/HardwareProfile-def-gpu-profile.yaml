@@ -9,7 +9,7 @@ metadata:
     opendatahub.io/description: Provides a baseline hardware profile for GPU workloads with 1 GPU, 1 CPUs
       and 12Gi memory by default, adjustable up to 4 GPUs, 8 CPUs and 24Gi memory.
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-  name: def-gpu-profile
+  name: gpu-profile
   namespace: redhat-ods-applications
 spec:
   identifiers:
@@ -31,3 +31,11 @@ spec:
       maxCount: 4
       minCount: 1
       resourceType: Accelerator
+  scheduling:
+    node:
+      nodeSelector: {}
+      tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Exists
+    type: Node
