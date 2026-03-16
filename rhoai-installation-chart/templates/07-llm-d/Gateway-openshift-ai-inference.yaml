@@ -1,4 +1,5 @@
 ---
+{{ if .Values.llmd.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -28,3 +29,4 @@ spec:
           kind: Secret
           name: data-science-gateway-service-tls
         mode: Terminate
+{{ end }}

@@ -1,4 +1,5 @@
 ---
+{{ if .Values.modelsAsService.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
@@ -8,3 +9,4 @@ metadata:
     argocd.argoproj.io/sync-wave: "10"
 spec:
   controllerName: openshift.io/gateway-controller/v1
+{{ end }}
