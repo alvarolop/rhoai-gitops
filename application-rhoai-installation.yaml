@@ -19,7 +19,7 @@ spec:
         global:
           culling:
             enabled: true
-        
+          clusterDomain: "$CLUSTER_DOMAIN"
         modelRegistry:
           enabled: true
           mysql:

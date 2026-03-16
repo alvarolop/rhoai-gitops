@@ -20,6 +20,7 @@ spec:
             matchExpressions:
               - key: rhoai-serving/model
                 operator: Exists
+      hostname: inference-gateway.apps.{{ .Values.global.clusterDomain }}
       name: https
       port: 443
       protocol: HTTPS
@@ -27,6 +28,6 @@ spec:
         certificateRefs:
         - group: ""
           kind: Secret
-          name: data-science-gateway-service-tls
+          name: default-gateway-tls
         mode: Terminate
 {{ end }}

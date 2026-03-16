@@ -5,6 +5,7 @@
 global:
   culling:
     enabled: true
+  clusterDomain: "opentlc.com"
 
 modelRegistry:
   enabled: true

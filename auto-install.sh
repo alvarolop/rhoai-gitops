@@ -357,7 +357,9 @@ echo -e "🤖 = RHOAI Installation ="
 echo -e "🤖 ======================\n"
 
 echo -e "\n🚀 Trigger the ArgoCD application to install RHOAI instance"
-oc apply -f application-rhoai-installation.yaml
+cat application-rhoai-installation.yaml | \
+CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+envsubst | oc apply -f -
 
 echo -e "\n⏰ Wait 15 seconds for resources to be created"
 countdown_with_skip 15
