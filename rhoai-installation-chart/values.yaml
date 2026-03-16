@@ -28,7 +28,7 @@ modelsAsService:
   enabled: false
 
 llm_d:
-  enabled: false
+  enabled: true
 
 # https://access.redhat.com/articles/7136121
 mlflow:
