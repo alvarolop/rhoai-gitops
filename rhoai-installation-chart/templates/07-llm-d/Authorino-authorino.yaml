@@ -1,5 +1,5 @@
 ---
-{{ if .Values.llmd.enabled }}
+{{ if .Values.llm_d.enabled }}
 apiVersion: operator.authorino.kuadrant.io/v1beta1
 kind: Authorino
 metadata:
