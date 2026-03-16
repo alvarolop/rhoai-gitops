@@ -5,8 +5,8 @@ metadata:
   name: authorino
   namespace: kuadrant-system
   annotations:
-    # This enables Server-Side Apply for this specific object
-    argocd.argoproj.io/sync-options: ServerSideApply=true
+    argocd.argoproj.io/sync-options: ServerSideApply=true,SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   listener:
     tls:
