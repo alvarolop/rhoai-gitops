@@ -1,0 +1,12 @@
+---
+{{ if .Values.llm_d.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: authorino-server-cert
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+    argocd.argoproj.io/sync-wave: "14"
+  name: authorino-authorino-authorization
+  namespace: kuadrant-system
+{{ end }}
