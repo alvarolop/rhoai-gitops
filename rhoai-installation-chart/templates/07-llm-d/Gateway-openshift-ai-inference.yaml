@@ -14,6 +14,8 @@ spec:
   gatewayClassName: openshift-ai-inference
   listeners:
     - allowedRoutes:
+        # namespaces:
+        #   from: All
         namespaces:
           from: Selector
           selector:
@@ -21,13 +23,16 @@ spec:
               - key: rhoai-serving/model
                 operator: Exists
       hostname: inference-gateway.apps.{{ .Values.global.clusterDomain }}
-      name: https
-      port: 443
-      protocol: HTTPS
-      tls:
-        certificateRefs:
-        - group: ""
-          kind: Secret
-          name: default-gateway-tls
-        mode: Terminate
+      name: http
+      port: 80
+      protocol: HTTP
+      # name: https
+      # port: 443
+      # protocol: HTTPS
+      # tls:
+      #   certificateRefs:
+      #   - group: ""
+      #     kind: Secret
+      #     name: data-science-gateway-service-tls
+      #   mode: Terminate
 {{ end }}
