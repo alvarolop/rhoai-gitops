@@ -1,0 +1,15 @@
+---
+apiVersion: operator.authorino.kuadrant.io/v1beta1
+kind: Authorino
+metadata:
+  name: authorino
+  namespace: kuadrant-system
+  annotations:
+    # This enables Server-Side Apply for this specific object
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+spec:
+  listener:
+    tls:
+      enabled: true
+      certSecretRef:
+        name: authorino-server-cert
