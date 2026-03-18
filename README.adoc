@@ -421,8 +421,9 @@ curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions
 
 
 # API Endpoints:
-# * Ollama => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/api/embed
-# * OpenAI => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/embeddings
+
+* Ollama => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/api/embed
+* OpenAI => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/embeddings
 ----
 
 
@@ -433,24 +434,6 @@ curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions
 
 
 == Extra Components
-
-=== OpenShift Lightspeed
-
-Red Hat OpenShift Lightspeed is a generative AI-powered virtual assistant for OpenShift Container Platform. Lightspeed functionality uses a natural-language interface in the OpenShift web console.
-
-[source, bash]
-----
-oc apply -f application-ocp-lightspeed.yaml
-----
-
-or you can deploy it manually with the following command:
-
-[source, bash]
-----
-oc apply -k components/ocp-lightspeed
-----
-
-
 
 === LLS Playground
 
