@@ -6,13 +6,15 @@ metadata:
   labels:
     app: enable-rhcl-plugin
   annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
     argocd.argoproj.io/sync-wave: "10"
 spec:
   completions: 1
   parallelism: 1
   backoffLimit: 10
   activeDeadlineSeconds: 240
-  ttlSecondsAfterFinished: 300
+
   template:
     spec:
       initContainers:
