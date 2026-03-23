@@ -1,0 +1,51 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: enable-rhcl-plugin
+  labels:
+    app: enable-rhcl-plugin
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  completions: 1
+  parallelism: 1
+  backoffLimit: 10
+  activeDeadlineSeconds: 240
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      initContainers:
+      - name: wait-for-operator
+        image: registry.redhat.io/openshift4/ose-cli-rhel9:latest
+        imagePullPolicy: Always
+        command:
+          - /bin/bash
+          - -c
+          - |
+            echo "Waiting for rhcl-operator CSV to succeed..."
+            until oc get csv -n kuadrant-system -l operators.coreos.com/rhcl-operator.kuadrant-system -o jsonpath='{.items[0].status.phase}' 2>/dev/null | grep -q "Succeeded"; do
+              echo "Operator not ready yet, retrying in 10s..."
+              sleep 10
+            done
+            echo "Operator is ready."
+      containers:
+      - name: enable-plugin
+        image: registry.redhat.io/openshift4/ose-cli-rhel9:latest
+        imagePullPolicy: Always
+        command:
+          - /bin/bash
+          - -c
+          - |
+            CURRENT=$(oc get console.operator.openshift.io cluster -o jsonpath='{.spec.plugins}')
+            if echo "$CURRENT" | grep -q "kuadrant-console-plugin"; then
+              echo "Plugin already enabled, skipping."
+            else
+              echo "Enabling kuadrant-console-plugin..."
+              oc patch console.operator.openshift.io cluster --type=json \
+                --patch '[{"op":"add","path":"/spec/plugins/-","value":"kuadrant-console-plugin"}]'
+            fi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: enable-rhcl-plugin
+      terminationGracePeriodSeconds: 30

@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: device-plugin-config
   namespace: nvidia-gpu-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 data:
   A100-SXM4-40GB: |-
     version: v1

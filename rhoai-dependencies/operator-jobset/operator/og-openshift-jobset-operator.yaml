@@ -5,7 +5,7 @@ metadata:
   name: openshift-jobset-operator
   namespace: openshift-jobset-operator
   annotations:
-    argocd.argoproj.io/sync-wave: "-05"
+    argocd.argoproj.io/sync-wave: "-5"
 spec:
   targetNamespaces:
   - openshift-jobset-operator

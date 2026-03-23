@@ -5,6 +5,7 @@ metadata:
   name: gpu-cluster-policy
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   operator:
     defaultRuntime: crio

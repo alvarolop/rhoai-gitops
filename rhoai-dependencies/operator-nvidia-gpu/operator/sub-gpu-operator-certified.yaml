@@ -5,7 +5,7 @@ metadata:
   name: gpu-operator-certified
   namespace: nvidia-gpu-operator
   annotations:
-    argocd.argoproj.io/sync-wave: "-05"
+    argocd.argoproj.io/sync-wave: "-5"
 spec:
   channel: v25.10
   installPlanApproval: Automatic

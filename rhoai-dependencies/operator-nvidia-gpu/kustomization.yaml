@@ -3,9 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ns-nvidia-gpu-operator.yaml
-  - og-nvidia-gpu-operator-group.yaml
-  - sub-gpu-operator-certified.yaml
+  - operator/
   - clusterpolicy-gpu-cluster-policy.yaml
   - cm-device-plugin-config.yaml # Time Slicing
 
@@ -19,13 +17,3 @@ configMapGenerator:
       labels:
         console.openshift.io/dashboard: 'true'
         console.openshift.io/odc-dashboard: 'true'
-
-# # Deploy the GPU console plugin 
-# # This mechanism does not work as the Helm Chart does not provide default namespace.
-# helmCharts:
-# - name: console-plugin-nvidia-gpu
-#   releaseName: console-plugin-nvidia-gpu
-#   repo: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
-#   # valuesFile: values.yaml
-#   version: 0.2.5
-#   namespace: nvidia-gpu-operator

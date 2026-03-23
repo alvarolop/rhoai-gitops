@@ -2,13 +2,13 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: leader-worker-set
-  namespace: openshift-lws-operator
+  name: authorino-operator
+  namespace: openshift-operators
   annotations:
-    argocd.argoproj.io/sync-wave: "-05"
+    argocd.argoproj.io/sync-wave: "-5"
 spec:
-  channel: stable-v1.0
+  channel: stable
   installPlanApproval: Automatic
-  name: leader-worker-set
+  name: authorino-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace

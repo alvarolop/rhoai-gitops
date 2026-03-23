@@ -5,6 +5,6 @@ metadata:
   name: openshift-kueue-operator
   namespace: openshift-kueue-operator
   annotations:
-    argocd.argoproj.io/sync-wave: "-05"
+    argocd.argoproj.io/sync-wave: "-5"
 spec:
   upgradeStrategy: Default

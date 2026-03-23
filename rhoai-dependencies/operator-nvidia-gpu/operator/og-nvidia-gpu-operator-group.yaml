@@ -5,7 +5,7 @@ metadata:
   name: nvidia-gpu-operator-group
   namespace: nvidia-gpu-operator
   annotations:
-    argocd.argoproj.io/sync-wave: "-05"
+    argocd.argoproj.io/sync-wave: "-5"
 spec:
   targetNamespaces:
     - nvidia-gpu-operator
