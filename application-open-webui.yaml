@@ -12,17 +12,83 @@ spec:
     namespace: open-webui
   project: default
   source:
-    path: components/open-webui
-    repoURL: https://github.com/alvarolop/rhoai-gitops.git
-    targetRevision: main
+    chart: open-webui
+    repoURL: https://helm.openwebui.com/
+    targetRevision: 12.10.0
     helm:
       values: |
-        llmInferenceService:
-          url: $LLM_INFERENCE_SERVICE_URL
-          apiKey: "" # Set this to an empty string if no API key is needed
-        clusterDomain: $CLUSTER_DOMAIN
-        rag:
+        # Disable bundled subcharts (using external OpenAI-compatible API)
+        ollama:
+          enabled: false
+        pipelines:
+          enabled: false
+        websocket:
+          enabled: false
+
+        # OpenAI-compatible API pointing to LiteLLM
+        openaiBaseApiUrl: "$MODEL_API_URL"
+        openaiApiKey: "$MODEL_API_TOKEN"
+
+        # Persistence
+        persistence:
           enabled: true
+          size: 5Gi
+
+        # OpenShift: container writes to image paths (/app/backend/open_webui/static/,
+        # .webui_secret_key) that require root. The restricted SCC assigns a random UID
+        # that cannot write to these files, so anyuid SCC is needed.
+        containerSecurityContext:
+          runAsUser: 0
+
+        # Environment variables
+        extraEnvVars:
+          - name: WEBUI_AUTH
+            value: "False"
+          - name: ENABLE_AUTOCOMPLETE_GENERATION
+            value: "False"
+          - name: WEBUI_SECRET_KEY
+            value: "open-webui-secret"
+          - name: OAUTH_SESSION_TOKEN_ENCRYPTION_KEY
+            value: "open-webui-oauth-key"
+          - name: RAG_EMBEDDING_ENGINE
+            value: "openai"
+          - name: RAG_OPENAI_API_BASE_URL
+            value: "$EMBEDDINGS_MODEL_API_URL"
+          - name: RAG_OPENAI_API_KEY
+            value: "$EMBEDDINGS_MODEL_API_TOKEN"
+          - name: RAG_EMBEDDING_MODEL
+            value: "$EMBEDDINGS_MODEL_NAME"
+
+        # OpenShift-specific resources
+        extraResources:
+          - apiVersion: route.openshift.io/v1
+            kind: Route
+            metadata:
+              name: open-webui
+              labels:
+                app: open-webui
+            spec:
+              to:
+                kind: Service
+                name: open-webui
+                weight: 100
+              port:
+                targetPort: http
+              tls:
+                termination: edge
+              wildcardPolicy: None
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+              name: open-webui-anyuid
+            subjects:
+              - kind: ServiceAccount
+                name: open-webui-sa
+                namespace: open-webui
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: system:openshift:scc:anyuid
   syncPolicy:
     automated:
       prune: false

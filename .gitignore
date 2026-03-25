@@ -40,3 +40,6 @@ aws-env-vars
 hf-creds
 rhods-internal-primary-cert-bundle-secret.yaml
 models-tmp
+
+
+.env

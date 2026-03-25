@@ -489,24 +489,11 @@ User and password is `minio` / `minio123`.
 
 Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline. It supports various LLM runners like Ollama and OpenAI-compatible APIs, with built-in inference engine for RAG, making it a powerful AI deployment solution.
 
-https://github.com/noelo/vllm-router-demo/tree/main/chart/templates/open-webui[Source]. https://github.com/open-webui/helm-charts/tree/main/charts/open-webui[Could be nice to adapt to the official one].
+Uses the https://github.com/open-webui/helm-charts/tree/main/charts/open-webui[official Open WebUI Helm chart].
 
 [source, bash]
 ----
-cat application-open-webui.yaml | \
-    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    LLM_INFERENCE_SERVICE_URL="https://mistral-7b.mistral-7b.svc.cluster.local/v1" \
-    envsubst | oc apply -f -
-----
-
-or you can deploy it manually with the following command:
-
-[source, bash]
-----
-helm template components/open-webui --namespace="open-webui" \
-    --set llmInferenceService.url="https://mistral-7b.mistral-7b.svc.cluster.local/v1" \
-    --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    --set rag.enabled="true" | oc apply -f -
+set -a && source .env && set +a && cat application-open-webui.yaml | envsubst | oc apply -f -
 ----
 
 
