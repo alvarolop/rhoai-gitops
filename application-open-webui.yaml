@@ -40,16 +40,25 @@ spec:
         containerSecurityContext:
           runAsUser: 0
 
+        # volumes:
+        #     - name: config-trusted-cabundle
+        #       configMap:
+        #         name: config-trusted-cabundle
+        # volumeMounts:
+        #   container:
+        #     - name: config-trusted-cabundle
+        #       mountPath: /etc/ssl/certs/ca-certificates.crt
+        #       subPath: ca-bundle.crt
+        #       readOnly: true
+
         # Environment variables
         extraEnvVars:
+          # - name: REQUESTS_CA_BUNDLE # For Web
+          #   value: "/etc/ssl/certs/ca-certificates.crt"
+          # - name: SSL_CERT_FILE # For OAuth
+          #   value: "/etc/ssl/certs/ca-certificates.crt"
           - name: WEBUI_AUTH
             value: "False"
-          - name: ENABLE_AUTOCOMPLETE_GENERATION
-            value: "False"
-          - name: WEBUI_SECRET_KEY
-            value: "open-webui-secret"
-          - name: OAUTH_SESSION_TOKEN_ENCRYPTION_KEY
-            value: "open-webui-oauth-key"
           - name: RAG_EMBEDDING_ENGINE
             value: "openai"
           - name: RAG_OPENAI_API_BASE_URL
