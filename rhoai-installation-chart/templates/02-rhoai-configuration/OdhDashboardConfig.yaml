@@ -42,7 +42,7 @@ spec:
     disableServingRuntimeParams: false
     disableStorageClasses: false
     disableSupport: false
-    disableTracking: false
+    disableTracking: true
     disableTrustyBiasMetrics: false
     disableUserManagement: false
     enablement: true
