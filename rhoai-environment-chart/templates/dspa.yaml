@@ -1,3 +1,4 @@
+{{- if .Values.pipelines }}
 ---
 apiVersion: datasciencepipelinesapplications.opendatahub.io/v1
 kind: DataSciencePipelinesApplication
@@ -29,15 +30,15 @@ spec:
     enableExternalRoute: false
     externalStorage:
       basePath: ''
-      bucket: {{ .Values.dataScienceProjectNamespace }}-{{ .Values.pipelinesConnection.secretName }}
-      host: '{{ .Values.pipelinesConnection.awsS3Endpoint }}'
-      port: '{{ .Values.pipelinesConnection.awsS3Port }}'
-      region: '{{ .Values.pipelinesConnection.awsDefaultRegion }}'
+      bucket: {{ .Values.dataScienceProjectNamespace }}-{{ .Values.pipelines.secretName }}
+      host: '{{ .Values.pipelines.awsS3Endpoint }}'
+      port: '{{ .Values.pipelines.awsS3Port }}'
+      region: '{{ .Values.pipelines.awsDefaultRegion | default "" }}'
       s3CredentialsSecret:
         accessKey: AWS_ACCESS_KEY_ID
         secretKey: AWS_SECRET_ACCESS_KEY
-        secretName: "{{ .Values.pipelinesConnection.secretName }}"
-      scheme: "{{ .Values.pipelinesConnection.scheme }}"
+        secretName: "{{ .Values.pipelines.secretName }}"
+      scheme: "{{ .Values.pipelines.scheme }}"
   persistenceAgent:
     deploy: true
     numWorkers: 2
@@ -45,3 +46,4 @@ spec:
   scheduledWorkflow:
     cronScheduleTimezone: UTC
     deploy: true
+{{- end }}

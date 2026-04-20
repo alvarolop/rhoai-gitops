@@ -1,22 +1,22 @@
-{{- if eq (lower .Values.pipelinesConnection.storageBackend) "odf" }}
+{{- if and .Values.pipelines (eq (lower .Values.pipelines.storageBackend) "odf") }}
 ---
 # The original plan was to generate a random bucket name and then retrieve it using Helm lookup.
-# 
+#
 # Usage would be to include the following on the dspa.yaml file
-# {{- $obcConfigMap := default (dict "data" (dict)) (lookup "v1" "ConfigMap" .Values.dataScienceProjectNamespace .Values.pipelinesConnection.secretName) -}}
+# {{- $obcConfigMap := default (dict "data" (dict)) (lookup "v1" "ConfigMap" .Values.dataScienceProjectNamespace .Values.pipelines.secretName) -}}
 # {{- $bucketName := $obcConfigMap.data.BUCKET_NAME }}
 # bucket: '{{ $bucketName }}'
-# 
+#
 # This section would be tested using the following command:
 # helm install . --dry-run=server  --generate-name --debug  | grep "bucket:"
-# 
-# However, this does not work due to this issue: 
+#
+# However, this does not work due to this issue:
 # https://github.com/helm/helm/issues/13038
 
 
 # Then I tried to generate a random value an reuse it in both files using this:
 # bucketName: {{ include "generateBucketName" . }}
-# 
+#
 # However,  I got two issues:
 # * If you call the function from two files, it will generate different values.
 # * If you sync it with ArgoCD, each sync will generate new values.
@@ -26,15 +26,15 @@
 apiVersion: objectbucket.io/v1alpha1
 kind: ObjectBucketClaim
 metadata:
-  name: {{ .Values.pipelinesConnection.secretName }}
+  name: {{ .Values.pipelines.secretName }}
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "-05"
 spec:
-  # generateBucketName: {{ .Values.pipelinesConnection.secretName }}
+  # generateBucketName: {{ .Values.pipelines.secretName }}
   # bucketName: {{ include "generateBucketName" . }}
-  bucketName: {{ .Values.dataScienceProjectNamespace }}-{{ .Values.pipelinesConnection.secretName }}
+  bucketName: {{ .Values.dataScienceProjectNamespace }}-{{ .Values.pipelines.secretName }}
   storageClassName: openshift-storage.noobaa.io
 {{- end }}

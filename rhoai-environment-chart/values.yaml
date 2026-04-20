@@ -5,42 +5,51 @@
 dataScienceProjectDisplayName: RHOAI Playground
 dataScienceProjectNamespace: rhoai-playground
 
-# workbench:
-#   name: notebook-gpu
-#   displayName: Notebook GPU
-#   namespace: rhoai-playground
-#   image: pytorch:2025.2
-#   resources:
-#     limits:
-#       cpu: '2'
-#       memory: 8Gi
-#       nvidiaGpu: '1'
-#     requests:
-#       cpu: '1'
-#       memory: 6Gi
-#       nvidiaGpu: '1'
-
-workbench:
-  name: notebook
-  displayName: Notebook
-  namespace: rhoai-playground
-  image: pytorch:2025.2
-  resources:
-    limits:
-      cpu: '3'
-      memory: 10Gi
-    requests:
-      cpu: '1'
-      memory: 6Gi
-
-# Example with Minio
-pipelinesConnection:
+# Optional: Data Science Pipelines (DSPA). Omit this key entirely to skip DSPA + pipeline storage objects.
+pipelines:
   storageBackend: minio
   secretName: dspa-pipelines-connection-secret
   type: s3
   scheme: http
   awsS3Endpoint: minio.minio.svc.cluster.local
   awsS3Port: "9000"
+  # awsDefaultRegion: ""
+
+# workbenches:
+#   - name: notebook-gpu
+#     displayName: Notebook GPU
+#     image: pytorch:2025.2
+#     hardwareProfile:
+#       name: gpu-profile
+#       namespace: redhat-ods-applications
+#     description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
+#     storage: 5Gi
+#     resources:
+#       limits:
+#         cpu: '2'
+#         memory: 8Gi
+#         nvidiaGpu: '1'
+#       requests:
+#         cpu: '1'
+#         memory: 6Gi
+#         nvidiaGpu: '1'
+
+workbenches:
+  - name: notebook
+    displayName: Notebook
+    image: pytorch:2025.2
+    hardwareProfile:
+      name: cpu-profile
+      namespace: redhat-ods-applications
+    description: This is an example Workbench using the PyTorch Image
+    storage: 5Gi
+    resources:
+      limits:
+        cpu: '3'
+        memory: 10Gi
+      requests:
+        cpu: '1'
+        memory: 6Gi
 
 distributedWorkloads:
   enabled: true
@@ -54,7 +63,7 @@ modelTunning:
   enabled: false
 
 # # Example with ODF
-# pipelinesConnection:
+# pipelines:
 #   storageBackend: odf
 #   secretName: dspa-pipelines-connection-secret
 #   type: s3
@@ -63,7 +72,7 @@ modelTunning:
 #   awsS3Port: "443"
 
 # # Example with AWS
-# pipelinesConnection:
+# pipelines:
 #   storageBackend: aws
 #   secretName: dspa-pipelines-connection-secret
 #   displayName: pipelines

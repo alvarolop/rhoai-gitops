@@ -63,7 +63,7 @@ Create the name of the service account to use
 
 
 {{- define "generateBucketName" -}}
-{{- $base := .Values.pipelinesConnection.secretName -}}
+{{- $base := .Values.pipelines.secretName -}}
 {{- $suffix := randAlphaNum 36 | lower -}}
 {{- printf "%s-%s" $base $suffix -}}
 {{- end -}}

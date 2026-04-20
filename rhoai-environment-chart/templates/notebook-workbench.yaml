@@ -1,32 +1,28 @@
+{{- with .Values.workbenches }}
+{{- range . }}
 ---
 apiVersion: kubeflow.org/v1
 kind: Notebook
 metadata:
   annotations:
     notebooks.opendatahub.io/inject-auth: "true"
-    notebooks.opendatahub.io/last-image-selection: "{{ .Values.workbench.image }}"
-    notebooks.opendatahub.io/last-image-version-git-commit-selection: 8e73cac
-    opendatahub.io/image-display-name: Jupyter | PyTorch | CUDA | Python 3.12
+    notebooks.opendatahub.io/last-image-selection: {{ .image | quote }}
+    notebooks.opendatahub.io/last-image-version-git-commit-selection: {{ .lastImageVersionGitCommit | default "8e73cac" }}
+    opendatahub.io/image-display-name: {{ .imageDisplayName | default "Jupyter | PyTorch | CUDA | Python 3.12" | quote }}
     opendatahub.io/connections: ""
-    {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
-    opendatahub.io/hardware-profile-name: gpu-profile
-    opendatahub.io/hardware-profile-namespace: redhat-ods-applications
-    openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
-    {{- else }}
-    opendatahub.io/hardware-profile-name: cpu-profile
-    opendatahub.io/hardware-profile-namespace: redhat-ods-applications
-    openshift.io/description: This is an example Workbench using the PyTorch Image
-    {{- end }}
-    openshift.io/display-name: {{ .Values.workbench.name }}
+    opendatahub.io/hardware-profile-name: {{ .hardwareProfile.name | quote }}
+    opendatahub.io/hardware-profile-namespace: {{ .hardwareProfile.namespace | quote }}
+    openshift.io/description: {{ .description | quote }}
+    openshift.io/display-name: {{ .displayName | default .name }}
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-  name: {{ .Values.workbench.name }}
-  namespace: {{ .Values.dataScienceProjectNamespace }}
+  name: {{ .name }}
+  namespace: {{ $.Values.dataScienceProjectNamespace }}
   labels:
-    app: {{ .Values.workbench.name }}
+    app: {{ .name }}
     opendatahub.io/dashboard: "true"
     opendatahub.io/odh-managed: "true"
-    {{- if .Values.distributedWorkloads.enabled }}
-    kueue.x-k8s.io/queue-name: {{ .Values.kueue.localQueueName | quote }}
+    {{- if $.Values.distributedWorkloads.enabled }}
+    kueue.x-k8s.io/queue-name: {{ $.Values.kueue.localQueueName | quote }}
     {{- end }}
 spec:
   template:
@@ -39,10 +35,10 @@ spec:
             --ServerApp.port=8888
             --ServerApp.token=''
             --ServerApp.password=''
-            --ServerApp.base_url=/notebook/{{ .Values.dataScienceProjectNamespace }}/{{ .Values.workbench.name }}
+            --ServerApp.base_url=/notebook/{{ $.Values.dataScienceProjectNamespace }}/{{ .name }}
             --ServerApp.quit_button=False
         - name: JUPYTER_IMAGE
-          value: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/{{ .Values.workbench.image }}
+          value: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/{{ .image }}
         - name: REQUESTS_CA_BUNDLE
           value: /etc/pki/tls/custom-certs/ca-bundle.crt
         - name: SSL_CERT_FILE
@@ -55,19 +51,19 @@ spec:
           value: /etc/pki/tls/custom-certs/ca-bundle.crt
         - name: PIP_CERT
           value: /etc/pki/tls/custom-certs/ca-bundle.crt
-        image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/{{ .Values.workbench.image }}
+        image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/{{ .image }}
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
           httpGet:
-            path: /notebook/{{ .Values.dataScienceProjectNamespace }}/{{ .Values.workbench.name }}/api
+            path: /notebook/{{ $.Values.dataScienceProjectNamespace }}/{{ .name }}/api
             port: notebook-port
             scheme: HTTP
           initialDelaySeconds: 10
           periodSeconds: 5
           successThreshold: 1
           timeoutSeconds: 1
-        name: {{ .Values.workbench.name }}
+        name: {{ .name }}
         ports:
         - containerPort: 8888
           name: notebook-port
@@ -75,7 +71,7 @@ spec:
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /notebook/{{ .Values.dataScienceProjectNamespace }}/{{ .Values.workbench.name }}/api
+            path: /notebook/{{ $.Values.dataScienceProjectNamespace }}/{{ .name }}/api
             port: notebook-port
             scheme: HTTP
           initialDelaySeconds: 10
@@ -84,20 +80,20 @@ spec:
           timeoutSeconds: 1
         resources:
           limits:
-            cpu: '{{ .Values.workbench.resources.limits.cpu }}'
-            memory: {{ .Values.workbench.resources.limits.memory }}
-            {{- if .Values.workbench.resources.limits.nvidiaGpu }}
-            nvidia.com/gpu: '{{ .Values.workbench.resources.limits.nvidiaGpu }}'
+            cpu: '{{ .resources.limits.cpu }}'
+            memory: {{ .resources.limits.memory }}
+            {{- if .resources.limits.nvidiaGpu }}
+            nvidia.com/gpu: '{{ .resources.limits.nvidiaGpu }}'
             {{- end }}
           requests:
-            cpu: '{{ .Values.workbench.resources.requests.cpu }}'
-            memory: {{ .Values.workbench.resources.requests.memory }}
-            {{- if .Values.workbench.resources.requests.nvidiaGpu }}
-            nvidia.com/gpu: '{{ .Values.workbench.resources.requests.nvidiaGpu }}'
+            cpu: '{{ .resources.requests.cpu }}'
+            memory: {{ .resources.requests.memory }}
+            {{- if .resources.requests.nvidiaGpu }}
+            nvidia.com/gpu: '{{ .resources.requests.nvidiaGpu }}'
             {{- end }}
         volumeMounts:
         - mountPath: /opt/app-root/src/
-          name: {{ .Values.workbench.name }}-storage
+          name: {{ .name }}-storage
         - mountPath: /dev/shm
           name: shm
         - mountPath: /etc/pki/tls/custom-certs/ca-bundle.crt
@@ -110,11 +106,11 @@ spec:
           name: elyra-dsp-details
         workingDir: /opt/app-root/src
       enableServiceLinks: false
-      serviceAccountName: {{ .Values.workbench.name }}
+      serviceAccountName: {{ .name }}
       volumes:
-      - name: {{ .Values.workbench.name }}-storage
+      - name: {{ .name }}-storage
         persistentVolumeClaim:
-          claimName: {{ .Values.workbench.name }}-storage
+          claimName: {{ .name }}-storage
       - emptyDir:
           medium: Memory
         name: shm
@@ -131,10 +127,12 @@ spec:
         name: runtime-images
       # - configMap:
       #     defaultMode: 420
-      #     name: {{ .Values.workbench.name }}-kube-rbac-proxy-config
+      #     name: {{ .name }}-kube-rbac-proxy-config
       #   name: kube-rbac-proxy-config
       - name: kube-rbac-proxy-tls-certificates
         secret:
           defaultMode: 420
-          secretName: {{ .Values.workbench.name }}-kube-rbac-proxy-tls
+          secretName: {{ .name }}-kube-rbac-proxy-tls
       - name: elyra-dsp-details
+{{- end }}
+{{- end }}
