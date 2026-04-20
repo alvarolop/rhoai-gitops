@@ -28,8 +28,8 @@ spec:
         managementState: Managed
       rawDeploymentServiceConfig: Headless
     kueue:
-      defaultClusterQueueName: default
-      defaultLocalQueueName: default
+      defaultClusterQueueName: {{ .Values.distributedWorkloads.clusterQueueName }}
+      defaultLocalQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName }}
       managementState: {{ if .Values.distributedWorkloads.enabled }}Unmanaged{{ else }}Removed{{ end }}
     llamastackoperator:
       managementState: {{ if .Values.llamaStack.enabled }}Managed{{ else }}Removed{{ end }}

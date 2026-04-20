@@ -1,17 +1,16 @@
 {{- if .Values.distributedWorkloads.enabled }}
 ---
-#The Kueue ResourceFlavor object describes the resource variations that are available in a cluster.
+# NVIDIA GPU nodes: tolerate the GPU device plugin taint so workloads can schedule on GPU workers.
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ResourceFlavor
 metadata:
-  name: default-flavor
+  name: {{ .Values.distributedWorkloads.gpuResourceFlavorName }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
-
 spec:
   tolerations:
-  - effect: NoSchedule
-    operator: Exists
-    key: nvidia.com/gpu
+    - effect: NoSchedule
+      key: nvidia.com/gpu
+      operator: Exists
 {{- end }}

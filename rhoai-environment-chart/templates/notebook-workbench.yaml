@@ -9,11 +9,11 @@ metadata:
     opendatahub.io/image-display-name: Jupyter | PyTorch | CUDA | Python 3.12
     opendatahub.io/connections: ""
     {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
-    opendatahub.io/hardware-profile-name: def-gpu-profile
+    opendatahub.io/hardware-profile-name: gpu-profile
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image and a NVIDIA GPU
     {{- else }}
-    opendatahub.io/hardware-profile-name: default-profile
+    opendatahub.io/hardware-profile-name: cpu-profile
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     openshift.io/description: This is an example Workbench using the PyTorch Image
     {{- end }}
@@ -25,6 +25,9 @@ metadata:
     app: {{ .Values.workbench.name }}
     opendatahub.io/dashboard: "true"
     opendatahub.io/odh-managed: "true"
+    {{- if .Values.distributedWorkloads.enabled }}
+    kueue.x-k8s.io/queue-name: {{ .Values.kueue.localQueueName | quote }}
+    {{- end }}
 spec:
   template:
     spec:
@@ -84,7 +87,7 @@ spec:
             cpu: '{{ .Values.workbench.resources.limits.cpu }}'
             memory: {{ .Values.workbench.resources.limits.memory }}
             {{- if .Values.workbench.resources.limits.nvidiaGpu }}
-            nvidia.com/gpu: '{{ .Values.workbench.resources.requests.nvidiaGpu }}'
+            nvidia.com/gpu: '{{ .Values.workbench.resources.limits.nvidiaGpu }}'
             {{- end }}
           requests:
             cpu: '{{ .Values.workbench.resources.requests.cpu }}'
@@ -108,12 +111,6 @@ spec:
         workingDir: /opt/app-root/src
       enableServiceLinks: false
       serviceAccountName: {{ .Values.workbench.name }}
-      {{- if or .Values.workbench.resources.requests.nvidiaGpu .Values.workbench.resources.limits.nvidiaGpu }}
-      tolerations:
-        - effect: NoSchedule
-          key: nvidia.com/gpu
-          operator: Exists
-      {{- end }}
       volumes:
       - name: {{ .Values.workbench.name }}-storage
         persistentVolumeClaim:

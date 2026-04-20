@@ -1,26 +1,35 @@
 {{- if .Values.distributedWorkloads.enabled }}
 ---
 # The Kueue ClusterQueue object manages a pool of cluster resources such as pods, CPUs, memory, and accelerators.
+# Two flavors: CPU-only workloads (no GPU taints) vs GPU workloads (NVIDIA taints via ResourceFlavor).
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
-  name: cluster-queue
+  name: {{ .Values.distributedWorkloads.clusterQueueName }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "11"
 spec:
-  namespaceSelector: {}  # match all.
+  namespaceSelector: {} # match all.
   resourceGroups:
-  - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
-    flavors:
-    - name: "default-flavor"
-      resources:
-      - name: "cpu"
-        nominalQuota: '9'
-      - name: "memory"
-        nominalQuota: 36Gi
-      - name: "nvidia.com/gpu"
-        nominalQuota: '5'
-      # - name: "amd.com/gpu"
-      #   nominalQuota: 5
+    - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
+      flavors:
+        - name: {{ .Values.distributedWorkloads.cpuResourceFlavorName | quote }}
+          resources:
+            - name: "cpu"
+              nominalQuota: "32"
+            - name: "memory"
+              nominalQuota: 128Gi
+            - name: "nvidia.com/gpu"
+              nominalQuota: "0"
+        - name: {{ .Values.distributedWorkloads.gpuResourceFlavorName | quote }}
+          resources:
+            - name: "cpu"
+              nominalQuota: "9"
+            - name: "memory"
+              nominalQuota: 36Gi
+            - name: "nvidia.com/gpu"
+              nominalQuota: "5"
+            # - name: "amd.com/gpu"
+            #   nominalQuota: 5
 {{- end }}

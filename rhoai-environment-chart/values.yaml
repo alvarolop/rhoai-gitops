@@ -45,6 +45,11 @@ pipelinesConnection:
 distributedWorkloads:
   enabled: true
 
+# Kueue: must match rhoai-installation-chart distributedWorkloads.clusterQueueName / defaultLocalQueueName.
+kueue:
+  localQueueName: default
+  clusterQueueName: cluster-queue
+
 modelTunning:
   enabled: false
 

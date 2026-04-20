@@ -10,3 +10,6 @@ metadata:
   labels:
     opendatahub.io/dashboard: 'true'
     openshift.io/user-monitoring: "true"
+    {{- if .Values.distributedWorkloads.enabled }}
+    kueue.openshift.io/managed: "true"
+    {{- end }}

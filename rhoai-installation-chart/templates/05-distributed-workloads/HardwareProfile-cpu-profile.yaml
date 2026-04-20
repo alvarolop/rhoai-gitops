@@ -1,0 +1,32 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+apiVersion: infrastructure.opendatahub.io/v1
+kind: HardwareProfile
+metadata:
+  annotations:
+    opendatahub.io/dashboard-feature-visibility: '[]'
+    opendatahub.io/disabled: 'false'
+    opendatahub.io/display-name: cpu-profile
+    opendatahub.io/description: CPU-only workbenches and serving (no accelerator). Scheduling via Kueue queue; node placement comes from the cpu ResourceFlavor (no GPU taints).
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: cpu-profile
+  namespace: redhat-ods-applications
+spec:
+  identifiers:
+    - defaultCount: '2'
+      displayName: CPU
+      identifier: cpu
+      maxCount: '8'
+      minCount: 1
+      resourceType: CPU
+    - defaultCount: 8Gi
+      displayName: Memory
+      identifier: memory
+      maxCount: 32Gi
+      minCount: 1Gi
+      resourceType: Memory
+  scheduling:
+    type: Queue
+    kueue:
+      localQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName | quote }}
+{{- end }}

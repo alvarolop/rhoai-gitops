@@ -3,11 +3,13 @@
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: LocalQueue
 metadata:
-  name: {{ .Values.dataScienceProjectNamespace }}-queue
+  name: {{ .Values.kueue.localQueueName }}
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+    # Marks this LocalQueue as the namespace default (see DataScienceCluster defaultLocalQueueName).
     kueue.x-k8s.io/default-queue: "true"
 spec:
-  clusterQueue: cluster-queue
+  clusterQueue: {{ .Values.kueue.clusterQueueName }}
 {{- end }}

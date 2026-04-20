@@ -4,11 +4,11 @@ apiVersion: modelregistry.opendatahub.io/v1beta1
 kind: ModelRegistry
 metadata:
   annotations:
-    openshift.io/description: Default registry for models
-    openshift.io/display-name: Default Registry
+    openshift.io/description: Local registry for models
+    openshift.io/display-name: Local Registry
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
-  name: default
+  name: local
   namespace: rhoai-model-registries
 spec:
   grpc:

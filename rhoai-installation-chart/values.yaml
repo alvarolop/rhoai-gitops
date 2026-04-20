@@ -21,6 +21,11 @@ modelRegistry:
 
 distributedWorkloads:
   enabled: true
+  # Must match ClusterQueue and LocalQueue names used on the cluster (see templates/05-distributed-workloads).
+  clusterQueueName: cluster-queue
+  defaultLocalQueueName: default
+  cpuResourceFlavorName: cpu-flavor
+  gpuResourceFlavorName: gpu-flavor
 
 llamaStack:
   enabled: true

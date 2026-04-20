@@ -1,3 +1,4 @@
+{{- if .Values.distributedWorkloads.enabled }}
 ---
 apiVersion: infrastructure.opendatahub.io/v1
 kind: HardwareProfile
@@ -6,8 +7,7 @@ metadata:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
     opendatahub.io/display-name: gpu-profile
-    opendatahub.io/description: Provides a baseline hardware profile for GPU workloads with 1 GPU, 1 CPUs
-      and 12Gi memory by default, adjustable up to 4 GPUs, 8 CPUs and 24Gi memory.
+    opendatahub.io/description: GPU workloads with NVIDIA accelerators. Scheduling via Kueue queue; GPU nodes and taints come from the gpu ResourceFlavor.
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: gpu-profile
   namespace: redhat-ods-applications
@@ -32,10 +32,7 @@ spec:
       minCount: 1
       resourceType: Accelerator
   scheduling:
-    node:
-      nodeSelector: {}
-      tolerations:
-        - effect: NoSchedule
-          key: nvidia.com/gpu
-          operator: Exists
-    type: Node
+    type: Queue
+    kueue:
+      localQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName | quote }}
+{{- end }}
