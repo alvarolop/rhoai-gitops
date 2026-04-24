@@ -9,6 +9,12 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
 spec:
+{{- if .Values.distributedWorkloads.topologyAwareScheduling }}
+  topologyName: rhoai-hostname
+  # Set by NVIDIA GPU Operator on nodes where the device plugin is deployed (Kueue TAS).
+  nodeLabels:
+    nvidia.com/gpu.deploy.device-plugin: "true"
+{{- end }}
   tolerations:
     - effect: NoSchedule
       key: nvidia.com/gpu

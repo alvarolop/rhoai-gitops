@@ -1,0 +1,17 @@
+{{- if and .Values.distributedWorkloads.enabled .Values.distributedWorkloads.topologyAwareScheduling }}
+---
+# Single-level topology (per-node) so Kueue TAS can assign topology domains for serving workloads
+# that request topology (RHOAI / llm-d). Without a Topology + ResourceFlavor.topologyName link,
+# pods can stay Pending with SchedulingGated (kueue.x-k8s.io/topology) while the Workload is Admitted.
+# See: https://kueue.sigs.k8s.io/docs/concepts/topology_aware_scheduling/
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: Topology
+metadata:
+  name: rhoai-hostname
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "9"
+spec:
+  levels:
+    - nodeLabel: kubernetes.io/hostname
+{{- end }}

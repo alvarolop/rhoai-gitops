@@ -26,10 +26,21 @@ distributedWorkloads:
   defaultLocalQueueName: default
   cpuResourceFlavorName: cpu-flavor
   gpuResourceFlavorName: gpu-flavor
+  # Topology Aware Scheduling: Topology CR + ResourceFlavor.spec.topologyName + nodeLabels (Kueue
+  # requirement). Prevents SchedulingGated deadlocks for GPU serving (e.g. LLMInferenceService /
+  # LlamaGuard) when pods carry topology requests but the flavor had no topology link.
+  # Set false only if your Kueue build has no Topology CRD or you manage TAS elsewhere.
+  topologyAwareScheduling: true
+  # Topology name (`rhoai-hostname`) and ResourceFlavor `nodeLabels` are hardcoded in
+  # templates/05-distributed-workloads/topology-hostname.yaml and resourceflavor-*.yaml.
 
 llamaStack:
   enabled: true
 
+# When true: DataScienceCluster sets kserve.modelsAsService to Managed and the chart applies the
+# maas-default-gateway GatewayClass (Gateway API). Required for MaaS-style LLMInferenceService
+# router.gateway.refs (e.g. rhoai-serving values-tinyllama-1b-maas.yaml). Set false if you only
+# use normal Route + llm-d without a shared inference Gateway.
 modelsAsService:
   enabled: false
 
