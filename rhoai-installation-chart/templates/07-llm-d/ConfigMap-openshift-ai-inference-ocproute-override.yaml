@@ -1,0 +1,14 @@
+---
+{{ if and .Values.llm_d.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openshift-ai-inference-ocproute-override-config
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "9"
+data:
+  service: |
+    spec:
+      type: ClusterIP
+{{ end }}

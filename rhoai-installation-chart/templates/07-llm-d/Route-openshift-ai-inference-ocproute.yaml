@@ -1,8 +1,5 @@
 ---
 {{ if and .Values.llm_d.enabled .Values.llm_d.ocpRouteGateway.enabled }}
-# OpenShift Route to the Istio-managed Service for Gateway openshift-ai-inference-ocproute.
-# With gateways.ingress.service.type: ClusterIP, the router sends traffic to that Service inside
-# the cluster instead of requiring an external cloud LoadBalancer on the Service.
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
@@ -11,12 +8,12 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "12"
 spec:
-  host: {{ .Values.llm_d.ocpRouteGateway.hostname | default (printf "inference-gateway-route.apps.%s" .Values.global.clusterDomain) | quote }}
+  host: inference-gateway-route.apps.{{ .Values.global.clusterDomain }}
   port:
-    targetPort: {{ .Values.llm_d.ocpRouteGateway.routeTargetPortName | quote }}
+    targetPort: http
   to:
     kind: Service
-    name: {{ .Values.llm_d.ocpRouteGateway.backendServiceName | default "openshift-ai-inference-ocproute" | quote }}
+    name: openshift-ai-inference-ocproute-openshift-ai-inference-ocproute
     weight: 100
   wildcardPolicy: None
 {{ end }}

@@ -5,7 +5,8 @@
 global:
   culling:
     enabled: true
-  clusterDomain: "opentlc.com"
+  # DNS segment after apps. in route hostnames (e.g. ocp.sandbox3642.opentlc.com for *.apps.ocp.sandbox3642.opentlc.com).
+  clusterDomain: "ocp.sandbox3642.opentlc.com"
 
 modelRegistry:
   enabled: true
@@ -46,18 +47,10 @@ modelsAsService:
 
 llm_d:
   enabled: true
-  # Optional second Gateway (GatewayClass + Gateway + Route) for Router-based ingress. HTTPRoute
-  # resources must use parentRefs to this Gateway (name openshift-ai-inference-ocproute,
-  # namespace openshift-ingress) when you adopt this path. Enable only after confirming the
-  # backend Service name and port name match your mesh (see routeTargetPortName / backendServiceName).
+  # Second inference stack: GatewayClass + ConfigMap service override + Gateway (ClusterIP via
+  # infrastructure.parametersRef) + Route. Pattern matches llm-d-guide gateway templates.
   ocpRouteGateway:
     enabled: true
-    # If empty, defaults to inference-gateway-route.apps.<global.clusterDomain>
-    hostname: ""
-    # Named port on the Istio ingress Service backing this Gateway (often http2 on port 80).
-    routeTargetPortName: http2
-    # Istio auto-deploy typically names the Service like the Gateway metadata.name.
-    backendServiceName: ""
 
 # https://access.redhat.com/articles/7136121
 mlflow:

@@ -10,6 +10,11 @@ metadata:
     argocd.argoproj.io/sync-wave: "10"
 spec:
   gatewayClassName: openshift-ai-inference-ocproute
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: openshift-ai-inference-ocproute-override-config
   listeners:
     - allowedRoutes:
         namespaces:
@@ -18,7 +23,7 @@ spec:
             matchExpressions:
               - key: rhoai-serving/model
                 operator: Exists
-      hostname: {{ .Values.llm_d.ocpRouteGateway.hostname | default (printf "inference-gateway-route.apps.%s" .Values.global.clusterDomain) | quote }}
+      hostname: inference-gateway-route.apps.{{ .Values.global.clusterDomain }}
       name: http
       port: 80
       protocol: HTTP
