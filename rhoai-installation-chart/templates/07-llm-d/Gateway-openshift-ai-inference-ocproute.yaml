@@ -1,36 +1,25 @@
 ---
-{{ if .Values.llm_d.enabled }}
+{{ if and .Values.llm_d.enabled .Values.llm_d.ocpRouteGateway.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: openshift-ai-inference
+  name: openshift-ai-inference-ocproute
   namespace: openshift-ingress
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
 spec:
-  gatewayClassName: openshift-ai-inference
+  gatewayClassName: openshift-ai-inference-ocproute
   listeners:
     - allowedRoutes:
-        # namespaces:
-        #   from: All
         namespaces:
           from: Selector
           selector:
             matchExpressions:
               - key: rhoai-serving/model
                 operator: Exists
-      hostname: inference-gateway.apps.{{ .Values.global.clusterDomain }}
+      hostname: {{ .Values.llm_d.ocpRouteGateway.hostname | default (printf "inference-gateway-route.apps.%s" .Values.global.clusterDomain) | quote }}
       name: http
       port: 80
       protocol: HTTP
-      # name: https
-      # port: 443
-      # protocol: HTTPS
-      # tls:
-      #   certificateRefs:
-      #   - group: ""
-      #     kind: Secret
-      #     name: data-science-gateway-service-tls
-      #   mode: Terminate
 {{ end }}

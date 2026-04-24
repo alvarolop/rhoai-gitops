@@ -1,0 +1,24 @@
+---
+{{ if and .Values.llm_d.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+# Optional GatewayClass for a second inference Gateway intended to be reached via an OpenShift
+# Route to a ClusterIP Service (see Route-openshift-ai-inference-ocproute.yaml).
+#
+# The OpenShift Gateway API controller (openshift.io/gateway-controller/v1) still provisions
+# Istio/Envoy; it does not natively replace the Service with a Route. For clusters without cloud
+# LoadBalancers, configure ServiceMeshControlPlane gateways.ingress.service.type: ClusterIP and
+# gateways.openshiftRoute.enabled (IOR) so Routes are created automatically, or keep this explicit
+# Route when you need a fixed hostname and router integration only.
+# Ref: https://github.com/openshift/enhancements/blob/master/enhancements/ingress/gateway-api-with-cluster-ingress-operator.md
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: openshift-ai-inference-ocproute
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+    description: >-
+      Inference Gateway (llm-d) — sibling to openshift-ai-inference; pair with OpenShift Route
+      and ClusterIP ingress service instead of a cloud LoadBalancer.
+spec:
+  controllerName: openshift.io/gateway-controller/v1
+{{ end }}
