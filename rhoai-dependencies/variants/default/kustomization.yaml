@@ -20,7 +20,7 @@ resources:
   - ../../operator-kueue
 
   # Support for authentication of server models
-  - ../../operator-authorino
+  # - ../../operator-authorino
 
   # Support for Training jobs scheduling
   - ../../operator-jobset
