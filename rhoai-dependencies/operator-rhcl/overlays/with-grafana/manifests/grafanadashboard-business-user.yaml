@@ -17,5 +17,5 @@ spec:
     key: "business-user-dashboard.json"
   folder: "Red Hat Connectivity Link"
   datasources:
-    - inputName: "DS_PROMETHEUS"
+    - inputName: "datasource"
       datasourceName: "Prometheus"
