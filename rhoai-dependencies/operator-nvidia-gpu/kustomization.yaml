@@ -5,7 +5,6 @@ kind: Kustomization
 resources:
   - operator/
   - clusterpolicy-gpu-cluster-policy.yaml
-  - cm-device-plugin-config.yaml # Time Slicing
 
 configMapGenerator:
   - name: nvidia-dcgm-exporter-dashboard
