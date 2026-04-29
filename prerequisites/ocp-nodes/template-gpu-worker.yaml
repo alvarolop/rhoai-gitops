@@ -29,6 +29,7 @@ objects:
             labels:
               node-role.kubernetes.io/${ROLE}: ""
               node-role.kubernetes.io/${PREFIX}${ROLE}: ""
+              # nvidia.com/mig.config: "all-balanced"
               # Updated to represent a generic or L4 specific config
               nvidia.com/device-plugin.config: "${DEVICE_PLUGIN_CONFIG}"
           taints:
