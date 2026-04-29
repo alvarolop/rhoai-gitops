@@ -11,6 +11,8 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
+    # Default: RHCL operator only. For RHCL Grafana dashboards, switch to:
+    # path: rhoai-dependencies/variants/with-rhcl-grafana
     path: rhoai-dependencies
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main

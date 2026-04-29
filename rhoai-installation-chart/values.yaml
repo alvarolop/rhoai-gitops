@@ -31,7 +31,7 @@ distributedWorkloads:
   # requirement). Prevents SchedulingGated deadlocks for GPU serving (e.g. LLMInferenceService /
   # LlamaGuard) when pods carry topology requests but the flavor had no topology link.
   # Set false only if your Kueue build has no Topology CRD or you manage TAS elsewhere.
-  topologyAwareScheduling: true
+  topologyAwareScheduling: false
   # Topology name (`rhoai-hostname`) and ResourceFlavor `nodeLabels` are hardcoded in
   # templates/05-distributed-workloads/topology-hostname.yaml and resourceflavor-*.yaml.
 
