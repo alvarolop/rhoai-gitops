@@ -1,0 +1,39 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - manifests/grafanadashboard-platform-engineer.yaml
+  - manifests/grafanadashboard-app-developer.yaml
+  - manifests/grafanadashboard-business-user.yaml
+  - manifests/grafanadashboard-dns-operator.yaml
+
+configMapGenerator:
+  - name: rhcl-platform-engineer-dashboard
+    namespace: grafana
+    files:
+      - dashboards/platform-engineer-dashboard.json
+    options:
+      disableNameSuffixHash: true
+
+  - name: rhcl-app-developer-dashboard
+    namespace: grafana
+    files:
+      - dashboards/app-developer-dashboard.json
+    options:
+      disableNameSuffixHash: true
+
+  - name: rhcl-business-user-dashboard
+    namespace: grafana
+    files:
+      - dashboards/business-user-dashboard.json
+    options:
+      disableNameSuffixHash: true
+
+  - name: rhcl-dns-operator-dashboard
+    namespace: grafana
+    files:
+      - dashboards/dns-operator-dashboard.json
+    options:
+      disableNameSuffixHash: true

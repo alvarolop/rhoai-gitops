@@ -2,25 +2,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-labels:
-  - pairs:
-      app.kubernetes.io/instance: rhoai
-
+# Default: RHCL without Grafana. To enable RHCL Grafana dashboards from Argo CD,
+# point the Application at variants/with-rhcl-grafana (see application-rhoai-dependencies.yaml).
 resources:
-
-  # Support for GPU Acceleration
-  - operator-nfd
-  - operator-nvidia-gpu
-
-  # Required for llm-d
-  - operator-lws
-  - operator-rhcl
-
-  # Required for GPUaaS
-  - operator-kueue
-  
-  # Support for authentication of server models
-  - operator-authorino
-
-  # Support for Training jobs scheduling
-  - operator-jobset
+  - variants/default

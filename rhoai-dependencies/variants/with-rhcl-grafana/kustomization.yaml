@@ -1,0 +1,27 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+  - pairs:
+      app.kubernetes.io/instance: rhoai
+
+resources:
+
+  # Support for GPU Acceleration
+  - ../../operator-nfd
+  - ../../operator-nvidia-gpu
+
+  # Required for llm-d
+  - ../../operator-lws
+  # RHCL operator plus Grafana dashboards (Connectivity Link observability)
+  - ../../operator-rhcl/overlays/with-grafana
+
+  # Required for GPUaaS
+  - ../../operator-kueue
+
+  # Support for authentication of server models
+  - ../../operator-authorino
+
+  # Support for Training jobs scheduling
+  - ../../operator-jobset

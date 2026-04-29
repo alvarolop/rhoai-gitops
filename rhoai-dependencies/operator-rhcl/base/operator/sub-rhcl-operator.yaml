@@ -1,0 +1,26 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: rhcl-operator
+  namespace: kuadrant-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: rhcl-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  # # In disconnected environment, we need to set the related image for the wasm-shim
+  # config:
+  #   env:
+  #   - name: RELATED_IMAGE_WASMSHIM
+  #     value: internal-registry.example.com/rhcl/wasm-shim-rhel9@sha256:<hash>
+  #   - name: PROTECTED_REGISTRY # Double check this one
+  #     value: internal-registry.example.com
+  
+# Need to also add a pull secret for the wasm-plugin
+# oc get secret pull-secret -n openshift-config -o json | \
+# jq '.metadata.namespace = "openshift-ingress" | .metadata.name = "wasm-plugin-pull-secret"' | \
+# oc apply -f -

@@ -2,7 +2,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# Default entrypoint: RHCL operator only (no Grafana dashboards).
+# For dashboards, use overlays/with-grafana (see rhoai-dependencies variants).
 resources:
-  - operator/
-  - Kuadrant-kuadrant.yaml
-  - job-enable-plugin/
+  - overlays/default
