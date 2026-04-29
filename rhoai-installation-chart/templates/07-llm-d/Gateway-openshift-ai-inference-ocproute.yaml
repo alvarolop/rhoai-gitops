@@ -8,6 +8,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
+    # networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: openshift-ai-inference-ocproute
   infrastructure:
