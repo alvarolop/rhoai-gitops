@@ -11,11 +11,6 @@ metadata:
     networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: openshift-ai-inference-ocproute
-  infrastructure:
-    parametersRef:
-      group: ""
-      kind: ConfigMap
-      name: openshift-ai-inference-ocproute-override-config
   listeners:
     - allowedRoutes:
         namespaces:
