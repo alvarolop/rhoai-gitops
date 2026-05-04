@@ -5,8 +5,8 @@ kind: Namespace
 metadata:
   name: {{ $.Values.featureStore.namespace }}
   annotations:
-    openshift.io/description: "RHOAI - Feature Store"
-    openshift.io/display-name: "Feature Store Namespace"
+    openshift.io/description: "Feature Store Namespace"
+    openshift.io/display-name: "RHOAI - Feature Store"
   labels:
     opendatahub.io/dashboard: 'true'
 {{- end }}
