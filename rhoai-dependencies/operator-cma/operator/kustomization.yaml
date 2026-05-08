@@ -2,6 +2,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ns-openshift-nfd.yaml
-  - og-openshift-nfd.yaml
+  - ns-openshift-keda.yaml
+  - og-openshift-keda.yaml
   - sub-openshift-custom-metrics-autoscaler-operator.yaml
