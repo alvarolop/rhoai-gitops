@@ -17,6 +17,9 @@ resources:
   # RHCL operator plus Grafana dashboards (Connectivity Link observability)
   - ../../operator-rhcl/overlays/with-grafana
 
+  # Required for llm-d autoscaling
+  - ../../operator-cma
+
   # Required for GPUaaS
   - ../../operator-kueue
 

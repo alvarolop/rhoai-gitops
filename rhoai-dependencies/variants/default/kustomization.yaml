@@ -16,6 +16,9 @@ resources:
   - ../../operator-lws
   - ../../operator-rhcl/overlays/default
 
+  # Required for llm-d autoscaling
+  - ../../operator-cma
+
   # Required for GPUaaS
   - ../../operator-kueue
 
