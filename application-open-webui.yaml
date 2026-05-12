@@ -25,9 +25,16 @@ spec:
         websocket:
           enabled: false
 
-        # OpenAI-compatible API pointing to LiteLLM
-        openaiBaseApiUrl: "$MODEL_API_URL"
-        openaiApiKey: "$MODEL_API_TOKEN"
+        # OpenAI-compatible APIs (supports multiple endpoints)
+        # Add multiple APIs by adding more entries to these arrays
+        openaiBaseApiUrls:
+          - "$MODEL_API_URL"
+          # - "https://another-api.example.com/v1"
+          # - "https://third-api.example.com/v1"
+        openaiApiKeys:
+          - "$MODEL_API_TOKEN"
+          # - "sk-another-key"
+          # - "sk-third-key"
 
         # Persistence
         persistence:
