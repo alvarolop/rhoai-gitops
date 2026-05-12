@@ -1,0 +1,93 @@
+---
+# Example: InferenceService using S3 connection
+# This example shows how to properly configure an InferenceService so that
+# the connection is displayed in the dashboard associated with the model server
+
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: example-pytorch-model
+  namespace: my-data-science-project
+  labels:
+    opendatahub.io/dashboard: 'true'
+  annotations:
+    # Link this InferenceService to the S3 connection secret
+    opendatahub.io/connections: 'dspa-pipelines-connection-secret'
+
+    # Optional but recommended: specify the path within the S3 bucket
+    # This helps the dashboard show the model-to-connection relationship
+    opendatahub.io/connection-path: 'models/pytorch-model/v1'
+
+    # Deployment mode: ModelMesh or RawDeployment
+    serving.kserve.io/deploymentMode: ModelMesh
+
+    # Other common annotations
+    serving.kserve.io/enable-prometheus-scraping: 'true'
+
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: pytorch
+        version: '1'
+      # Storage configuration
+      storage:
+        # Reference to the connection secret name
+        key: dspa-pipelines-connection-secret
+        # Path within the bucket (should match connection-path annotation)
+        path: models/pytorch-model/v1
+
+---
+# Example: Data Connection Secret (updated for RHOAI 3.4+)
+# This is how the connection secret should be configured
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: model-storage-connection
+  namespace: my-data-science-project
+  labels:
+    opendatahub.io/dashboard: 'true'
+    opendatahub.io/managed: 'true'
+  annotations:
+    # IMPORTANT: Use the new annotation format (RHOAI 3.0+)
+    opendatahub.io/connection-type-protocol: "s3"
+    openshift.io/display-name: "Model Storage - S3"
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: "minio"
+  AWS_SECRET_ACCESS_KEY: "minio123"
+  AWS_S3_ENDPOINT: "https://s3.example.com"
+  AWS_S3_BUCKET: "models"
+  AWS_DEFAULT_REGION: "us-east-1"
+
+---
+# Example: InferenceService with RawDeployment (Single Model Server)
+
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: example-vllm-model
+  namespace: my-data-science-project
+  labels:
+    opendatahub.io/dashboard: 'true'
+  annotations:
+    opendatahub.io/connections: 'model-storage-connection'
+    opendatahub.io/connection-path: 'llm-models/mistral-7b'
+    serving.kserve.io/deploymentMode: RawDeployment
+    serving.kserve.io/enable-prometheus-scraping: 'true'
+spec:
+  predictor:
+    minReplicas: 1
+    maxReplicas: 1
+    model:
+      modelFormat:
+        name: vLLM
+      runtime: vllm-runtime
+      storage:
+        key: model-storage-connection
+        path: llm-models/mistral-7b
+    tolerations:
+      - effect: NoSchedule
+        key: nvidia.com/gpu
+        operator: Exists
