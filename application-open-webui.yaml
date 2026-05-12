@@ -64,8 +64,38 @@ spec:
           #   value: "/etc/ssl/certs/ca-certificates.crt"
           # - name: SSL_CERT_FILE # For OAuth
           #   value: "/etc/ssl/certs/ca-certificates.crt"
+
+          # Authentication: Enable OAuth/OIDC with OpenShift
           - name: WEBUI_AUTH
-            value: "False"
+            value: "True"
+
+          # OAuth/OIDC Configuration (OpenShift as Identity Provider)
+          - name: ENABLE_OAUTH_SIGNUP
+            value: "true"
+          - name: OAUTH_PROVIDER_NAME
+            value: "OpenShift"
+          - name: OAUTH_CLIENT_ID
+            value: "open-webui"
+          - name: OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: open-webui-oauth-secret
+                key: client-secret
+          - name: OPENID_PROVIDER_URL
+            value: "https://oauth-openshift.apps.$OPENSHIFT_CLUSTER_DOMAIN"
+          - name: WEBUI_URL
+            value: "https://open-webui-open-webui.apps.$OPENSHIFT_CLUSTER_DOMAIN"
+          - name: OAUTH_SCOPES
+            value: "openid email profile"
+          # Optional: Enable role management from OpenShift groups
+          # - name: ENABLE_OAUTH_ROLE_MANAGEMENT
+          #   value: "true"
+          # - name: OAUTH_ROLES_CLAIM
+          #   value: "groups"
+          # - name: OAUTH_ADMIN_ROLES
+          #   value: "cluster-admins,open-webui-admins"
+
+          # RAG Embedding Configuration
           - name: RAG_EMBEDDING_ENGINE
             value: "openai"
           - name: RAG_OPENAI_API_BASE_URL
@@ -77,6 +107,7 @@ spec:
 
         # OpenShift-specific resources
         extraResources:
+          # Route for external access
           - apiVersion: route.openshift.io/v1
             kind: Route
             metadata:
@@ -93,6 +124,33 @@ spec:
               tls:
                 termination: edge
               wildcardPolicy: None
+
+          # OAuth Secret for OpenShift OIDC integration
+          - apiVersion: v1
+            kind: Secret
+            metadata:
+              name: open-webui-oauth-secret
+              namespace: open-webui
+            type: Opaque
+            stringData:
+              # IMPORTANT: Change this to a secure random string in production
+              # Generate with: openssl rand -base64 32
+              client-secret: "$OAUTH_CLIENT_SECRET"
+
+          # OpenShift OAuthClient for OIDC integration
+          - apiVersion: oauth.openshift.io/v1
+            kind: OAuthClient
+            metadata:
+              name: open-webui
+            secret: "$OAUTH_CLIENT_SECRET"
+            # Redirect URIs must match the WEBUI_URL + /oauth/oidc/callback
+            redirectURIs:
+              - "https://open-webui-open-webui.apps.$OPENSHIFT_CLUSTER_DOMAIN/oauth/oidc/callback"
+            grantMethod: auto
+            # Optional: Restrict access to specific groups
+            # accessTokenMaxAgeSeconds: 86400
+
+          # ClusterRoleBinding for anyuid SCC
           - apiVersion: rbac.authorization.k8s.io/v1
             kind: ClusterRoleBinding
             metadata:
