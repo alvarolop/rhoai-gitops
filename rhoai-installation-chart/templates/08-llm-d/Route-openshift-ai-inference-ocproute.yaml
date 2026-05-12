@@ -3,17 +3,17 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: openshift-ai-inference-ocproute
+  name: openshift-ai-inference
   namespace: openshift-ingress
   annotations:
     argocd.argoproj.io/sync-wave: "12"
 spec:
-  host: inference-gateway-route.apps.{{ .Values.global.clusterDomain }}
+  host: inference-gateway.apps.{{ .Values.global.clusterDomain }}
   port:
     targetPort: http
   to:
     kind: Service
-    name: openshift-ai-inference-ocproute-openshift-ai-inference-ocproute
+    name: openshift-ai-inference-openshift-ai-inference
     weight: 100
   wildcardPolicy: None
 {{ end }}

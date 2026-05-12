@@ -1,0 +1,36 @@
+{{ if .Values.llm_d.enabled }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: maas-default-gateway
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  gatewayClassName: maas-default-gateway
+  listeners:
+    - allowedRoutes:
+        # namespaces:
+        #   from: All
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: rhoai-serving/maas
+                operator: Exists
+      hostname: maas.apps.{{ .Values.global.clusterDomain }}
+      # name: http
+      # port: 80
+      # protocol: HTTP
+      name: https
+      port: 443
+      protocol: HTTPS
+      tls:
+        certificateRefs:
+        - group: ""
+          kind: Secret
+          name: data-science-gateway-service-tls
+        mode: Terminate
+{{ end }}
