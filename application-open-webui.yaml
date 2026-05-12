@@ -133,8 +133,6 @@ spec:
               namespace: open-webui
             type: Opaque
             stringData:
-              # IMPORTANT: Change this to a secure random string in production
-              # Generate with: openssl rand -base64 32
               client-secret: "$OAUTH_CLIENT_SECRET"
 
           # OpenShift OAuthClient for OIDC integration
@@ -143,12 +141,9 @@ spec:
             metadata:
               name: open-webui
             secret: "$OAUTH_CLIENT_SECRET"
-            # Redirect URIs must match the WEBUI_URL + /oauth/oidc/callback
             redirectURIs:
               - "https://open-webui-open-webui.apps.$OPENSHIFT_CLUSTER_DOMAIN/oauth/oidc/callback"
             grantMethod: auto
-            # Optional: Restrict access to specific groups
-            # accessTokenMaxAgeSeconds: 86400
 
           # ClusterRoleBinding for anyuid SCC
           - apiVersion: rbac.authorization.k8s.io/v1

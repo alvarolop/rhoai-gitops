@@ -14,12 +14,48 @@ Open WebUI supports OAuth/OIDC authentication, and OpenShift can act as an OIDC 
 
 ## Configuration Variables
 
-You need to set the following variables in `application-open-webui.yaml`:
+The following variables need to be set when deploying:
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `$OPENSHIFT_CLUSTER_DOMAIN` | Your OpenShift cluster domain | `apps.cluster.example.com` |
-| `$OAUTH_CLIENT_SECRET` | Secure random string for OAuth | Generate with `openssl rand -base64 32` |
+| Variable | Description | How to generate |
+|----------|-------------|-----------------|
+| `$OPENSHIFT_CLUSTER_DOMAIN` | Your OpenShift cluster domain | `oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}'` |
+| `$OAUTH_CLIENT_SECRET` | OAuth client secret | `openssl rand -base64 32` |
+
+## Deployment
+
+Deploy Open WebUI with OIDC using environment variable substitution:
+
+```bash
+# Generate OAuth secret
+OAUTH_CLIENT_SECRET=$(openssl rand -base64 32)
+
+# Get cluster domain
+OPENSHIFT_CLUSTER_DOMAIN=$(oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}')
+
+# Deploy using envsubst
+cat application-open-webui.yaml | \
+  OAUTH_CLIENT_SECRET="$OAUTH_CLIENT_SECRET" \
+  OPENSHIFT_CLUSTER_DOMAIN="$OPENSHIFT_CLUSTER_DOMAIN" \
+  envsubst | oc apply -f -
+```
+
+Or using a `.env` file:
+
+```bash
+# Create .env file
+cat > .env <<EOF
+OAUTH_CLIENT_SECRET=$(openssl rand -base64 32)
+OPENSHIFT_CLUSTER_DOMAIN=$(oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}')
+MODEL_API_URL=https://your-model-api.example.com/v1
+MODEL_API_TOKEN=your-token
+EMBEDDINGS_MODEL_API_URL=https://your-embeddings-api.example.com/v1
+EMBEDDINGS_MODEL_API_TOKEN=your-embeddings-token
+EMBEDDINGS_MODEL_NAME=text-embedding-ada-002
+EOF
+
+# Deploy
+set -a && source .env && set +a && cat application-open-webui.yaml | envsubst | oc apply -f -
+```
 
 ## How It Works
 

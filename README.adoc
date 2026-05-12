@@ -489,12 +489,31 @@ User and password is `minio` / `minio123`.
 
 Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline. It supports various LLM runners like Ollama and OpenAI-compatible APIs, with built-in inference engine for RAG, making it a powerful AI deployment solution.
 
-Uses the https://github.com/open-webui/helm-charts/tree/main/charts/open-webui[official Open WebUI Helm chart].
+Uses the https://github.com/open-webui/helm-charts/tree/main/charts/open-webui[official Open WebUI Helm chart] with OpenShift OIDC authentication.
 
 [source, bash]
 ----
+# Configure .env file with required variables
+cat > .env <<EOF
+# OAuth Configuration for OpenShift OIDC
+OAUTH_CLIENT_SECRET=$(openssl rand -base64 32)
+OPENSHIFT_CLUSTER_DOMAIN=$(oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}')
+
+# Model API Configuration
+MODEL_API_URL=https://your-model-api.example.com/v1
+MODEL_API_TOKEN=your-token
+
+# Embeddings API Configuration
+EMBEDDINGS_MODEL_API_URL=https://your-embeddings-api.example.com/v1
+EMBEDDINGS_MODEL_API_TOKEN=your-embeddings-token
+EMBEDDINGS_MODEL_NAME=text-embedding-ada-002
+EOF
+
+# Deploy
 set -a && source .env && set +a && cat application-open-webui.yaml | envsubst | oc apply -f -
 ----
+
+See link:open-webui-oidc-setup.md[Open WebUI OIDC Setup Guide] for more details.
 
 
 
