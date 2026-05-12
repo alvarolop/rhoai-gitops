@@ -1,0 +1,23 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+# MIG 1g.12gb nodes: tolerate MIG taints for small GPU slices
+# Small instance with ~12GB memory, ideal for inference workloads
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ResourceFlavor
+metadata:
+  name: mig-1g-12gb
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+{{- if .Values.distributedWorkloads.topologyAwareScheduling }}
+  topologyName: rhoai-hostname
+  # Node label set by NVIDIA GPU Operator for MIG-capable nodes
+  nodeLabels:
+    nvidia.com/mig.capable: "true"
+{{- end }}
+  tolerations:
+    - effect: NoSchedule
+      key: nvidia.com/gpu
+      operator: Exists
+{{- end }}

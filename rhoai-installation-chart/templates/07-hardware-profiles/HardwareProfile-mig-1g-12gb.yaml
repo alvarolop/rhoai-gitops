@@ -1,0 +1,38 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+apiVersion: infrastructure.opendatahub.io/v1
+kind: HardwareProfile
+metadata:
+  annotations:
+    opendatahub.io/dashboard-feature-visibility: '[]'
+    opendatahub.io/disabled: 'false'
+    opendatahub.io/display-name: H100 MIG 1g.12gb
+    opendatahub.io/description: "MIG 1g.12gb profile: Small GPU slice with ~12GB memory, ideal for inference or small models. 7 instances per H100 94GB GPU."
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: mig-1g-12gb-profile
+  namespace: redhat-ods-applications
+spec:
+  identifiers:
+    - defaultCount: '1'
+      displayName: CPU
+      identifier: cpu
+      maxCount: '4'
+      minCount: 1
+      resourceType: CPU
+    - defaultCount: 8Gi
+      displayName: Memory
+      identifier: memory
+      maxCount: 16Gi
+      minCount: 1Gi
+      resourceType: Memory
+    - defaultCount: 1
+      displayName: MIG 1g.12gb
+      identifier: nvidia.com/mig-1g.12gb
+      maxCount: 7
+      minCount: 1
+      resourceType: Accelerator
+  scheduling:
+    type: Queue
+    kueue:
+      localQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName | quote }}
+{{- end }}

@@ -1,7 +1,7 @@
 {{- if .Values.distributedWorkloads.enabled }}
 ---
 # The Kueue ClusterQueue object manages a pool of cluster resources such as pods, CPUs, memory, and accelerators.
-# Two flavors: CPU-only workloads (no GPU taints) vs GPU workloads (NVIDIA taints via ResourceFlavor).
+# Multiple resource groups: CPU-only, full GPUs, and MIG partitions
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
@@ -12,6 +12,7 @@ metadata:
 spec:
   namespaceSelector: {} # match all.
   resourceGroups:
+    # Resource group for CPU and full GPU workloads
     - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
       flavors:
         - name: {{ .Values.distributedWorkloads.cpuResourceFlavorName | quote }}
@@ -30,6 +31,40 @@ spec:
               nominalQuota: 36Gi
             - name: "nvidia.com/gpu"
               nominalQuota: "5"
-            # - name: "amd.com/gpu"
-            #   nominalQuota: 5
+
+    # Resource group for MIG 1g.12gb instances (small slices)
+    - coveredResources: ["cpu", "memory", "nvidia.com/mig-1g.12gb"]
+      flavors:
+        - name: "mig-1g-12gb"
+          resources:
+            - name: "cpu"
+              nominalQuota: "16"
+            - name: "memory"
+              nominalQuota: 64Gi
+            - name: "nvidia.com/mig-1g.12gb"
+              nominalQuota: "14"  # 2 GPUs × 7 instances = 14
+
+    # Resource group for MIG 3g.47gb instances (medium slices)
+    - coveredResources: ["cpu", "memory", "nvidia.com/mig-3g.47gb"]
+      flavors:
+        - name: "mig-3g-47gb"
+          resources:
+            - name: "cpu"
+              nominalQuota: "16"
+            - name: "memory"
+              nominalQuota: 64Gi
+            - name: "nvidia.com/mig-3g.47gb"
+              nominalQuota: "4"  # 2 GPUs × 2 instances = 4
+
+    # Resource group for MIG 7g.94gb instances (full GPU via MIG)
+    - coveredResources: ["cpu", "memory", "nvidia.com/mig-7g.94gb"]
+      flavors:
+        - name: "mig-7g-94gb"
+          resources:
+            - name: "cpu"
+              nominalQuota: "32"
+            - name: "memory"
+              nominalQuota: 128Gi
+            - name: "nvidia.com/mig-7g.94gb"
+              nominalQuota: "2"  # 2 full GPUs
 {{- end }}
