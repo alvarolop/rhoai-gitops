@@ -8,12 +8,15 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "12"
 spec:
-  host: inference-gateway.apps.{{ .Values.global.clusterDomain }}
+  host: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
   port:
     targetPort: http
   to:
     kind: Service
     name: openshift-ai-inference-openshift-ai-inference
     weight: 100
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 {{ end }}
