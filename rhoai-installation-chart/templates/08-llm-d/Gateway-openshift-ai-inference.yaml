@@ -20,7 +20,7 @@ spec:
               - key: rhoai-serving/model
                 operator: Exists
       hostname: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
-      name: http
+      name: external
       port: 80
       protocol: HTTP
     - allowedRoutes:
@@ -31,7 +31,7 @@ spec:
               - key: rhoai-serving/model
                 operator: Exists
       hostname: openshift-ai-inference-openshift-ai-inference.openshift-ingress.svc.cluster.local
-      name: http
+      name: internal
       port: 80
       protocol: HTTP
 {{ end }}
