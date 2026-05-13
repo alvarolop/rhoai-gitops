@@ -23,4 +23,15 @@ spec:
       name: http
       port: 80
       protocol: HTTP
+    - allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: rhoai-serving/model
+                operator: Exists
+      hostname: openshift-ai-inference-openshift-ai-inference.openshift-ingress.svc.cluster.local
+      name: http
+      port: 80
+      protocol: HTTP
 {{ end }}
