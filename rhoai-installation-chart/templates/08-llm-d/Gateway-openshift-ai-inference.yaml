@@ -19,7 +19,7 @@ spec:
             matchExpressions:
               - key: rhoai-serving/model
                 operator: Exists
-      hostname: inference-gateway-route.apps.{{ .Values.global.clusterDomain }}
+      hostname: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
       name: http
       port: 80
       protocol: HTTP
