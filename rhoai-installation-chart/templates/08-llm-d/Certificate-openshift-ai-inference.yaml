@@ -1,0 +1,38 @@
+{{ if and .Values.llm_d.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+---
+# Self-signed issuer for openshift-ai-inference gateway certificate
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: openshift-ai-inference-selfsigned-issuer
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "8"
+spec:
+  selfSigned: {}
+---
+# Certificate with multiple DNS names for both internal and external access
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openshift-ai-inference-serving-cert
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "9"
+spec:
+  secretName: openshift-ai-inference-gateway-tls
+  duration: 8760h # 1 year
+  renewBefore: 720h # 30 days
+  dnsNames:
+    # Internal Service DNS names (for Nemo Guardrails, etc.)
+    - openshift-ai-inference-openshift-ai-inference.openshift-ingress.svc
+    - openshift-ai-inference-openshift-ai-inference.openshift-ingress.svc.cluster.local
+    # External Route hostname (for public access)
+    - openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: openshift-ai-inference-selfsigned-issuer
+{{ end }}
