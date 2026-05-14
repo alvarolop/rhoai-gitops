@@ -1,0 +1,19 @@
+{{ if and .Values.llm_d.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+---
+# ConfigMap to inject Service CA annotation into Gateway-created Service
+# This makes the Service CA operator automatically generate a TLS certificate
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openshift-ai-inference-service-override
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "9"
+data:
+  service: |
+    metadata:
+      annotations:
+        service.beta.openshift.io/serving-cert-secret-name: "openshift-ai-inference-gateway-tls"
+    spec:
+      type: ClusterIP
+{{ end }}

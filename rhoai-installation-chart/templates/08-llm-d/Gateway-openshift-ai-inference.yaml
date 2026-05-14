@@ -11,6 +11,12 @@ metadata:
     networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: openshift-ai-inference
+  # Use ConfigMap to inject Service CA annotation for automatic TLS certificate generation
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: openshift-ai-inference-service-override
   listeners:
     # External listener - HTTPS for Route traffic (public hostname)
     - allowedRoutes:
