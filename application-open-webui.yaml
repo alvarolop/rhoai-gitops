@@ -26,13 +26,13 @@ spec:
           enabled: false
 
         # OpenAI-compatible APIs (supports multiple endpoints)
-        # Add multiple APIs by adding more entries to these arrays
+        # Using internal service from model-gpt-oss namespace
         openaiBaseApiUrls:
-          - "$MODEL_API_URL"
+          - "http://gpt-oss-20b-kserve-workload-svc.model-gpt-oss.svc.cluster.local:8000/v1"
           # - "https://another-api.example.com/v1"
           # - "https://third-api.example.com/v1"
         openaiApiKeys:
-          - "$MODEL_API_TOKEN"
+          - "not-needed"
           # - "sk-another-key"
           # - "sk-third-key"
 
@@ -60,50 +60,9 @@ spec:
 
         # Environment variables
         extraEnvVars:
-          # - name: REQUESTS_CA_BUNDLE # For Web
-          #   value: "/etc/ssl/certs/ca-certificates.crt"
-          # - name: SSL_CERT_FILE # For OAuth
-          #   value: "/etc/ssl/certs/ca-certificates.crt"
-
-          # Authentication: Enable OAuth/OIDC with OpenShift
+          # Authentication: Disabled for simplicity
           - name: WEBUI_AUTH
-            value: "True"
-
-          # OAuth/OIDC Configuration (OpenShift as Identity Provider)
-          - name: ENABLE_OAUTH_SIGNUP
-            value: "true"
-          - name: OAUTH_PROVIDER_NAME
-            value: "OpenShift"
-          - name: OAUTH_CLIENT_ID
-            value: "open-webui"
-          - name: OAUTH_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: open-webui-oauth-secret
-                key: client-secret
-          - name: OPENID_PROVIDER_URL
-            value: "https://oauth-openshift.apps.$OPENSHIFT_CLUSTER_DOMAIN"
-          - name: WEBUI_URL
-            value: "https://open-webui-open-webui.apps.$OPENSHIFT_CLUSTER_DOMAIN"
-          - name: OAUTH_SCOPES
-            value: "openid email profile"
-          # Optional: Enable role management from OpenShift groups
-          # - name: ENABLE_OAUTH_ROLE_MANAGEMENT
-          #   value: "true"
-          # - name: OAUTH_ROLES_CLAIM
-          #   value: "groups"
-          # - name: OAUTH_ADMIN_ROLES
-          #   value: "cluster-admins,open-webui-admins"
-
-          # RAG Embedding Configuration
-          - name: RAG_EMBEDDING_ENGINE
-            value: "openai"
-          - name: RAG_OPENAI_API_BASE_URL
-            value: "$EMBEDDINGS_MODEL_API_URL"
-          - name: RAG_OPENAI_API_KEY
-            value: "$EMBEDDINGS_MODEL_API_TOKEN"
-          - name: RAG_EMBEDDING_MODEL
-            value: "$EMBEDDINGS_MODEL_NAME"
+            value: "False"
 
         # OpenShift-specific resources
         extraResources:
@@ -124,26 +83,6 @@ spec:
               tls:
                 termination: edge
               wildcardPolicy: None
-
-          # OAuth Secret for OpenShift OIDC integration
-          - apiVersion: v1
-            kind: Secret
-            metadata:
-              name: open-webui-oauth-secret
-              namespace: open-webui
-            type: Opaque
-            stringData:
-              client-secret: "$OAUTH_CLIENT_SECRET"
-
-          # OpenShift OAuthClient for OIDC integration
-          - apiVersion: oauth.openshift.io/v1
-            kind: OAuthClient
-            metadata:
-              name: open-webui
-            secret: "$OAUTH_CLIENT_SECRET"
-            redirectURIs:
-              - "https://open-webui-open-webui.apps.$OPENSHIFT_CLUSTER_DOMAIN/oauth/oidc/callback"
-            grantMethod: auto
 
           # ClusterRoleBinding for anyuid SCC
           - apiVersion: rbac.authorization.k8s.io/v1

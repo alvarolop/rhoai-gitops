@@ -1,0 +1,23 @@
+{{ if and .Values.llm_d.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+---
+# Service to generate TLS certificate for openshift-ai-inference Gateway
+# The service.beta.openshift.io/serving-cert-secret-name annotation triggers
+# the Service CA operator to automatically create a TLS certificate
+apiVersion: v1
+kind: Service
+metadata:
+  name: openshift-ai-inference-gateway-tls
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "9"
+    service.beta.openshift.io/serving-cert-secret-name: openshift-ai-inference-gateway-tls
+spec:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 443
+  selector:
+    gateway.networking.k8s.io/gateway-name: openshift-ai-inference
+{{ end }}

@@ -12,6 +12,7 @@ metadata:
 spec:
   gatewayClassName: openshift-ai-inference
   listeners:
+    # External listener - HTTPS with TLS termination
     - allowedRoutes:
         namespaces:
           from: Selector
@@ -21,17 +22,12 @@ spec:
                 operator: Exists
       hostname: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
       name: external
-      port: 80
-      protocol: HTTP
-    - allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchExpressions:
-              - key: rhoai-serving/model
-                operator: Exists
-      hostname: openshift-ai-inference-openshift-ai-inference.openshift-ingress.svc.cluster.local
-      name: internal
-      port: 80
-      protocol: HTTP
+      port: 443
+      protocol: HTTPS
+      tls:
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: openshift-ai-inference-gateway-tls
+        mode: Terminate
 {{ end }}
