@@ -14,7 +14,7 @@ spec:
   source:
     chart: open-webui
     repoURL: https://helm.openwebui.com/
-    targetRevision: 12.10.0
+    targetRevision: 14.5.0
     helm:
       values: |
         # Disable bundled subcharts (using external OpenAI-compatible API)

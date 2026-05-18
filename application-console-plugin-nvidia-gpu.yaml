@@ -14,7 +14,7 @@ spec:
   source:
     # https://github.com/rh-ecosystem-edge/console-plugin-nvidia-gpu/blob/main/deployment/console-plugin-nvidia-gpu/README.md
     repoURL: https://rh-ecosystem-edge.github.io/console-plugin-nvidia-gpu
-    targetRevision: 0.2.5
+    targetRevision: 0.3.0
     chart: console-plugin-nvidia-gpu
     # helm:
     #   values: |
