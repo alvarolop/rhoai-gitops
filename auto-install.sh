@@ -15,7 +15,7 @@ INSTALL_LANGFUSE=false
 INSTALL_PIPELINES=true
 INSTALL_S4=true
 CREATE_RHOAI_ENV=true
-AWS_GPU_INSTANCE=g6.4xlarge
+AWS_GPU_INSTANCE=g6.2xlarge
 AWS_DEFAULT_REGION=eu-central-1
 AMI_ID=ami-006a33223c87af648
 
@@ -175,15 +175,15 @@ done
 echo -e "\t✅ All operators are in 'Succeeded' state."
 
 # Disabled: https://github.com/rh-ecosystem-edge/console-plugin-nvidia-gpu/issues/71
-# echo -e "\t🎮 Enable the NVIDIA GPU Console Plugin to view metrics in the Cluster Overview."
-# oc apply -f application-console-plugin-nvidia-gpu.yaml
-# echo -e "\t🎮 NVIDIA GPU Console Plugin is deployed."
-# # Only patch if the plugin is not already enabled
-# if ! oc get consoles.operator.openshift.io cluster -o jsonpath='{.spec.plugins}' | grep -q "console-plugin-nvidia-gpu"; then
-#     oc patch consoles.operator.openshift.io cluster --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "console-plugin-nvidia-gpu" }]' --type=json
-# else
-#     echo -e "\tℹ️  NVIDIA GPU Console Plugin already enabled, skipping patch."
-# fi
+echo -e "\t🎮 Enable the NVIDIA GPU Console Plugin to view metrics in the Cluster Overview."
+oc apply -f application-console-plugin-nvidia-gpu.yaml
+echo -e "\t🎮 NVIDIA GPU Console Plugin is deployed."
+# Only patch if the plugin is not already enabled
+if ! oc get consoles.operator.openshift.io cluster -o jsonpath='{.spec.plugins}' | grep -q "console-plugin-nvidia-gpu"; then
+    oc patch consoles.operator.openshift.io cluster --patch '[{"op": "add", "path": "/spec/plugins/-", "value": "console-plugin-nvidia-gpu" }]' --type=json
+else
+    echo -e "\tℹ️  NVIDIA GPU Console Plugin already enabled, skipping patch."
+fi
 
 
 echo -e "\n📊 ====================="
@@ -398,5 +398,18 @@ if [[ "$INSTALL_LANGFUSE" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$INSTALL_MINIO" =~
 else
     echo "⏭️  Skip installation of Langfuse (requires INSTALL_LANGFUSE and INSTALL_MINIO enabled)..."
 fi
+
+echo -e "\n💡 To use GPU nodes, increase the AWS EC2 quota for Running On-Demand G and VT instances, then wait until AWS approves the request (Status: PENDING → approved):"
+echo -e "\taws service-quotas request-service-quota-increase \\"
+echo -e "\t    --service-code ec2 \\"
+echo -e "\t    --quota-code L-DB2E81BA \\"
+echo -e "\t    --desired-value 32 \\"
+echo -e "\t    --region $AWS_DEFAULT_REGION"
+echo "🔍 Check the current quota value with:"
+echo -e "\taws service-quotas get-service-quota \\"
+echo -e "\t    --service-code ec2 \\"
+echo -e "\t    --quota-code L-DB2E81BA \\"
+echo -e "\t    --region $AWS_DEFAULT_REGION \\"
+echo -e "\t    --query \"Quota.Value\""
 
 echo "🎊 That's all!! RHOAI should be up and running!! :)"
