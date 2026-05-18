@@ -1,1 +1,0 @@
-Source: https://github.com/rh-aiservices-bu/lls-operator-demo/tree/main/llama-stack-playground
