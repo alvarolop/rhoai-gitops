@@ -30,24 +30,16 @@ ifndef::env-github[]
 endif::[]
 // End: Enable admonition icons
 
-Red Hat OpenShift AI (RHOAI) builds on the capabilities of Red Hat OpenShift to provide a single, consistent, enterprise-ready hybrid AI and MLOps platform. It provides tools across the *full lifecycle of AI/ML* experiments and models including training, serving, monitoring, and managing AI/ML models and AI-enabled applications. This is my personal repository to test and play with some of its most important features.
+Red Hat OpenShift AI (RHOAI) is OpenShift’s enterprise AI/MLOps platform for the full model lifecycle—train, serve, monitor, and govern. This repo is my playground to deploy and try its main features.
 
 // Create the Table of contents here
 toc::[]
 
 == Red Hat Training
 
-RHOAI is a product under continuous improvement, so *this repo will be outdated at some point in time*. I recommend you to refer to the https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest[Official documentation] to check the latest features or you can try the official trainings.
+RHOAI evolves quickly, so *this repo may become outdated*. For the latest product behavior, use the https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4[official documentation].
 
-Red Hat OpenShift AI (RHOAI) is a platform for data scientists, AI practitioners, developers, machine learning engineers, and operations teams to prototype, build, deploy, and monitor AI models. This is a wide variety of audience that needs different kinds of training. For that reason, there are https://role.rhu.redhat.com/rol-rhu/app[several courses] that will help you to understand RHOAI from all angles:
-
-
-* *AI262* - _Introduction to Red Hat OpenShift AI_: About configuring Data Science Projects and Jupyter Notebooks.
-* *AI263* - _Red Hat OpenShift AI Administration_: About installing RHOAI, configuring users and permissions and creating Custom Notebook Images.
-* *AI264* - _Creating Machine Learning Models with Red Hat OpenShift AI_: About training models and enhancing the model training.
-* *AI265* - _Deploying Machine Learning Models with Red Hat OpenShift AI_: About serving models on RHOAI.
-* *AI266* - _Automating AI/ML Workflows with Red Hat OpenShift AI_: About creating Data Science Pipelines, and Elyra and Kubeflow Pipelines.
-* *AI267* - _Developing and Deploying AI/ML Applications on Red Hat OpenShift AI_: All the previous courses altogether.
+Hands-on learning is consolidated in one course: *AI267* — _Developing and Deploying AI/ML Applications on Red Hat OpenShift AI_ (projects, notebooks, training, serving, pipelines, and administration). See https://role.rhu.redhat.com/rol-rhu/app[Red Hat Training] for schedules and labs.
 
 
 
@@ -56,67 +48,91 @@ Red Hat OpenShift AI (RHOAI) is a platform for data scientists, AI practitioners
 The following diagram depicts the general architecture of a RHOAI deployment, including the most important components:
 
 .RHOAI Architecture
-image::https://role.rhu.redhat.com/rol-rhu/static/static_file_cache/ai267-2.8/rhoaiarch/architecture/assets/architecture.svg[RHOAI Architecture]
+image::https://static.ole.redhat.com/rhls/courses/ai267-2.25/images/intro/fundamentals/assets/architecture.svg[RHOAI Architecture]
 
 
-* *aipipelines*: This enables you to build portable machine learning workflows. It is based on Kubeflow Pipelines and you don't need to install OCP Pipelines operator. (Formerly known as `datasciencepipelines`)
+=== DataScienceCluster components
 
-* *dashboard*: Provides the RHOAI dashboard.
+This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates/02-rhoai-configuration/DataScienceCluster.yaml`:
 
-* *feastoperator*: Feast is an open-source feature store for machine learning. It helps manage, store, and serve features for training and inference, enabling feature reuse across ML projects. NOTE: Removed by default, must be explicitly enabled.
+[cols="1.5,3.5,1.5",options="header"]
+|===
+|Component |Purpose |Default in this repo
 
-* *kserve*: RHOAI uses Kserve to serve large language models that can scale based on demand.
+|dashboard
+|RHOAI dashboard
+|Managed
 
-* *kueue*: Kueue is a Kubernetes-native job queueing system that provides quota management, resource sharing, and prioritization for batch workloads. Supports configuration of default cluster and local queue names. NOTE: It is installed separately as an OpenShift component, that's why it should be set to `Unmanaged`.
+|workbenches
+|Notebook/IDE workbenches (`rhods-notebooks`)
+|Managed
 
-* *llamastackoperator*: Llama Stack is a set of APIs and tools for building AI applications with Meta's Llama models. This operator helps deploy and manage Llama-based AI applications on OpenShift. NOTE: Removed by default, must be explicitly enabled.
+|aipipelines
+|Kubeflow Pipelines + embedded Argo Workflows
+|Managed
 
-* *modelregistry*: Model Registry provides a central repository for data scientists to store, version, and manage machine learning models. It enables model governance, lineage tracking, and sharing across teams. Requires specifying a `registriesNamespace` for model registry deployments.
+|kserve
+|Model serving (KServe RawDeployment, NIM; optional Models-as-a-Service)
+|Managed
 
-* *ray*: Component to run the data science code in a distributed manner.
+|ray
+|Distributed Ray workloads
+|Managed
 
-* *trainingoperator*: Training Operator provides Kubernetes-native support for distributed training of machine learning models using popular frameworks like PyTorch, TensorFlow, and MPI.
+|trainingoperator
+|Distributed training (PyTorch, TensorFlow, MPI)
+|Managed
 
-* *trustyai*: TrustyAI provides AI explainability and fairness monitoring capabilities. It helps data scientists and ML engineers understand model behavior, detect bias, and ensure AI transparency and accountability.
+|kueue
+|Queues for distributed workloads (operator installed separately)
+|Unmanaged if `distributedWorkloads.enabled`
 
-* *workbenches*: Workbenches are containerized and isolated working environments for data scientists to examine data and work with data models. Data scientists can create workbenches from an existing notebook container image to access its resources and properties. Workbenches are associated to container storage to prevent data loss when the workbench container is restarted or deleted.
+|modelregistry
+|Central model catalog (`rhoai-model-registries`)
+|Managed if `modelRegistry.enabled`
 
+|trustyai
+|Bias, drift, guardrails, LM-Eval
+|Managed if `trustyai.enabled`
 
-=== Deprecated Components
+|feastoperator
+|Feast feature store
+|Managed if `featureStore.enabled`
 
-The following components have been deprecated and are no longer available in the DataScienceCluster configuration:
+|mlflowoperator
+|MLflow tracking
+|Managed if `mlflow.enabled`
 
-* *codeflare* (Deprecated): Codeflare was an IBM software stack for developing and scaling machine-learning and Python workloads. Its functionality has been integrated into other components like Ray and the Training Operator.
-
-* *datasciencepipelines* (Renamed): This component has been renamed to `aipipelines`. Update your configurations accordingly.
-
-* *modelmeshserving* (Deprecated): ModelMesh Serving was used for serving small and medium size models. Its functionality has been consolidated into `kserve`, which now handles model serving for all model sizes.
+|llamastackoperator
+|Llama Stack RAG/agent APIs
+|Managed if `llamaStack.enabled`
+|===
 
 
 
 == Installation
 
 
-Installing RHOAI is not as simple as installing and configuring other operators on OpenShift. This product provides integration with hardware like NVIDIA and Intel GPUs, automation of ML workflows and AI training, and deployment of LLMs. For that reason, I've created an `auto-install.sh` script that will do everything for you:
+RHOAI needs GPU infrastructure, platform operators, object storage, and a `DataScienceCluster` configuration. Use `auto-install.sh` to apply the Argo CD applications in order.
 
-1. If the installation is IPI AWS, it will create MachineSets for nodes with NVIDIA GPUs (Currently, `g5.4xlarge`).
-2. Install all the operators that RHOAI depends on: 
-    * Red Hat OpenShift Leader Worker Set Operator to manage leader worker sets. This is a requirement for **llm-d** feature.
-    * Red Hat Build of Kueue to manage distributed workloads. This is a requirement for **GPUaaS** feature.
-    * Node Feature Discovery and Nvidia GPU Operator to discover and configure nodes with GPU.
-    * Authorino, to enable token authorization for models deployed with RHOAI.
-    * **Note**: Single-Model Serving (Model Mesh Serving) is not supported anymore in RHOAI 3.0, so Service Mesh 2.x and Serverless operators are not installed as prerequisites.
-3. Optionally install and configure OpenShift Data Foundation (ODF) in Multicloud Object Gateway (MCG) mode. This is a lightweight alternative that allows us to use the AWS S3 object storage the same way that we will then use Object storage on Baremetal using ODF.
-4. Installs the actual RHOAI operator and configures the installation with some defaults, enabling NVIDIA acceleration and **llm-d** feature.
-5. Deploys a new Data Science Project called `RHOAI Playground` enabling pipelines and deploying a basic `Notebook` for testing.
+*Prerequisites:* `oc` login, OpenShift GitOps (Argo CD) on the cluster, and enough memory on untainted workers (checked against `REQUIRED_MEMORY_Gi`, default 70 Gi).
+
+Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. By default the script:
+
+. *(Optional)* Provisions AWS GPU worker MachineSets when `GPU_NODE_COUNT` > 0 (`AWS_GPU_INSTANCE`, default `g6.2xlarge`; nodes are GPU-tainted).
+. Deploys dependencies via `application-rhoai-dependencies.yaml` (NVIDIA GPU stack, Kueue, Leader Worker Set, JobSet, RHCL, KEDA) and enables the NVIDIA GPU console plugin.
+. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`) and S3 storage: MinIO and S4 (`INSTALL_MINIO`, `INSTALL_S4`), including a playground bucket when `CREATE_RHOAI_ENV=true`.
+. *(Optional)* Installs ODF in MCG mode (`INSTALL_ODF`, off by default) or user-workload monitoring (`INSTALL_MONITORING`, off by default).
+. Waits for GPU nodes when `GPU_NODE_COUNT` > 0, then installs RHOAI via `application-rhoai-installation.yaml` (operator + Helm chart defaults: model registry, distributed workloads, TrustyAI, Feast, MLflow, Llama Stack, llm-d, and related settings).
+. *(Optional)* Deploys the RHOAI Playground project (`CREATE_RHOAI_ENV`) and Langfuse when `INSTALL_LANGFUSE` is enabled (requires MinIO).
+
+If you plan to use GPU nodes on AWS, the script also prints the Service Quotas commands to request and check the Running On-Demand G and VT instances limit.
 
 
 === Installation on non-4.21 OCP
 
 Some of the components deployed in this repo are bound to an specific version of OpenShift. If you want to deploy RHOAI on an older version (For example 4.20), you have to make the following modifications:
 
-* Change the image for the Node Feature Discovery container to the one for 4.20:
-    ** In `./rhoai-dependencies/operator-nfd/nodefeaturediscovery-nfd-instance.yaml`, the `.spec.operand.image` field should have value `registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.20`.
 * Change the channel of ODF:
     ** In `./ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.20`.
 
@@ -154,9 +170,9 @@ Now, log in to the cluster and just execute the script:
 
 Most of the activities related to RHOAI will require GPU Acceleration. For that purpose, we add NVIDIA GPU nodes during the installation process. In this chapter, I collect some information that might be useful for you.
 
-In this automation, we are currently using the AWS `g5.2xlarge` instance, that according to the documentation:
+In this automation, we are currently using the AWS `g6.2xlarge` instance (see `AWS_GPU_INSTANCE` in `auto-install.sh`). According to the documentation:
 
-> Amazon EC2 G5 instances are designed to accelerate graphics-intensive applications and machine learning inference. They can also be used to train simple to moderately complex machine learning models.
+> Amazon EC2 G6 instances are designed to accelerate graphics-intensive applications and machine learning inference. They can also be used to train simple to moderately complex machine learning models.
 
 
 ==== How to know that a node has NVIDIA GPUs using NodeFeatureDiscovery? 
@@ -224,48 +240,21 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 
 
 
-=== NVIDIA GPU Partitioning
+=== NVIDIA GPU partitioning
 
-[IMPORTANT]
-====
-If you want to achieve this properly, please, don't miss reading this https://github.com/rh-aiservices-bu/gpu-partitioning-guide[repo].
-====
+This repo does not enable time-slicing or MIG by default; options depend on your GPU model and what the NVIDIA GPU Operator supports. Before changing `rhoai-dependencies/operator-nvidia-gpu`, read:
 
-Partitioning allows for flexibility in resource management, enabling multiple applications to share a single GPU or dividing a large GPU into smaller, dedicated units for different tasks. For the sake of simplicity and maximization of the reduced resources, I have enabled **time-slicing** configuration. You can check the configuration in `rhoai-dependencies/operator-nvidia-gpu`.
-
-How to check that the configuration is applied?
-
-[source, bash]
-----
-oc get node --selector=nvidia.com/gpu.product="NVIDIA-A10G-SHARED" -o json  | jq '.items[0].metadata.labels' | grep nvidia
-----
-
-
-Also, you can check these two blog entries with an analysis from the RH Performance team about this topic:
-
-* https://www.redhat.com/en/blog/sharing-caring-how-make-most-your-gpus-part-1-time-slicing[Sharing is caring: How to make the most of your GPUs (part 1 - time-slicing)].
-* https://www.redhat.com/en/blog/sharing-caring-how-make-most-your-gpus-part-2-multi-instance-gpu[Sharing is caring: How to make the most of your GPUs part 2 - Multi-instance GPU].
+* https://github.com/rh-aiservices-bu/gpu-partitioning-guide[GPU partitioning guide] (Red Hat AI Services BU)
+* https://www.redhat.com/en/blog/sharing-caring-how-make-most-your-gpus-part-1-time-slicing[Sharing is caring: How to make the most of your GPUs (part 1 — time-slicing)]
+* https://www.redhat.com/en/blog/sharing-caring-how-make-most-your-gpus-part-2-multi-instance-gpu[Sharing is caring: How to make the most of your GPUs (part 2 — Multi-instance GPU)]
 
 
 
-=== Data Connection Pipelines S3 Bucket Secret
+=== Pipeline S3 storage
 
+Pipelines need S3-compatible storage for artifacts. With the default `auto-install.sh` settings (`INSTALL_MINIO=true`, `CREATE_RHOAI_ENV=true`), MinIO is deployed and `create-minio-s3-bucket.sh` creates the bucket and dashboard connection secret—no manual step.
 
-The `DataSciencePipelineApplication` requires an S3-compatible storage solution to store artifacts that are generated in the pipeline. You can use any S3-compatible storage solution for data science pipelines, including AWS S3, OpenShift Data Foundation, or MinIO. *The automation is currently using ODF with Nooba to interact with the AWS S3 interface, so you won't need to do anything*. Nevertheless, if you decide to disable ODF, you will need to create buckets on AWS S3 manually and for that you will need the following process:
-
-1. Define the configuration variables for AWS is a file dubbed `aws-env-vars`. You can use the same structure as in `aws-env-vars.example`
-2. Execute the following command to interact with the AWS API:
-+
-[source, bash]
-----
-./prerequisites/s3-bucket/create-aws-s3-bucket.sh
-----
-3. Or execute the following command if you interact with MinIO:
-+
-[source, bash]
-----
-./prerequisites/s3-bucket/create-minio-s3-bucket.sh
-----
+For AWS S3, ODF/NooBaa, or a custom endpoint, use the scripts and templates under `prerequisites/s3-bucket/` (see `aws-env-vars.example` for AWS).
 
 
 
@@ -280,9 +269,9 @@ You can use the distributed workloads feature to queue, scale, and manage the re
 If you want to try this feature, I recommend you to follow the RH documentation, which points to the following https://github.com/project-codeflare/codeflare-sdk/tree/main/demo-notebooks/guided-demos[Guided Demos].
 
 
-* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/installing_and_uninstalling_openshift_ai_self-managed/index#updating-installation-status-of-openshift-ai-components-using-web-console_component-install[Installation guide].
-* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/managing_openshift_ai/managing-distributed-workloads_managing-rhoai[Configuration guide].
-* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/working_with_distributed_workloads/index[Usage guide].
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/installing_and_uninstalling_openshift_ai_self-managed/index#updating-installation-status-of-openshift-ai-components-using-web-console_component-install[Installation guide].
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_openshift_ai/managing-distributed-workloads_managing-rhoai[Configuration guide].
+* Documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_distributed_workloads[Usage guide].
 
 
 After everything is configured, you can use the Model Tunning example from the Helm chart to see some stats:
@@ -343,9 +332,9 @@ curl -s "$MODEL_REGISTRY_HOST/api/model_registry/v1alpha/registered_models/${MOD
 
 If you want to try this feature, I recommend you to follow the RH documentation:
 
-* Documentation step 1: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/configuring_the_model_registry_component[Configuring the model registry component].
-* Documentation step 2: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/managing_model_registries[Managing Model Registries].
-* Documentation step 3: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html-single/working_with_model_registries/index[Workign with Model Registries].
+* Documentation step 1: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries/enabling-the-model-registry-component_managing-model-registries[Enabling the model registry component].
+* Documentation step 2: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries[Managing model registries].
+* Documentation step 3: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_model_registries[Working with model registries].
 
 
 
@@ -356,14 +345,14 @@ If you want to try this feature, I recommend you to follow the RH documentation:
 
 == Monitoring, Safety and Evaluation
 
-* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.0/html-single/monitoring_your_ai_systems/index[Monitoring]**: To ensure the transparency, fairness, and reliability of your data science models in OpenShift AI for *Bias* and *Data Drift*. Configure and set up TrustyAI for your project, and then perform the following checks:
+* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/monitoring_your_ai_systems/index[Monitoring]**: To ensure the transparency, fairness, and reliability of your data science models in OpenShift AI for *Bias* and *Data Drift*. Configure and set up TrustyAI for your project, and then perform the following checks:
 
   ** Bias: Check for unfair patterns or biases in data and model predictions to ensure your model's decisions are unbiased.
   ** Data drift: Detect changes in input data distributions over time by comparing the latest real-world data to the original training data. Comparing the data identifies shifts or deviations that could impact model performance, ensuring that the model remains accurate and reliable.
 
-* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.0/html-single/enabling_ai_safety_with_guardrails/index[Safety]**: To ensure that your machine-learning models are transparent, fair, and reliable. The TrustyAI Guardrails Orchestrator service is a tool to invoke detections on text generation inputs and outputs, as well as standalone detections.
+* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/enabling_ai_safety_with_guardrails/index[Safety]**: To ensure that your machine-learning models are transparent, fair, and reliable. The TrustyAI Guardrails Orchestrator service is a tool to invoke detections on text generation inputs and outputs, as well as standalone detections.
 
-* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.0/html-single/evaluating_ai_systems/index[Evaluation]**: To ensure your OpenShift AI models for accuracy, relevance, and consistency. Evaluate your AI systems to generate an analysis of your model's ability by using the following TrustyAI tools:
+* **https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/evaluating_ai_systems/index[Evaluation]**: To ensure your OpenShift AI models for accuracy, relevance, and consistency. Evaluate your AI systems to generate an analysis of your model's ability by using the following TrustyAI tools:
   ** LM-Eval: Use TrustyAI to monitor your LLM against a range of different evaluation tasks and to ensure the accuracy and quality of its output. Features such as summarization, language toxicity, and question-answering accuracy are assessed to inform and improve your model parameters.
   ** RAGAS: Use Retrieval-Augmented Generation Assessment (RAGAS) with TrustyAI to measure and improve the quality of your RAG systems in OpenShift AI. RAGAS provides objective metrics that assess retrieval quality, answer relevance, and factual consistency.
   ** Llama Stack: Use Llama Stack components and providers with TrustyAI to evaluate and work with LLMs.
@@ -381,50 +370,9 @@ If you want to try this feature, I recommend you to follow the RH documentation:
 
 
 
-== Deploying an Inference Server
+== Deploying models (inference serving)
 
-As the Model Registry is still Tech Preview, we still keep documentation about how to sync manually models using an OCP Job and then serve it with OpenShift AI. You can use the following Application that points to a Helm Chart that automates it:
-
-.mistral-7b
-[source, bash]
-----
-oc apply -f application-serve-mistral-7b.yaml
-sleep 4
-oc create secret generic hf-creds --from-env-file=hf-creds -n mistral-7b
-----
-
-.granite-1b-a400m
-[source, bash]
-----
-oc apply -f application-serve-granite-1b-a400m.yaml
-sleep 4
-oc create secret generic hf-creds --from-env-file=hf-creds -n granite-1b-a400m
-----
-
-
-.Testing LLM certificates
-[source, bash]
-----
-# Retrieve certificates
-openssl s_client -showcerts -connect mistral-7b.mistral-7b.svc.cluster.local:443 </dev/null
-
-# Check models endpoint
-curl --cacert /etc/pki/ca-trust/source/anchors/service-ca.crt https://mistral-7b.mistral-7b.svc.cluster.local:443/v1/models
-
-# Check Completion (It might be /v1/chat/completions)
-curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"model": "mistral-7b","prompt": "San Francisco is a"}'
-
-# Embeddings
-curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"model": "mistral-7b","prompt": "San Francisco is a"}'
-----
-
-
-
-# API Endpoints:
-
-* Ollama => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/api/embed
-* OpenAI => https://nomic-embed-text-v1.nomic-embed-text-v1.svc.cluster.local/embeddings
-----
+Model serving (predictive and generative workloads, Argo CD applications, Helm chart, and curl/testing examples) lives in the separate https://github.com/alvarolop/rhoai-serving[rhoai-serving] repository. Use that repo after this one has installed RHOAI and its dependencies.
 
 
 
@@ -434,28 +382,6 @@ curl -s -X 'POST' https://mistral-7b.mistral-7b.svc.cluster.local/v1/completions
 
 
 == Extra Components
-
-=== LLS Playground
-
-The Llama Stack Playground is an application that allows you to test the Llama Stack LLM and Agent capabilities.
-
-[source, bash]
-----
-cat application-lls-playground.yaml | \
-  CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-  LLS_ENDPOINT="http://llama-stack-service.intelligent-cd.svc.cluster.local:8321" \
-  envsubst | oc apply -f -
-----
-
-or you can deploy it manually with the following command:
-
-[source, bash]
-----
-helm template components/lls-playground \
-  --set global.clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-  --set llamaStack.endpoint="http://llama-stack-service.intelligent-cd.svc.cluster.local:8321" \
-  | oc apply -f -
-----
 
 === MinIO
 
@@ -555,7 +481,7 @@ helm install langfuse langfuse/langfuse -n langfuse --create-namespace
 
 === Useful links
 
-* https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8[Official documentation].
+* https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4[Official documentation].
 * https://access.redhat.com/support/policy/updates/rhoai/service[KCS: Red Hat OpenShift AI Service Definition].
 * https://github.com/stefan-bergstein/rhoai-on-rhdh-template/tree/main/manifests/helm/ds-project
 * https://github.com/stratus-ss/openshift-ai/blob/main/docs/rendered/OpenShift_AI_CLI.md
@@ -565,9 +491,9 @@ helm install langfuse langfuse/langfuse -n langfuse --create-namespace
 * https://access.redhat.com/articles/rhoai-supported-configs
 
 
-* Getting started: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest/html-single/getting_started_with_red_hat_openshift_ai_self-managed/index
-* Monitoring: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest/html-single/serving_models/index#monitoring-model-performance_monitoring-model-performance
-* DS Pipelines: https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2-latest/html/working_on_data_science_projects/working-with-data-science-pipelines_ds-pipelines
+* Getting started: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/getting_started_with_red_hat_openshift_ai_self-managed
+* Monitoring: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/monitoring_your_ai_systems/index
+* DS Pipelines: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_ai_pipelines
 
 
 
