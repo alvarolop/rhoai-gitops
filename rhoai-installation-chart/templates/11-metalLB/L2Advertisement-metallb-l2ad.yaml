@@ -1,0 +1,14 @@
+{{ if .Values.balanceMetalLB.enabled }}
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: metallb-l2ad
+  namespace: metallb-system
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "11"
+spec:
+  ipAddressPools:
+    - metallb-pool
+{{ end }}

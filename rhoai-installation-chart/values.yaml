@@ -89,3 +89,8 @@ featureStore:
     #       url: https://github.com/rhoai-mlops/jukebox
     #       ref: main
     #       featureRepoPath: 7-feature_store/feature_repo
+
+balanceMetalLB:
+  enabled: false
+  addresses:
+    - 192.168.1.100/32

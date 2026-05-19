@@ -1,0 +1,16 @@
+{{ if .Values.balanceMetalLB.enabled }}
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: metallb-pool
+  namespace: metallb-system
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  addresses:
+{{- range .Values.balanceMetalLB.addresses }}
+    - {{ . }}
+{{- end }}
+{{ end }}
