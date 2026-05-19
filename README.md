@@ -132,7 +132,16 @@ The NVIDIA GPU Operator automates the management of all NVIDIA software componen
 After configuring the Node Feature Discovery Operator and the NVidia GPU Operator using GitOps, you need to confirm that the Nvidia operator is correctly retrieving the GPU information. You can use the following command to confirm that OpenShift is correctly configured:
 
 ```bash
+# Simple command - gets first pod (may not match node order)
 oc exec -it -n nvidia-gpu-operator $(oc get pod -o wide -l openshift.driver-toolkit=true -o jsonpath="{.items[0].metadata.name}" -n nvidia-gpu-operator) -- nvidia-smi
+
+# More precise - filter by node number (0, 1, 2, etc.)
+# For node 0:
+oc exec -it -n nvidia-gpu-operator $(oc get pod -l openshift.driver-toolkit=true -o name -n nvidia-gpu-operator | grep '\-0$' | head -1 | cut -d'/' -f2) -- nvidia-smi
+# For node 1:
+oc exec -it -n nvidia-gpu-operator $(oc get pod -l openshift.driver-toolkit=true -o name -n nvidia-gpu-operator | grep '\-1$' | head -1 | cut -d'/' -f2) -- nvidia-smi
+# For node 2:
+oc exec -it -n nvidia-gpu-operator $(oc get pod -l openshift.driver-toolkit=true -o name -n nvidia-gpu-operator | grep '\-2$' | head -1 | cut -d'/' -f2) -- nvidia-smi
 ```
 
 The output should look like this:
