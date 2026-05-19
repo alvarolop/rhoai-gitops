@@ -25,8 +25,6 @@ distributedWorkloads:
   # Must match ClusterQueue and LocalQueue names used on the cluster (see templates/05-distributed-workloads).
   clusterQueueName: cluster-queue
   defaultLocalQueueName: default
-  cpuResourceFlavorName: cpu-flavor
-  gpuResourceFlavorName: gpu-flavor
   # Topology Aware Scheduling: Topology CR + ResourceFlavor.spec.topologyName + nodeLabels (Kueue
   # requirement). Prevents SchedulingGated deadlocks for GPU serving (e.g. LLMInferenceService /
   # LlamaGuard) when pods carry topology requests but the flavor had no topology link.

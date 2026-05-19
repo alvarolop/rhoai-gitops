@@ -4,7 +4,7 @@
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ResourceFlavor
 metadata:
-  name: {{ .Values.distributedWorkloads.gpuResourceFlavorName }}
+  name: gpu-flavor
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"

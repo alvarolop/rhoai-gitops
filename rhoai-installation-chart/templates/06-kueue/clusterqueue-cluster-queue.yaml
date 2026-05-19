@@ -15,7 +15,7 @@ spec:
     # Resource group for CPU and full GPU workloads
     - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
       flavors:
-        - name: {{ .Values.distributedWorkloads.cpuResourceFlavorName | quote }}
+        - name: "cpu-flavor"
           resources:
             - name: "cpu"
               nominalQuota: "32"
@@ -23,7 +23,7 @@ spec:
               nominalQuota: 128Gi
             - name: "nvidia.com/gpu"
               nominalQuota: "0"
-        - name: {{ .Values.distributedWorkloads.gpuResourceFlavorName | quote }}
+        - name: "gpu-flavor"
           resources:
             - name: "cpu"
               nominalQuota: "9"
