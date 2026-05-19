@@ -6,8 +6,8 @@ metadata:
   annotations:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
-    opendatahub.io/display-name: H100 MIG 1g.12gb
-    opendatahub.io/description: "MIG 1g.12gb profile: Small GPU slice with ~12GB memory, ideal for inference or small models. 7 instances per H100 94GB GPU."
+    opendatahub.io/display-name: MIG 1g.12gb
+    opendatahub.io/description: "MIG 1g.12gb profile: Small GPU slice with ~12GB memory, ideal for inference or small models. 7 instances per GPU."
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: mig-1g-12gb-profile
   namespace: redhat-ods-applications

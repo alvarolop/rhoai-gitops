@@ -6,8 +6,8 @@ metadata:
   annotations:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
-    opendatahub.io/display-name: H100 MIG 7g.94gb (Full GPU)
-    opendatahub.io/description: "MIG 7g.94gb profile: Full H100 GPU with 94GB memory, for large models and training workloads. 1 instance per H100 94GB GPU."
+    opendatahub.io/display-name: MIG 7g.94gb (Full GPU)
+    opendatahub.io/description: "MIG 7g.94gb profile: Full GPU with 94GB memory, for large models and training workloads. 1 instance per GPU."
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: mig-7g-94gb-profile
   namespace: redhat-ods-applications

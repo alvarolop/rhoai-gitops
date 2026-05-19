@@ -6,8 +6,8 @@ metadata:
   annotations:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
-    opendatahub.io/display-name: H100 MIG 3g.47gb
-    opendatahub.io/description: "MIG 3g.47gb profile: Medium GPU slice with ~47GB memory, suitable for medium-sized models. 2 instances per H100 94GB GPU."
+    opendatahub.io/display-name: MIG 3g.47gb
+    opendatahub.io/description: "MIG 3g.47gb profile: Medium GPU slice with ~47GB memory, suitable for medium-sized models. 2 instances per GPU."
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: mig-3g-47gb-profile
   namespace: redhat-ods-applications
