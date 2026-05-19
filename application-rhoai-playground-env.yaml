@@ -11,8 +11,8 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: rhoai-environment-chart
-    repoURL: https://github.com/alvarolop/rhoai-gitops.git
+    path: .
+    repoURL: https://github.com/alvarolop/rh.git
     targetRevision: main
   ignoreDifferences:
     # 1. Ignore the Operator-injected changes in the Notebook
