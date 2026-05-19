@@ -53,8 +53,8 @@ llm_d:
   # without Route for internal Service-only access.
   internalOnly:
     enabled: false
-  # Custom TLS certificate for maas gateway (base64-encoded). If not provided, falls back to
-  # data-science-gateway-service-tls. Use when maas hostname doesn't match the default certificate.
+  # Custom TLS certificate for external listeners (base64-encoded). Used for both 08-llm-d and
+  # 09-maas gateways. If not provided, falls back to Service CA generated internal certificate.
   tlsCrtB64: ""
   tlsKeyB64: ""
 

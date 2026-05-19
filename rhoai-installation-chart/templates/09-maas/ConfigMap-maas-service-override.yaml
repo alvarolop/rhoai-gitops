@@ -13,7 +13,7 @@ data:
   service: |
     metadata:
       annotations:
-        service.beta.openshift.io/serving-cert-secret-name: "maas-gateway-service-ca-tls"
+        service.beta.openshift.io/serving-cert-secret-name: "maas-default-gateway-internal-certs"
     spec:
       type: ClusterIP
 {{ end }}

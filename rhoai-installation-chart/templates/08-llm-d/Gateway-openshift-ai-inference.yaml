@@ -34,7 +34,7 @@ spec:
         certificateRefs:
           - group: ""
             kind: Secret
-            name: openshift-ai-inference-gateway-tls
+            name: {{ if and .Values.llm_d.tlsCrtB64 .Values.llm_d.tlsKeyB64 }}openshift-ai-inference-external-certs{{ else }}openshift-ai-inference-internal-certs{{ end }}
         mode: Terminate
     # Internal listener - HTTPS for Service traffic (Nemo Guardrails, etc.)
     - allowedRoutes:
@@ -52,6 +52,6 @@ spec:
         certificateRefs:
           - group: ""
             kind: Secret
-            name: openshift-ai-inference-gateway-tls
+            name: openshift-ai-inference-internal-certs
         mode: Terminate
 {{ end }}

@@ -34,7 +34,7 @@ spec:
         certificateRefs:
           - group: ""
             kind: Secret
-            name: {{ if and .Values.llm_d.tlsCrtB64 .Values.llm_d.tlsKeyB64 }}maas-gateway-tls{{ else }}data-science-gateway-service-tls{{ end }}
+            name: {{ if and .Values.llm_d.tlsCrtB64 .Values.llm_d.tlsKeyB64 }}maas-default-gateway-external-certs{{ else }}maas-default-gateway-internal-certs{{ end }}
         mode: Terminate
     # Internal listener - HTTPS for Service traffic (internal cluster access)
     - allowedRoutes:
@@ -52,6 +52,6 @@ spec:
         certificateRefs:
           - group: ""
             kind: Secret
-            name: maas-gateway-service-ca-tls
+            name: maas-default-gateway-internal-certs
         mode: Terminate
 {{ end }}
