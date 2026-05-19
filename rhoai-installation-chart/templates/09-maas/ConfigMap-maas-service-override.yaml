@@ -1,0 +1,19 @@
+{{ if .Values.llm_d.enabled }}
+---
+# ConfigMap to inject Service CA annotation into Gateway-created Service
+# This makes the Service CA operator automatically generate a TLS certificate for internal access
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maas-service-override
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "9"
+data:
+  service: |
+    metadata:
+      annotations:
+        service.beta.openshift.io/serving-cert-secret-name: "maas-gateway-service-ca-tls"
+    spec:
+      type: ClusterIP
+{{ end }}

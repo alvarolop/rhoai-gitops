@@ -8,12 +8,18 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
+    networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: maas-default-gateway
+  # Use ConfigMap to inject Service CA annotation for automatic TLS certificate generation
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: maas-service-override
   listeners:
+    # External listener - HTTPS for Route traffic (public hostname)
     - allowedRoutes:
-        # namespaces:
-        #   from: All
         namespaces:
           from: Selector
           selector:
@@ -21,16 +27,31 @@ spec:
               - key: rhoai-serving/model
                 operator: Exists
       hostname: maas.apps.{{ .Values.global.clusterDomain }}
-      # name: http
-      # port: 80
-      # protocol: HTTP
-      name: https
+      name: external
       port: 443
       protocol: HTTPS
       tls:
         certificateRefs:
-        - group: ""
-          kind: Secret
-          name: {{ if and .Values.llm_d.tlsCrtB64 .Values.llm_d.tlsKeyB64 }}maas-gateway-tls{{ else }}data-science-gateway-service-tls{{ end }}
+          - group: ""
+            kind: Secret
+            name: {{ if and .Values.llm_d.tlsCrtB64 .Values.llm_d.tlsKeyB64 }}maas-gateway-tls{{ else }}data-science-gateway-service-tls{{ end }}
+        mode: Terminate
+    # Internal listener - HTTPS for Service traffic (internal cluster access)
+    - allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: rhoai-serving/model
+                operator: Exists
+      hostname: maas-default-gateway-maas-default-gateway.openshift-ingress.svc.cluster.local
+      name: internal
+      port: 443
+      protocol: HTTPS
+      tls:
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: maas-gateway-service-ca-tls
         mode: Terminate
 {{ end }}

@@ -1,0 +1,22 @@
+{{ if .Values.llm_d.enabled }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: maas
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "12"
+spec:
+  host: maas.apps.{{ .Values.global.clusterDomain }}
+  port:
+    targetPort: external
+  to:
+    kind: Service
+    name: maas-default-gateway-maas-default-gateway
+    weight: 100
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+{{ end }}
