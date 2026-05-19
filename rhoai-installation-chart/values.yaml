@@ -49,6 +49,10 @@ llm_d:
   # infrastructure.parametersRef) + Route. Pattern matches llm-d-guide gateway templates.
   ocpRouteGateway:
     enabled: true
+  # Internal-only inference stack: GatewayClass + ConfigMap service override + Gateway (ClusterIP)
+  # without Route for internal Service-only access.
+  internalOnly:
+    enabled: false
 
 # https://access.redhat.com/articles/7136121
 mlflow:

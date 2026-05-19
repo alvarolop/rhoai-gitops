@@ -1,0 +1,12 @@
+{{ if and .Values.llm_d.enabled .Values.llm_d.internalOnly.enabled }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: llm-d-internal
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  controllerName: openshift.io/gateway-controller/v1
+{{ end }}
