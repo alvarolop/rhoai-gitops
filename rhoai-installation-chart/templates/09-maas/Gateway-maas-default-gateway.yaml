@@ -31,6 +31,6 @@ spec:
         certificateRefs:
         - group: ""
           kind: Secret
-          name: data-science-gateway-service-tls
+          name: {{ if and .Values.llm_d.tlsCrtB64 .Values.llm_d.tlsKeyB64 }}maas-gateway-tls{{ else }}data-science-gateway-service-tls{{ end }}
         mode: Terminate
 {{ end }}
