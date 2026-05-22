@@ -78,10 +78,12 @@ spec:
               # Authentication and user management
               ENABLE_SIGNUP: "True"
               WEBUI_ADMIN_NAME: "admin"
-              WEBUI_ADMIN_EMAIL: "admin@example.com"
-              WEBUI_ADMIN_PASSWORD: "admin"
+              WEBUI_ADMIN_EMAIL: "admin@example.org"
+              WEBUI_ADMIN_PASSWORD: "password"
               ENABLE_LOGIN_FORM: "True"
               DEFAULT_USER_ROLE: "user"
+              # Prevent persistent config - always use env vars (prevents auto-disable of ENABLE_SIGNUP)
+              ENABLE_PERSISTENT_CONFIG: "False"
 
           # Route for external access
           - apiVersion: route.openshift.io/v1
