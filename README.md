@@ -315,16 +315,29 @@ Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI plat
 Uses the [official Open WebUI Helm chart](https://github.com/open-webui/helm-charts/tree/main/charts/open-webui).
 
 > [!NOTE]
-> Configuration is managed via environment variables in the `open-webui-config` Secret (defined in `application-open-webui.yaml`). By default:
-> - **Model API URL**: `OPENAI_API_BASE_URLS` points to `gpt-oss-20b` service in namespace `model-gpt-oss`
-> - **API Token**: `OPENAI_API_KEYS` set to `"not-needed"` (authentication disabled)
+> Configuration uses Helm values with defaults defined in `application-open-webui.yaml`:
+> - **Model API URL**: `openaiConfig.baseUrl` (default: `gpt-oss-20b` service in `model-gpt-oss` namespace)
+> - **API Token**: `openaiConfig.apiKey` (default: `"not-needed"`)
 > - **Admin credentials**: Username `admin`, password `admin`, email `admin@example.com`
 > 
-> Update the Secret's `stringData` section to configure different model endpoints or API tokens.
+> Override defaults using environment variables when deploying:
 
 ```bash
-# Deploy Open WebUI
+# Deploy with default values
 oc apply -f application-open-webui.yaml
+
+# Or override with your own model endpoint (using envsubst)
+export OPENAI_API_URL="https://your-model-endpoint.com/v1"
+export OPENAI_API_KEY="sk-your-api-key"
+
+envsubst < application-open-webui.yaml | oc apply -f -
+```
+
+To use `envsubst`, update the Helm values section in `application-open-webui.yaml`:
+```yaml
+openaiConfig:
+  baseUrl: "${OPENAI_API_URL:-http://gpt-oss-20b-kserve-workload-svc.model-gpt-oss.svc.cluster.local:8000/v1}"
+  apiKey: "${OPENAI_API_KEY:-not-needed}"
 ```
 
 ### Milvus

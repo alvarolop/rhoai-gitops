@@ -25,8 +25,10 @@ spec:
         websocket:
           enabled: false
 
-        # OpenAI-compatible API configuration moved to Secret environment variables
-        # (OPENAI_API_BASE_URLS and OPENAI_API_KEYS)
+        # OpenAI-compatible API configuration - defaults can be overridden via environment variables
+        openaiConfig:
+          baseUrl: "http://gpt-oss-20b-kserve-workload-svc.model-gpt-oss.svc.cluster.local:8000/v1"
+          apiKey: "not-needed"
 
         # Persistence
         persistence:
@@ -73,9 +75,9 @@ spec:
               WEBUI_ADMIN_PASSWORD: "admin"
               ENABLE_LOGIN_FORM: "True"
               DEFAULT_USER_ROLE: "user"
-              # OpenAI-compatible API configuration
-              OPENAI_API_BASE_URLS: "http://gpt-oss-20b-kserve-workload-svc.model-gpt-oss.svc.cluster.local:8000/v1"
-              OPENAI_API_KEYS: "not-needed"
+              # OpenAI-compatible API configuration (uses values from openaiConfig section)
+              OPENAI_API_BASE_URLS: {{ .Values.openaiConfig.baseUrl | quote }}
+              OPENAI_API_KEYS: {{ .Values.openaiConfig.apiKey | quote }}
 
           # Route for external access
           - apiVersion: route.openshift.io/v1
