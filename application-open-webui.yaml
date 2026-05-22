@@ -77,12 +77,15 @@ spec:
             stringData:
               # Authentication and user management
               # First user to sign up becomes admin automatically
-              ENABLE_SIGNUP: "True"
-              ENABLE_LOGIN_FORM: "True"
+              ENABLE_SIGNUP: "true"
+              ENABLE_LOGIN_FORM: "true"
+              ENABLE_SIGNUP_FORM: "true"
               DEFAULT_USER_ROLE: "user"
+              # Disable authentication to allow open access (no login required)
+              # WEBUI_AUTH: "false"
               # Force env vars to always override database config
               # This keeps signup enabled, but admin UI changes won't persist
-              ENABLE_PERSISTENT_CONFIG: "False"
+              ENABLE_PERSISTENT_CONFIG: "false"
               # Optional: Auto-create admin account on first startup
               # Note: When enabled, ENABLE_SIGNUP is auto-disabled after admin creation
               # WEBUI_ADMIN_NAME: "admin"
