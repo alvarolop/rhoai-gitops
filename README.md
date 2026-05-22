@@ -320,12 +320,9 @@ Uses the [official Open WebUI Helm chart](https://github.com/open-webui/helm-cha
 > Model API configuration uses Helm chart's `openaiBaseApiUrls` and `openaiApiKeys` arrays:
 > - **Default Model URL**: `gpt-oss-20b` service in `model-gpt-oss` namespace
 > - **Default API Key**: `"not-needed"` (authentication disabled)
-> - **Admin credentials**: Auto-created on first startup - `admin@example.org` / `password`
-> - **User Signup**: Automatically re-enabled after admin creation via ArgoCD PostSync Job
->   - Open WebUI auto-disables signup when creating admin via env vars
->   - A Job runs after deployment to re-enable it in the database
-> - **User Role**: New users get `"user"` role (full access, non-admin)
-> - **Config Persistence**: Enabled - settings persist across restarts
+> - **Admin Account**: First user to sign up automatically becomes admin
+> - **User Signup**: Enabled - anyone can create an account
+> - **Default User Role**: New users (after first) get `"user"` role
 > 
 > Override defaults using environment variables from your Fedora system:
 

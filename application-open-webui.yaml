@@ -76,12 +76,15 @@ spec:
             type: Opaque
             stringData:
               # Authentication and user management
+              # First user to sign up becomes admin automatically
               ENABLE_SIGNUP: "True"
-              WEBUI_ADMIN_NAME: "admin"
-              WEBUI_ADMIN_EMAIL: "admin@example.org"
-              WEBUI_ADMIN_PASSWORD: "password"
               ENABLE_LOGIN_FORM: "True"
               DEFAULT_USER_ROLE: "user"
+              # Optional: Auto-create admin account on first startup
+              # Note: When enabled, ENABLE_SIGNUP is auto-disabled after admin creation
+              # WEBUI_ADMIN_NAME: "admin"
+              # WEBUI_ADMIN_EMAIL: "admin@example.org"
+              # WEBUI_ADMIN_PASSWORD: "password"
 
           # Route for external access
           - apiVersion: route.openshift.io/v1
@@ -116,71 +119,6 @@ spec:
               apiGroup: rbac.authorization.k8s.io
               kind: ClusterRole
               name: system:openshift:scc:anyuid
-
-          # Job to re-enable signup after admin creation
-          # Open WebUI auto-disables ENABLE_SIGNUP when admin is created via env vars
-          # This job waits for the pod to be ready, then re-enables signup in the database
-          - apiVersion: batch/v1
-            kind: Job
-            metadata:
-              name: open-webui-enable-signup
-              namespace: open-webui
-              annotations:
-                argocd.argoproj.io/hook: PostSync
-                argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-            spec:
-              ttlSecondsAfterFinished: 300
-              template:
-                spec:
-                  serviceAccountName: open-webui-sa
-                  restartPolicy: OnFailure
-                  containers:
-                    - name: enable-signup
-                      image: quay.io/openshift/origin-cli:latest
-                      command:
-                        - /bin/bash
-                        - -c
-                        - |
-                          set -e
-                          echo "Waiting for Open WebUI pod to be ready..."
-                          oc wait --for=condition=ready pod -l app.kubernetes.io/name=open-webui -n open-webui --timeout=300s
-
-                          POD=$(oc get pod -l app.kubernetes.io/name=open-webui -n open-webui -o jsonpath='{.items[0].metadata.name}')
-                          echo "Found pod: $POD"
-
-                          echo "Waiting for database to be created..."
-                          sleep 30
-
-                          echo "Re-enabling signup in database..."
-                          oc exec -n open-webui $POD -- sqlite3 /app/backend/data/webui.db \
-                            "UPDATE config SET data = json_set(data, '$.ENABLE_SIGNUP', json('true')) WHERE json_extract(data, '$.ENABLE_SIGNUP') IS NOT NULL;" || true
-
-                          echo "Signup re-enabled successfully!"
-
-          # RBAC for the Job to access pods
-          - apiVersion: rbac.authorization.k8s.io/v1
-            kind: Role
-            metadata:
-              name: open-webui-job
-              namespace: open-webui
-            rules:
-              - apiGroups: [""]
-                resources: ["pods", "pods/exec"]
-                verbs: ["get", "list", "create"]
-
-          - apiVersion: rbac.authorization.k8s.io/v1
-            kind: RoleBinding
-            metadata:
-              name: open-webui-job
-              namespace: open-webui
-            subjects:
-              - kind: ServiceAccount
-                name: open-webui-sa
-                namespace: open-webui
-            roleRef:
-              apiGroup: rbac.authorization.k8s.io
-              kind: Role
-              name: open-webui-job
   syncPolicy:
     automated:
       prune: false
