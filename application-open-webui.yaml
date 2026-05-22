@@ -80,6 +80,9 @@ spec:
               ENABLE_SIGNUP: "True"
               ENABLE_LOGIN_FORM: "True"
               DEFAULT_USER_ROLE: "user"
+              # Force env vars to always override database config
+              # This keeps signup enabled, but admin UI changes won't persist
+              ENABLE_PERSISTENT_CONFIG: "False"
               # Optional: Auto-create admin account on first startup
               # Note: When enabled, ENABLE_SIGNUP is auto-disabled after admin creation
               # WEBUI_ADMIN_NAME: "admin"
@@ -119,97 +122,6 @@ spec:
               apiGroup: rbac.authorization.k8s.io
               kind: ClusterRole
               name: system:openshift:scc:anyuid
-
-          # ConfigMap to track if signup has been enabled
-          - apiVersion: v1
-            kind: ConfigMap
-            metadata:
-              name: open-webui-signup-enabler-status
-              namespace: open-webui
-            data:
-              enabled: "false"
-
-          # One-time Job to enable signup in database
-          # Runs once after first admin is created, then never again
-          - apiVersion: batch/v1
-            kind: Job
-            metadata:
-              name: open-webui-signup-enabler
-              namespace: open-webui
-            spec:
-              backoffLimit: 3
-              template:
-                spec:
-                  serviceAccountName: open-webui-sa
-                  restartPolicy: Never
-                  containers:
-                    - name: enable-signup
-                      image: quay.io/openshift/origin-cli:latest
-                      command:
-                        - /bin/bash
-                        - -c
-                        - |
-                          set -e
-
-                          # Check if already enabled
-                          STATUS=$(oc get configmap open-webui-signup-enabler-status -n open-webui -o jsonpath='{.data.enabled}')
-                          if [ "$STATUS" = "true" ]; then
-                            echo "Signup already enabled previously, skipping..."
-                            exit 0
-                          fi
-
-                          echo "Waiting for Open WebUI pod to be ready..."
-                          oc wait --for=condition=ready pod -l app.kubernetes.io/name=open-webui -n open-webui --timeout=300s || exit 0
-
-                          POD=$(oc get pod -l app.kubernetes.io/name=open-webui -n open-webui -o jsonpath='{.items[0].metadata.name}')
-                          echo "Found pod: $POD"
-
-                          # Wait for at least one user to exist (admin created)
-                          echo "Waiting for admin user to be created..."
-                          for i in {1..30}; do
-                            USER_COUNT=$(oc exec -n open-webui $POD -- sqlite3 /app/backend/data/webui.db "SELECT COUNT(*) FROM user;" 2>/dev/null || echo "0")
-                            if [ "$USER_COUNT" -gt 0 ]; then
-                              echo "Admin user found!"
-                              break
-                            fi
-                            echo "No users yet, waiting... ($i/30)"
-                            sleep 10
-                          done
-
-                          # Enable signup in database
-                          echo "Enabling signup in database..."
-                          oc exec -n open-webui $POD -- sqlite3 /app/backend/data/webui.db \
-                            "INSERT OR REPLACE INTO config (key, data) VALUES ('ENABLE_SIGNUP', json('{\"value\": true}'));" || true
-
-                          # Mark as completed
-                          oc patch configmap open-webui-signup-enabler-status -n open-webui --type merge -p '{"data":{"enabled":"true"}}'
-
-                          echo "Signup enabled successfully! This job will not run again."
-
-          # RBAC for the Job
-          - apiVersion: rbac.authorization.k8s.io/v1
-            kind: Role
-            metadata:
-              name: open-webui-signup-enabler
-              namespace: open-webui
-            rules:
-              - apiGroups: [""]
-                resources: ["pods", "pods/exec", "configmaps"]
-                verbs: ["get", "list", "create", "patch"]
-
-          - apiVersion: rbac.authorization.k8s.io/v1
-            kind: RoleBinding
-            metadata:
-              name: open-webui-signup-enabler
-              namespace: open-webui
-            subjects:
-              - kind: ServiceAccount
-                name: open-webui-sa
-                namespace: open-webui
-            roleRef:
-              apiGroup: rbac.authorization.k8s.io
-              kind: Role
-              name: open-webui-signup-enabler
   syncPolicy:
     automated:
       prune: false

@@ -314,17 +314,17 @@ User and password is `minio` / `minio123`.
 
 Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline. It supports various LLM runners like Ollama and OpenAI-compatible APIs, with built-in inference engine for RAG, making it a powerful AI deployment solution.
 
-Uses the [official Open WebUI Helm chart](https://github.com/open-webui/helm-charts/tree/main/charts/open-webui).
+**Configuration:** [`application-open-webui.yaml`](./application-open-webui.yaml)  
+**Helm Chart:** [official Open WebUI Helm chart](https://github.com/open-webui/helm-charts/tree/main/charts/open-webui)
 
 > [!NOTE]
 > Model API configuration uses Helm chart's `openaiBaseApiUrls` and `openaiApiKeys` arrays:
 > - **Default Model URL**: `gpt-oss-20b` service in `model-gpt-oss` namespace
 > - **Default API Key**: `"not-needed"` (authentication disabled)
 > - **Admin Account**: First user to sign up automatically becomes admin
-> - **User Signup**: Enabled via one-time Job after first admin creation
->   - Job waits for admin user, then enables signup in database
->   - Job only runs once (tracked via ConfigMap)
->   - Configuration persists - admin UI changes survive restarts
+> - **User Signup**: Always enabled (`ENABLE_PERSISTENT_CONFIG: "False"`)
+>   - Environment variables override database configuration
+>   - **Trade-off**: Admin UI setting changes won't persist across restarts
 > - **Default User Role**: New users get `"user"` role (non-admin)
 > 
 > Override defaults using environment variables from your Fedora system:
