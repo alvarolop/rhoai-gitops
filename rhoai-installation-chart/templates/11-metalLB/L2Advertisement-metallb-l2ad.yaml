@@ -1,4 +1,4 @@
-{{ if .Values.balanceMetalLB.enabled }}
+{{ if .Values.metalLB.enabled }}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement

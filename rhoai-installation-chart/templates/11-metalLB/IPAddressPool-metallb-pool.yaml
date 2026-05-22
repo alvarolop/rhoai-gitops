@@ -1,4 +1,4 @@
-{{ if .Values.balanceMetalLB.enabled }}
+{{ if .Values.metalLB.enabled }}
 ---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -10,7 +10,10 @@ metadata:
     argocd.argoproj.io/sync-wave: "10"
 spec:
   addresses:
-{{- range .Values.balanceMetalLB.addresses }}
+{{- range .Values.metalLB.addresses }}
     - {{ . }}
 {{- end }}
+  namespaceSelectors:
+    - matchLabels:
+        kubernetes.io/metadata.name: openshift-ingress
 {{ end }}

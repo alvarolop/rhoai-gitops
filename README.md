@@ -331,14 +331,10 @@ Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI plat
 > Override defaults using environment variables from your Fedora system:
 
 ```bash
-# Deploy with default values
-oc apply -f application-open-webui.yaml
-
-# Or override with your own model endpoint (using envsubst)
-export OPENAI_API_URL="https://your-model-endpoint.com/v1"
-export OPENAI_API_KEY="sk-your-api-key"
-
-envsubst < application-open-webui.yaml | oc apply -f -
+cat application-open-webui.yaml | \
+    OPENAI_API_URL=$OPENAI_API_URL \
+    OPENAI_API_KEY=$OPENAI_API_KEY \
+    envsubst | oc apply -f -
 ```
 
 ### Milvus

@@ -29,11 +29,11 @@ spec:
         # Using internal service from model-gpt-oss namespace
         # First element can be overridden via environment variables: OPENAI_API_URL, OPENAI_API_KEY
         openaiBaseApiUrls:
-          - "${OPENAI_API_URL:-http://gpt-oss-20b-kserve-workload-svc.model-gpt-oss.svc.cluster.local:8000/v1}"
+          - ${OPENAI_API_URL}
           # - "https://another-api.example.com/v1"
           # - "https://third-api.example.com/v1"
         openaiApiKeys:
-          - "${OPENAI_API_KEY:-not-needed}"
+          - ${OPENAI_API_KEY}
           # - "sk-another-key"
           # - "sk-third-key"
 
@@ -48,16 +48,16 @@ spec:
         containerSecurityContext:
           runAsUser: 0
 
-        # volumes:
-        #     - name: config-trusted-cabundle
-        #       configMap:
-        #         name: config-trusted-cabundle
-        # volumeMounts:
-        #   container:
-        #     - name: config-trusted-cabundle
-        #       mountPath: /etc/ssl/certs/ca-certificates.crt
-        #       subPath: ca-bundle.crt
-        #       readOnly: true
+        volumes:
+            - name: config-trusted-cabundle
+              configMap:
+                name: config-service-cabundle
+        volumeMounts:
+          container:
+            - name: config-trusted-cabundle
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: service-ca.crt
+              readOnly: true
 
         # Environment variables - sourced from Secret
         # Most up-to-date environment variables: https://docs.openwebui.com/getting-started/env-configuration/
@@ -75,14 +75,19 @@ spec:
               namespace: open-webui
             type: Opaque
             stringData:
-              # Authentication and user management - auth required
-              WEBUI_AUTH: "true"
-              ENABLE_SIGNUP: "true"
-              ENABLE_LOGIN_FORM: "true"
-              ENABLE_SIGNUP_FORM: "true"
-              DEFAULT_USER_ROLE: "user"
-              ENABLE_PERSISTENT_CONFIG: "false"
+              # Authentication - disabled for testing
+              WEBUI_AUTH: "false"
+              
+              # Trusted CA bundle
+              REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
 
+              # Authentication and user management (commented out for testing)
+              # ENABLE_SIGNUP: "true"
+              # ENABLE_LOGIN_FORM: "true"
+              # ENABLE_SIGNUP_FORM: "true"
+              # DEFAULT_USER_ROLE: "user"
+              # ENABLE_PERSISTENT_CONFIG: "false"
+              #
               # KNOWN BUG: https://github.com/open-webui/open-webui/issues/20389
               # Even with ENABLE_PERSISTENT_CONFIG=false + ENABLE_SIGNUP=true:
               # - First user can sign up (becomes admin) ✅
@@ -91,8 +96,9 @@ spec:
               # - Database stores enable_signup: false despite env var ❌
               #
               # WORKAROUND: Manually enable "Enable New Sign Ups" toggle in Admin Panel
-              # Settings -> General -> Authentication -> Enable New Sign Ups (turn ON)
+              # Settings -> General → Authentication → Enable New Sign Ups (turn ON)
               # This setting will persist across restarts.
+              #
               # Optional: Auto-create admin account on first startup
               # Note: When enabled, ENABLE_SIGNUP is auto-disabled after admin creation
               # WEBUI_ADMIN_NAME: "admin"

@@ -36,8 +36,8 @@ llamaStack:
 
 # When true: DataScienceCluster sets kserve.modelsAsService to Managed and the chart applies the
 # maas-default-gateway GatewayClass (Gateway API). Required for MaaS-style LLMInferenceService
-# router.gateway.refs (e.g. rhoai-serving values-tinyllama-1b-maas.yaml). Set false if you only
-# use normal Route + llm-d without a shared inference Gateway.
+# deployments that use router.gateway.refs. Set false if you only use normal Route-based inference
+# without a shared Gateway API gateway.
 modelsAsService:
   enabled: false
 
@@ -92,7 +92,7 @@ featureStore:
     #       ref: main
     #       featureRepoPath: 7-feature_store/feature_repo
 
-balanceMetalLB:
+metalLB:
   enabled: false
   addresses:
     - 192.168.1.100/32
