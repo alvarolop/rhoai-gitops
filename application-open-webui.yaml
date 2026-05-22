@@ -80,6 +80,9 @@ spec:
               ENABLE_SIGNUP: "True"
               ENABLE_LOGIN_FORM: "True"
               DEFAULT_USER_ROLE: "user"
+              # Force env vars to take precedence over database-stored config
+              # Without this, ENABLE_SIGNUP gets stored in DB and env var is ignored
+              ENABLE_PERSISTENT_CONFIG: "False"
               # Optional: Auto-create admin account on first startup
               # Note: When enabled, ENABLE_SIGNUP is auto-disabled after admin creation
               # WEBUI_ADMIN_NAME: "admin"

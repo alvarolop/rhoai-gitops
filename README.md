@@ -321,8 +321,11 @@ Uses the [official Open WebUI Helm chart](https://github.com/open-webui/helm-cha
 > - **Default Model URL**: `gpt-oss-20b` service in `model-gpt-oss` namespace
 > - **Default API Key**: `"not-needed"` (authentication disabled)
 > - **Admin Account**: First user to sign up automatically becomes admin
-> - **User Signup**: Enabled - anyone can create an account
+> - **User Signup**: Always enabled - anyone can create an account
 > - **Default User Role**: New users (after first) get `"user"` role
+> - **Config Persistence**: Disabled (`ENABLE_PERSISTENT_CONFIG: "False"`)
+>   - Ensures signup stays enabled (env vars override database)
+>   - Admin UI setting changes won't persist across restarts
 > 
 > Override defaults using environment variables from your Fedora system:
 
