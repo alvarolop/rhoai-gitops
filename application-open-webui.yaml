@@ -25,16 +25,8 @@ spec:
         websocket:
           enabled: false
 
-        # OpenAI-compatible APIs (supports multiple endpoints)
-        # Using internal service from model-gpt-oss namespace
-        openaiBaseApiUrls:
-          - "http://gpt-oss-20b-kserve-workload-svc.model-gpt-oss.svc.cluster.local:8000/v1"
-          # - "https://another-api.example.com/v1"
-          # - "https://third-api.example.com/v1"
-        openaiApiKeys:
-          - "not-needed"
-          # - "sk-another-key"
-          # - "sk-third-key"
+        # OpenAI-compatible API configuration moved to Secret environment variables
+        # (OPENAI_API_BASE_URLS and OPENAI_API_KEYS)
 
         # Persistence
         persistence:
@@ -74,12 +66,16 @@ spec:
               namespace: open-webui
             type: Opaque
             stringData:
+              # Authentication and user management
               ENABLE_SIGNUP: "True"
               WEBUI_ADMIN_NAME: "admin"
               WEBUI_ADMIN_EMAIL: "admin@example.com"
               WEBUI_ADMIN_PASSWORD: "admin"
               ENABLE_LOGIN_FORM: "True"
               DEFAULT_USER_ROLE: "user"
+              # OpenAI-compatible API configuration
+              OPENAI_API_BASE_URLS: "http://gpt-oss-20b-kserve-workload-svc.model-gpt-oss.svc.cluster.local:8000/v1"
+              OPENAI_API_KEYS: "not-needed"
 
           # Route for external access
           - apiVersion: route.openshift.io/v1

@@ -315,7 +315,12 @@ Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI plat
 Uses the [official Open WebUI Helm chart](https://github.com/open-webui/helm-charts/tree/main/charts/open-webui).
 
 > [!NOTE]
-> Model API is pre-configured to use `gpt-oss-20b` from namespace `model-gpt-oss`. Authentication is disabled for simplicity.
+> Configuration is managed via environment variables in the `open-webui-config` Secret (defined in `application-open-webui.yaml`). By default:
+> - **Model API URL**: `OPENAI_API_BASE_URLS` points to `gpt-oss-20b` service in namespace `model-gpt-oss`
+> - **API Token**: `OPENAI_API_KEYS` set to `"not-needed"` (authentication disabled)
+> - **Admin credentials**: Username `admin`, password `admin`, email `admin@example.com`
+> 
+> Update the Secret's `stringData` section to configure different model endpoints or API tokens.
 
 ```bash
 # Deploy Open WebUI
