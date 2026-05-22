@@ -88,9 +88,11 @@ spec:
             kind: Route
             metadata:
               name: open-webui
+              namespace: open-webui
               labels:
                 app: open-webui
             spec:
+              subdomain: chat
               to:
                 kind: Service
                 name: open-webui
