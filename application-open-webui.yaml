@@ -38,7 +38,7 @@ spec:
 
         # Persistence
         persistence:
-          enabled: true
+          enabled: false
           size: 5Gi
 
         # OpenShift: container writes to image paths (/app/backend/open_webui/static/,

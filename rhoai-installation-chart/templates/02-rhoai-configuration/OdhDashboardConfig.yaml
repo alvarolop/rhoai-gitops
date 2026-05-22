@@ -48,6 +48,7 @@ spec:
     enablement: true
     genAiStudio: true ## 👈👈 Enabled by us
     modelAsService: true  ## 👈👈 Enabled by us
+    llmGatewayField: true
   groupsConfig:
     adminGroups: rhods-admins
     allowedGroups: system:authenticated
