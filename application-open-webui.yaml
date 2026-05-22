@@ -75,17 +75,24 @@ spec:
               namespace: open-webui
             type: Opaque
             stringData:
-              # Authentication and user management
-              # First user to sign up becomes admin automatically
+              # Authentication and user management - auth required
+              WEBUI_AUTH: "true"
               ENABLE_SIGNUP: "true"
               ENABLE_LOGIN_FORM: "true"
               ENABLE_SIGNUP_FORM: "true"
               DEFAULT_USER_ROLE: "user"
-              # Disable authentication to allow open access (no login required)
-              # WEBUI_AUTH: "false"
-              # Force env vars to always override database config
-              # This keeps signup enabled, but admin UI changes won't persist
               ENABLE_PERSISTENT_CONFIG: "false"
+
+              # KNOWN BUG: https://github.com/open-webui/open-webui/issues/20389
+              # Even with ENABLE_PERSISTENT_CONFIG=false + ENABLE_SIGNUP=true:
+              # - First user can sign up (becomes admin) ✅
+              # - Signup button disappears for subsequent users ❌
+              # - Admin panel shows "Enable New Sign Ups" is OFF ❌
+              # - Database stores enable_signup: false despite env var ❌
+              #
+              # WORKAROUND: Manually enable "Enable New Sign Ups" toggle in Admin Panel
+              # Settings -> General -> Authentication -> Enable New Sign Ups (turn ON)
+              # This setting will persist across restarts.
               # Optional: Auto-create admin account on first startup
               # Note: When enabled, ENABLE_SIGNUP is auto-disabled after admin creation
               # WEBUI_ADMIN_NAME: "admin"

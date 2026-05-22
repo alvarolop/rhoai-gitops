@@ -322,9 +322,10 @@ Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI plat
 > - **Default Model URL**: `gpt-oss-20b` service in `model-gpt-oss` namespace
 > - **Default API Key**: `"not-needed"` (authentication disabled)
 > - **Admin Account**: First user to sign up automatically becomes admin
-> - **User Signup**: Always enabled (`ENABLE_PERSISTENT_CONFIG: "False"`)
->   - Environment variables override database configuration
->   - **Trade-off**: Admin UI setting changes won't persist across restarts
+> - **User Signup**: Configured via `ENABLE_SIGNUP: "true"` + `ENABLE_PERSISTENT_CONFIG: "false"`
+>   - ⚠️ **Known Bug**: [Issue #20389](https://github.com/open-webui/open-webui/issues/20389)
+>   - Even with correct env vars, signup button may disappear after first user
+>   - **Workaround**: Manually enable "Enable New Sign Ups" in Admin Panel → Settings → General → Authentication
 > - **Default User Role**: New users get `"user"` role (non-admin)
 > 
 > Override defaults using environment variables from your Fedora system:
