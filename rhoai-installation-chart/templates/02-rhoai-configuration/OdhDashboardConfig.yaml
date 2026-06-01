@@ -47,8 +47,10 @@ spec:
     disableUserManagement: false
     enablement: true
     genAiStudio: true ## 👈👈 Enabled by us
-    modelAsService: true  ## 👈👈 Enabled by us
+    modelAsService: {{ .Values.modelsAsService.enabled }}  ## 👈👈 Enabled by us
     llmGatewayField: true
+    # vLLM Deployment on MaaS
+    vLLMDeploymentOnMaaS: {{ .Values.modelsAsService.enabled }}
   groupsConfig:
     adminGroups: rhods-admins
     allowedGroups: system:authenticated

@@ -39,7 +39,9 @@ llamaStack:
 # deployments that use router.gateway.refs. Set false if you only use normal Route-based inference
 # without a shared Gateway API gateway.
 modelsAsService:
-  enabled: false
+  enabled: true
+  # Deploy MaaS Grafana dashboard (ConfigMap + GrafanaDashboard) when Grafana is available.
+  grafana: true
 
 llm_d:
   enabled: true

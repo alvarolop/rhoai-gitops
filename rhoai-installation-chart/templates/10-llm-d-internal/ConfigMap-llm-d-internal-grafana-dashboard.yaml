@@ -1,0 +1,13 @@
+{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.grafana }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-d-internal-dashboard
+  namespace: grafana
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+data:
+  dashboard.json: |
+{{- .Files.Get "files/maas-token-metrics-dashboard.json" | nindent 4 }}
+{{ end }}
