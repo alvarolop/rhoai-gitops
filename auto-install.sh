@@ -11,6 +11,7 @@ GPU_NODE_COUNT=0  # Total GPU nodes to distribute across AZs (a, b, c)
 INSTALL_MINIO=true
 INSTALL_ODF=false
 INSTALL_MONITORING=false
+INSTALL_GRAFANA=true
 INSTALL_LANGFUSE=false
 INSTALL_PIPELINES=true
 INSTALL_S4=true
@@ -63,6 +64,7 @@ echo -e " * AWS_GPU_AMI_ID: ${AMI_ID:-not set}"
 echo -e " * INSTALL_MINIO: $INSTALL_MINIO"
 echo -e " * INSTALL_ODF: $INSTALL_ODF"
 echo -e " * INSTALL_MONITORING: $INSTALL_MONITORING"
+echo -e " * INSTALL_GRAFANA: $INSTALL_GRAFANA"
 echo -e " * INSTALL_PIPELINES: $INSTALL_PIPELINES"
 echo -e " * INSTALL_LANGFUSE: $INSTALL_LANGFUSE"
 echo -e " * INSTALL_S4: $INSTALL_S4"
@@ -351,6 +353,19 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$GPU_NODE_CO
 else
     echo "⏭️  Skip waiting for NVIDIA gpu nodes..."
 fi
+
+echo -e "\n📈 ======================"
+echo -e "📈 =      Grafana       ="
+echo -e "📈 ======================\n"
+
+if [[ "$INSTALL_GRAFANA" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+    echo -e "1️⃣ Trigger the ArgoCD application to deploy Grafana"
+    oc apply -f https://raw.githubusercontent.com/alvarolop/quarkus-observability-app/refs/heads/main/apps/application-grafana.yaml
+    echo -e "\t✅ Grafana ArgoCD application applied."
+else
+    echo "⏭️  Skip Grafana installation..."
+fi
+
 
 echo -e "\n🤖 ======================"
 echo -e "🤖 = RHOAI Installation ="
