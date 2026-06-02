@@ -16,7 +16,7 @@ spec:
     name: openshift-ai-inference-openshift-ai-inference
     weight: 100
   tls:
-    termination: reencrypt
+    termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 {{ end }}

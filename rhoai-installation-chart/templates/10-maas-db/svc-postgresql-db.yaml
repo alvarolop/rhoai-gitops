@@ -1,0 +1,21 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.postgresql.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.modelsAsService.postgresql.name }}
+  namespace: {{ .Values.modelsAsService.postgresql.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "8"
+    {{- if .Values.modelsAsService.postgresql.service.ssl }}
+    service.beta.openshift.io/serving-cert-secret-name: {{ .Values.modelsAsService.postgresql.name }}-tls
+    {{- end }}
+spec:
+  selector:
+    app: {{ .Values.modelsAsService.postgresql.name }}
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: {{ .Values.modelsAsService.postgresql.service.port }}
+      targetPort: {{ .Values.modelsAsService.postgresql.service.port }}
+{{- end }}

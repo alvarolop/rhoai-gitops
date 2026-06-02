@@ -1,0 +1,17 @@
+{{- if and .Values.modelsAsService.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maas-service-override
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "9"
+data:
+  service: |
+    metadata:
+      annotations:
+        service.beta.openshift.io/serving-cert-secret-name: maas-gw-service-tls
+    spec:
+      type: ClusterIP
+{{- end }}

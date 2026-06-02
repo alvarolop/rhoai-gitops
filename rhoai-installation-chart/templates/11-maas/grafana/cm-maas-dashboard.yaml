@@ -1,9 +1,9 @@
-{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.grafana }}
+{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.grafana.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: llm-d-internal-dashboard
+  name: maas-dashboard
   namespace: grafana
   annotations:
     argocd.argoproj.io/sync-wave: "10"

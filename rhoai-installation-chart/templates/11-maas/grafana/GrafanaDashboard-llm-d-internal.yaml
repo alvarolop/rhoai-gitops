@@ -1,4 +1,4 @@
-{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.grafana }}
+{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.grafana.enabled }}
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard

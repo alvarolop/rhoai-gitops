@@ -1,0 +1,16 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.postgresql.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.modelsAsService.postgresql.name }}-data
+  namespace: {{ .Values.modelsAsService.postgresql.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "8"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.modelsAsService.postgresql.connection.storageSize }}
+{{- end }}

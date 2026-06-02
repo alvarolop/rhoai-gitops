@@ -1,0 +1,40 @@
+{{- if and .Values.modelsAsService.enabled }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: maas-default-gateway
+  namespace: openshift-ingress
+  labels:
+    kuadrant.io/gateway: "true"
+    app.kubernetes.io/name: maas-gateway
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+    opendatahub.io/managed: "false"
+    security.opendatahub.io/authorino-tls-bootstrap: "true"
+spec:
+  gatewayClassName: maas-default-gateway
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: maas-service-override
+  listeners:
+    - name: https
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: rhoai-serving/model
+                operator: Exists
+      tls:
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: maas-gw-service-tls
+        mode: Terminate
+{{- end }}

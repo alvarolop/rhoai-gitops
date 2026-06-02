@@ -48,6 +48,8 @@ spec:
     enablement: true
     genAiStudio: true ## 👈👈 Enabled by us
     modelAsService: {{ .Values.modelsAsService.enabled }}  ## 👈👈 Enabled by us
+    maasAuthPolicies: {{ .Values.modelsAsService.enabled }}
+    observabilityDashboard: {{ .Values.modelsAsService.enabled }}
     llmGatewayField: true
     # vLLM Deployment on MaaS
     vLLMDeploymentOnMaaS: {{ .Values.modelsAsService.enabled }}

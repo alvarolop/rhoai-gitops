@@ -1,4 +1,4 @@
-{{ if .Values.llm_d.enabled }}
+{{- if and .Values.modelsAsService.enabled }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -6,7 +6,7 @@ metadata:
   name: maas-default-gateway
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "9"
 spec:
   controllerName: openshift.io/gateway-controller/v1
-{{ end }}
+{{- end }}

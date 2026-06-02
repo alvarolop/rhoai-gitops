@@ -1,4 +1,4 @@
-{{ if .Values.llm_d.enabled }}
+{{- if and .Values.modelsAsService.enabled }}
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -7,16 +7,17 @@ metadata:
   namespace: openshift-ingress
   annotations:
     argocd.argoproj.io/sync-wave: "12"
+    router.openshift.io/service-ca-certificate: "true"
 spec:
   host: maas.apps.{{ .Values.global.clusterDomain }}
-  port:
-    targetPort: external
   to:
     kind: Service
     name: maas-default-gateway-maas-default-gateway
     weight: 100
+  port:
+    targetPort: 443
   tls:
-    termination: passthrough
+    termination: reencrypt
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
-{{ end }}
+{{- end }}

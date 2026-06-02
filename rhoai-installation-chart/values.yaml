@@ -40,8 +40,21 @@ llamaStack:
 # without a shared Gateway API gateway.
 modelsAsService:
   enabled: true
-  # Deploy MaaS Grafana dashboard (ConfigMap + GrafanaDashboard) when Grafana is available.
-  grafana: true
+  grafana: 
+    enabled: true
+  postgresql:
+    enabled: true
+    namespace: rhoai-maas-db
+    name: postgresql
+    image: registry.redhat.io/rhel9/postgresql-15:9.7
+    connection:
+      database: maas
+      user: maas
+      password: SecurePassword123  # Change for production
+      storageSize: 20Gi
+    service:
+      port: 5432
+      ssl: false
 
 llm_d:
   enabled: true
@@ -53,8 +66,8 @@ llm_d:
   # without Route for internal Service-only access.
   internalOnly:
     enabled: false
-  # Custom TLS certificate for external listeners (base64-encoded). Used for both 08-llm-d and
-  # 09-maas gateways. If not provided, falls back to Service CA generated internal certificate.
+  # Custom TLS certificate for external listeners (base64-encoded). Used by 08-llm-d Gateway when set.
+  # MaaS (11-maas-rhcl) uses service-ca + Route reencrypt instead.
   tlsCrtB64: ""
   tlsKeyB64: ""
 
