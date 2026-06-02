@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rhoai-maas
+  annotations:
+    openshift.io/display-name: RHOAI - MaaS
+    openshift.io/description: RHOAI - MaaS 
+  labels:
+    opendatahub.io/dashboard: 'true'
+    rhoai-serving/model: 'true'
+    kueue.openshift.io/managed: 'true'
