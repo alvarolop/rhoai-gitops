@@ -40,7 +40,8 @@ llamaStack:
 # without a shared Gateway API gateway.
 modelsAsService:
   enabled: true
-  grafana: 
+  namespace: models-as-a-service
+  grafana:
     enabled: true
   postgresql:
     enabled: true
@@ -55,6 +56,25 @@ modelsAsService:
     service:
       port: 5432
       ssl: false
+  # MaaS configurations - each entry creates a Subscription and AuthPolicy
+  configs:
+    - name: test
+      displayName: "Test Subscription"
+      description: "Test subscription for demo models"
+      priority: 1
+      groups:
+        - local-users
+      models:
+        # Simple string format (no rate limits)
+        - name: granite-3-3-2b-instruct
+          tokenRateLimits:
+            - limit: 100
+              window: 1h
+        # Object format with per-model rate limits
+        - name: tinyllama-1b
+          tokenRateLimits:
+            - limit: 1000
+              window: 1h
 
 llm_d:
   enabled: true

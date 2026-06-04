@@ -1,0 +1,32 @@
+{{- if .Values.modelsAsService.enabled }}
+{{- range .Values.modelsAsService.configs }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSAuthPolicy
+metadata:
+  name: {{ .name }}-policy
+  namespace: {{ $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+  annotations:
+    {{- if .description }}
+    openshift.io/description: {{ printf "Auth policy for %s" .name | quote }}
+    {{- end }}
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "21"
+spec:
+  modelRefs:
+  {{- range .models }}
+    {{- if kindIs "string" . }}
+    - name: {{ . }}
+      namespace: {{ $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+    {{- else }}
+    - name: {{ .name }}
+      namespace: {{ .namespace | default $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+    {{- end }}
+  {{- end }}
+  subjects:
+    groups:
+    {{- range .groups }}
+      - name: {{ . }}
+    {{- end }}
+{{- end }}
+{{- end }}

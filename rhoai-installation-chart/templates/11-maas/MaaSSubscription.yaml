@@ -1,0 +1,41 @@
+{{- if .Values.modelsAsService.enabled }}
+{{- range .Values.modelsAsService.configs }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSSubscription
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+  annotations:
+    openshift.io/display-name: {{ .displayName | default .name | quote }}
+    {{- if .description }}
+    openshift.io/description: {{ .description | quote }}
+    {{- end }}
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  modelRefs:
+  {{- range .models }}
+    {{- if kindIs "string" . }}
+    - name: {{ . }}
+      namespace: {{ $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+    {{- else }}
+    - name: {{ .name }}
+      namespace: {{ .namespace | default $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+      {{- if .tokenRateLimits }}
+      tokenRateLimits:
+      {{- range .tokenRateLimits }}
+        - limit: {{ .limit }}
+          window: {{ .window }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  owner:
+    groups:
+    {{- range .groups }}
+      - name: {{ . }}
+    {{- end }}
+  priority: {{ .priority | default 1 }}
+{{- end }}
+{{- end }}
