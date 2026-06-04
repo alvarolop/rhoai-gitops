@@ -59,9 +59,9 @@ modelsAsService:
   # MaaS configurations - each entry creates a Subscription and AuthPolicy
   configs:
     - name: test
-      displayName: "Test Subscription"
-      description: "Test subscription for demo models"
-      priority: 1
+      displayName: "Basic Models"
+      description: "Basic subscription for demo models"
+      priority: 50
       groups:
         - local-users
       models:
