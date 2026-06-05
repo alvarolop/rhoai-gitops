@@ -1,4 +1,4 @@
-{{- if and .Values.modelsAsService.enabled (eq .Values.modelsAsService.exposeType "route") }}
+{{- if and .Values.modelsAsService.enabled }}
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -7,7 +7,6 @@ metadata:
   namespace: openshift-ingress
   annotations:
     argocd.argoproj.io/sync-wave: "12"
-    router.openshift.io/service-ca-certificate: "true"
 spec:
   host: maas.apps.{{ .Values.global.clusterDomain }}
   to:
@@ -17,7 +16,7 @@ spec:
   port:
     targetPort: 443
   tls:
-    termination: reencrypt
+    termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 {{- end }}

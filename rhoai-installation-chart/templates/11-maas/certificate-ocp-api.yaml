@@ -1,4 +1,4 @@
-{{- if and .Values.modelsAsService.enabled (eq .Values.modelsAsService.exposeType "loadbalancer") }}
+{{- if and .Values.modelsAsService.enabled }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate

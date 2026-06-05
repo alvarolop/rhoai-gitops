@@ -1,4 +1,4 @@
-{{- if and .Values.modelsAsService.enabled (eq .Values.modelsAsService.exposeType "route") }}
+{{- if and .Values.modelsAsService.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -9,9 +9,6 @@ metadata:
     argocd.argoproj.io/sync-wave: "9"
 data:
   service: |
-    metadata:
-      annotations:
-        service.beta.openshift.io/serving-cert-secret-name: maas-gw-service-tls
     spec:
       type: ClusterIP
 {{- end }}

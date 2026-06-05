@@ -15,18 +15,14 @@ metadata:
     security.opendatahub.io/authorino-tls-bootstrap: "true"
 spec:
   gatewayClassName: maas-default-gateway
-{{- if or (eq .Values.modelsAsService.exposeType "route") (eq .Values.modelsAsService.exposeType "loadbalancer") }}
   infrastructure:
     parametersRef:
       group: ""
       kind: ConfigMap
       name: maas-service-override
-{{- end }}
   listeners:
     - name: https
-{{- if eq .Values.modelsAsService.exposeType "loadbalancer" }}
       hostname: maas.apps.{{ .Values.global.clusterDomain }}
-{{- end }}
       port: 443
       protocol: HTTPS
       allowedRoutes:

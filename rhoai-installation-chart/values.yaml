@@ -41,8 +41,6 @@ llamaStack:
 modelsAsService:
   enabled: true
   namespace: models-as-a-service
-  # Expose type: "route" (OpenShift Route) or "loadbalancer" (LoadBalancer Service with cert-manager)
-  exposeType: loadbalancer
   grafana:
     enabled: true
   postgresql:
