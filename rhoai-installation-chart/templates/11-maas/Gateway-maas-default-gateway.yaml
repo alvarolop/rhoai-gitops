@@ -28,11 +28,7 @@ spec:
       protocol: HTTPS
       allowedRoutes:
         namespaces:
-          from: Selector
-          selector:
-            matchExpressions:
-              - key: rhoai-serving/model
-                operator: Exists
+          from: All
       tls:
         certificateRefs:
           - group: ""
