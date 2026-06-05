@@ -27,3 +27,6 @@ resources:
 
   # Support for Training jobs scheduling
   - ../../operator-jobset
+
+  # Support Cluster Observability Operator for MaaS (Perses)
+  - ../../operator-coo
