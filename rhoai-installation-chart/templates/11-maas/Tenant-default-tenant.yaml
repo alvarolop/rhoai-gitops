@@ -1,0 +1,22 @@
+{{- if .Values.modelsAsService.enabled }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: Tenant
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+  name: default-tenant
+  namespace: models-as-a-service
+spec:
+  gatewayRef:
+    name: maas-default-gateway
+    namespace: openshift-ingress
+  telemetry:
+    enabled: true
+    metrics:
+      captureOrganization: true
+      captureUser: false
+      captureGroup: false
+      captureModelUsage: true
+{{- end }}
