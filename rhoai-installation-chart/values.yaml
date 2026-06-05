@@ -92,7 +92,7 @@ llm_d:
   tlsKeyB64: ""
   # Grafana dashboards for llm-d monitoring
   grafana:
-    enabled: false
+    enabled: true
 
 # https://access.redhat.com/articles/7136121
 mlflow:
