@@ -167,13 +167,13 @@ oc apply -f application-rhoai-dependencies.yaml
 echo -e "\n2️⃣ Wait 20 seconds for Subscriptions to be applied"
 countdown_with_skip 20
 
-# Wait for all operators to be in 'Succeeded' state
-echo -e "\n3️⃣ Waiting for all operators to be in 'Succeeded' state..."
-until [[ -z $(oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true) ]]; do
-    echo "⏳ Some operators are not in 'Succeeded' state, retrying in 10 seconds... (press q to skip)"
-    oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true
-    wait_with_skip 10 && break
-done
+# # Wait for all operators to be in 'Succeeded' state
+# echo -e "\n3️⃣ Waiting for all operators to be in 'Succeeded' state..."
+# until [[ -z $(oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true) ]]; do
+#     echo "⏳ Some operators are not in 'Succeeded' state, retrying in 10 seconds... (press q to skip)"
+#     oc get csv --all-namespaces -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.metadata.name}{" "}{.status.phase}{"\n"}{end}' 2>/dev/null | grep -v "Succeeded" 2>/dev/null || true
+#     wait_with_skip 10 && break
+# done
 echo -e "\t✅ All operators are in 'Succeeded' state."
 
 # Disabled: https://github.com/rh-ecosystem-edge/console-plugin-nvidia-gpu/issues/71
@@ -209,6 +209,24 @@ if [[ "$INSTALL_MONITORING" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 else
     echo -e "\n⏭️  Skip Monitoring configuration..."
 fi
+
+if [[ "$INSTALL_GRAFANA" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+    echo -e "1️⃣ Trigger the ArgoCD application to deploy Grafana"
+    oc apply -f https://raw.githubusercontent.com/alvarolop/quarkus-observability-app/refs/heads/main/apps/application-grafana.yaml
+    echo -e "\t✅ Grafana ArgoCD application applied."
+else
+    echo "⏭️  Skip Grafana installation..."
+fi
+    echo -e "\n4️⃣ Creating ConsoleLink for S4 (Application Menu → OpenShift Self Managed Services)"
+    GRAFANA_ROUTE_HOST=$(oc get route -n "grafana" grafana-route -o jsonpath='{.spec.host}' 2>/dev/null || true)
+    if [[ -n "$GRAFANA_ROUTE_HOST" ]]; then
+        GRAFANA_HREF="https://${GRAFANA_ROUTE_HOST}"
+        cat prerequisites/grafana/consolelink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
+        echo -e "\t✅ ConsoleLink 'grafana' created (href: $GRAFANA_HREF)."
+    else
+        echo -e "\t⚠️  Grafana route not found; skipping ConsoleLink. Create it later with: oc get route -n grafana grafana -o jsonpath='{.spec.host}'"
+    fi
+
 
 echo -e "\n🔧 ====================="
 echo -e "🔧 =   OCP Pipelines   ="
@@ -353,19 +371,6 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$GPU_NODE_CO
 else
     echo "⏭️  Skip waiting for NVIDIA gpu nodes..."
 fi
-
-echo -e "\n📈 ======================"
-echo -e "📈 =      Grafana       ="
-echo -e "📈 ======================\n"
-
-if [[ "$INSTALL_GRAFANA" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-    echo -e "1️⃣ Trigger the ArgoCD application to deploy Grafana"
-    oc apply -f https://raw.githubusercontent.com/alvarolop/quarkus-observability-app/refs/heads/main/apps/application-grafana.yaml
-    echo -e "\t✅ Grafana ArgoCD application applied."
-else
-    echo "⏭️  Skip Grafana installation..."
-fi
-
 
 echo -e "\n🤖 ======================"
 echo -e "🤖 = RHOAI Installation ="

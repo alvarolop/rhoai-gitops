@@ -1,0 +1,12 @@
+# ConsoleLink for Grafana - appears in Application Menu under "Observability"
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: grafana
+spec:
+  href: "${GRAFANA_HREF}"
+  location: ApplicationMenu
+  text: Grafana
+  applicationMenu:
+    section: Observability
+    imageURL: https://img.icons8.com/fluency/256/grafana.png
