@@ -13,16 +13,17 @@ metadata:
     argocd.argoproj.io/sync-wave: "10"
     opendatahub.io/managed: "false"
     security.opendatahub.io/authorino-tls-bootstrap: "true"
+    networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: maas-default-gateway
-  infrastructure:
-    parametersRef:
-      group: ""
-      kind: ConfigMap
-      name: maas-service-override
+  # infrastructure:
+  #   parametersRef:
+  #     group: ""
+  #     kind: ConfigMap
+  #     name: maas-service-override
   listeners:
     - name: https
-      hostname: maas.apps.{{ .Values.global.clusterDomain }}
+      hostname: models-as-a-service.apps.{{ .Values.global.clusterDomain }}
       port: 443
       protocol: HTTPS
       allowedRoutes:

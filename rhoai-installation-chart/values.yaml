@@ -6,7 +6,7 @@ global:
   culling:
     enabled: true
   # DNS segment after apps. in route hostnames (e.g. ocp.sandbox3642.opentlc.com for *.apps.ocp.sandbox3642.opentlc.com).
-  clusterDomain: "ocp.sandbox3642.opentlc.com"
+  clusterDomain: "ocp.sandbox437.opentlc.com"
 
 modelRegistry:
   enabled: true
