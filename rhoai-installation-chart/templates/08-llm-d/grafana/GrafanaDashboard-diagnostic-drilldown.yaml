@@ -1,0 +1,24 @@
+{{ if and .Values.llm_d.enabled .Values.llm_d.grafana.enabled }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: llm-d-diagnostic-drilldown
+  namespace: grafana
+  labels:
+    app: grafana
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folder: RHOAI
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Prometheus
+  # https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/deploy_models_using_distributed_inference_with_llm-d/monitoring-llmd-deployments#llmd-grafana-dashboards_monitoring-llmd
+  json: |
+{{- .Files.Get "files/08-llm-d/llm-d-diagnostic-drilldown-dashboard.json" | nindent 4 }}
+{{ end }}

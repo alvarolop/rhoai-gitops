@@ -90,6 +90,9 @@ llm_d:
   # MaaS (11-maas-rhcl) uses service-ca + Route reencrypt instead.
   tlsCrtB64: ""
   tlsKeyB64: ""
+  # Grafana dashboards for llm-d monitoring
+  grafana:
+    enabled: false
 
 # https://access.redhat.com/articles/7136121
 mlflow:

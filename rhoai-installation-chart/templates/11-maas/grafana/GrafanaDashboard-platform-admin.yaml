@@ -3,7 +3,7 @@
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: llm-d-internal
+  name: maas-platform-admin
   namespace: grafana
   labels:
     app: grafana
@@ -14,11 +14,11 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: grafana
-  configMapRef:
-    name: llm-d-internal-dashboard
-    key: dashboard.json
   folder: RHOAI
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: Prometheus
+  # https://github.com/opendatahub-io/models-as-a-service/blob/main/deployment/components/observability/grafana/kustomization.yaml
+  json: |
+{{- .Files.Get "files/11-maas/platform-admin-dashboard.json" | nindent 4 }}
 {{ end }}

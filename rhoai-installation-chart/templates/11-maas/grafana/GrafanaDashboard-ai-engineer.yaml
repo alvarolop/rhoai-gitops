@@ -1,0 +1,24 @@
+{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.grafana.enabled }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: maas-ai-engineer
+  namespace: grafana
+  labels:
+    app: grafana
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folder: RHOAI
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Prometheus
+  # https://github.com/opendatahub-io/models-as-a-service/blob/main/deployment/components/observability/grafana/kustomization.yaml
+  json: |
+{{- .Files.Get "files/11-maas/ai-engineer-dashboard.json" | nindent 4 }}
+{{ end }}
