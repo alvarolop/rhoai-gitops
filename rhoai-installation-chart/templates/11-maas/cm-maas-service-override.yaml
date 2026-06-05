@@ -1,4 +1,4 @@
-{{- if and .Values.modelsAsService.enabled }}
+{{- if and .Values.modelsAsService.enabled (eq .Values.modelsAsService.exposeType "route") }}
 ---
 apiVersion: v1
 kind: ConfigMap
