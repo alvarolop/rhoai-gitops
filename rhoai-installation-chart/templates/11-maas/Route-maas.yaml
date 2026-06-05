@@ -11,7 +11,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "12"
 spec:
-  host: models-as-a-service.apps.{{ .Values.global.clusterDomain }}
+  host: maas.apps.{{ .Values.global.clusterDomain }}
   to:
     kind: Service
     name: maas-default-gateway-maas-default-gateway

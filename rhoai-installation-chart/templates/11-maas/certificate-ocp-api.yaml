@@ -3,16 +3,16 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: models-as-a-service-gw
+  name: maas-gw
   namespace: openshift-ingress
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "0"
 spec:
   isCA: false
-  commonName: "models-as-a-service.apps.{{ .Values.global.clusterDomain }}"
+  commonName: "maas.apps.{{ .Values.global.clusterDomain }}"
   dnsNames:
-  - "models-as-a-service.apps.{{ .Values.global.clusterDomain }}"
+  - "maas.apps.{{ .Values.global.clusterDomain }}"
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
