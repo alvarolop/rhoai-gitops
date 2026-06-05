@@ -5,6 +5,9 @@ kind: Route
 metadata:
   name: models-as-a-service
   namespace: openshift-ingress
+  labels:
+    app.kubernetes.io/name: maas-gateway
+    app.kubernetes.io/part-of: models-as-a-service
   annotations:
     argocd.argoproj.io/sync-wave: "12"
 spec:
