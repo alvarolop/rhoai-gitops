@@ -14,7 +14,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: grafana
-  folder: RHOAI
+  folder: RHOAI - MaaS
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: Prometheus
