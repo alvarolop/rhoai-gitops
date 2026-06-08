@@ -22,12 +22,12 @@ spec:
       storage:                                # Storage configuration for metrics data
         size: 5Gi                             # Required: Storage size for Prometheus data
         retention: 90d                        # Required: Retention period for metrics data in days
-      # exporters: {}                           # External metrics exporters
-    # traces:                                   # Tempo backend for distributed tracing
-    #   sampleRatio: '0.1'                      # Optional: Portion of traces to sample, expressed as a decimal
-    #   storage:                                # Storage configuration for trace data
-    #     backend: pv                           # Required: Storage backend for Tempo traces (pv, s3, or gcs)
-    #     retention: 2160h                      # Optional: Retention period for trace data in hours
-    #   exporters: {}                           # External traces exporters
+      exporters: {}                           # External metrics exporters
+    traces:                                   # Tempo backend for distributed tracing
+      sampleRatio: '0.1'                      # Optional: Portion of traces to sample, expressed as a decimal
+      storage:                                # Storage configuration for trace data
+        backend: pv                           # Required: Storage backend for Tempo traces (pv, s3, or gcs)
+        retention: 2160h                      # Optional: Retention period for trace data in hours
+      exporters: {}                           # External traces exporters
 
 {{- end }}
