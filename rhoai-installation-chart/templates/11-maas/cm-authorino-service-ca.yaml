@@ -1,0 +1,11 @@
+{{ if .Values.llm_d.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openshift-service-ca.crt
+  namespace: kuadrant-system
+  annotations:
+    service.beta.openshift.io/inject-cabundle: "true"
+    argocd.argoproj.io/sync-wave: "13"
+{{ end }}
