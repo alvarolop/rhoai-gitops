@@ -9,9 +9,8 @@ metadata:
     opendatahub.io/display-name: MIG 7g.94gb (Full GPU)
     opendatahub.io/description: "MIG 7g.94gb profile: Full GPU with 94GB memory, for large models and training workloads. 1 instance per GPU."
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-  name: mig-7g-94gb-profile
-  annotations:
     argocd.argoproj.io/sync-wave: "1"
+  name: mig-7g-94gb-profile
   namespace: redhat-ods-applications
 spec:
   identifiers:

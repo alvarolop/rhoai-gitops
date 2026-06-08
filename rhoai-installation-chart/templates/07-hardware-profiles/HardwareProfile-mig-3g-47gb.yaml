@@ -9,9 +9,8 @@ metadata:
     opendatahub.io/display-name: MIG 3g.47gb
     opendatahub.io/description: "MIG 3g.47gb profile: Medium GPU slice with ~47GB memory, suitable for medium-sized models. 2 instances per GPU."
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-  name: mig-3g-47gb-profile
-  annotations:
     argocd.argoproj.io/sync-wave: "1"
+  name: mig-3g-47gb-profile
   namespace: redhat-ods-applications
 spec:
   identifiers:

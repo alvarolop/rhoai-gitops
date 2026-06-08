@@ -9,9 +9,8 @@ metadata:
     opendatahub.io/display-name: gpu-profile
     opendatahub.io/description: GPU workloads with NVIDIA accelerators. Scheduling via Kueue queue; GPU nodes and taints come from the gpu ResourceFlavor.
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-  name: gpu-profile
-  annotations:
     argocd.argoproj.io/sync-wave: "1"
+  name: gpu-profile
   namespace: redhat-ods-applications
 spec:
   identifiers:
