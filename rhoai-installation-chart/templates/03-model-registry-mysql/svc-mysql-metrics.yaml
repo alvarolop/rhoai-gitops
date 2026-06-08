@@ -6,7 +6,7 @@ metadata:
   name: {{ .Values.modelRegistry.mysql.name }}-metrics
   namespace: {{ .Values.modelRegistry.mysql.namespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "-10"
+    argocd.argoproj.io/sync-wave: "-1"
   labels:
     app: {{ .Values.modelRegistry.mysql.name }}
 spec:

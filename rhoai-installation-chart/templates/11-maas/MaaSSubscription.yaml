@@ -12,7 +12,7 @@ metadata:
     openshift.io/description: {{ .description | quote }}
     {{- end }}
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "20"
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   modelRefs:
   {{- range .models }}

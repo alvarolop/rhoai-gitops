@@ -105,7 +105,7 @@ featureStore:
   enabled: true
   namespace: rhoai-feature-store
   examples:
-    - enabled: true
+    - enabled: false
       name: banking
       authz:
         enabled: false

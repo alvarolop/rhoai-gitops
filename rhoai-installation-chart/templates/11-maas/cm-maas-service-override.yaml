@@ -6,7 +6,7 @@
 #   name: maas-service-override
 #   namespace: openshift-ingress
 #   annotations:
-#     argocd.argoproj.io/sync-wave: "9"
+#     argocd.argoproj.io/sync-wave: "0"
 # data:
 #   service: |
 #     spec:

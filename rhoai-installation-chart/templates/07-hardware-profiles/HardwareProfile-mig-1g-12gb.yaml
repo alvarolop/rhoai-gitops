@@ -10,6 +10,8 @@ metadata:
     opendatahub.io/description: "MIG 1g.12gb profile: Small GPU slice with ~12GB memory, ideal for inference or small models. 7 instances per GPU."
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: mig-1g-12gb-profile
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   namespace: redhat-ods-applications
 spec:
   identifiers:

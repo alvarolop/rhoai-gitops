@@ -10,6 +10,8 @@ metadata:
     opendatahub.io/description: CPU-only workbenches and serving (no accelerator). Scheduling via Kueue queue; node placement comes from the cpu ResourceFlavor (no GPU taints).
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: cpu-profile
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   namespace: redhat-ods-applications
 spec:
   identifiers:

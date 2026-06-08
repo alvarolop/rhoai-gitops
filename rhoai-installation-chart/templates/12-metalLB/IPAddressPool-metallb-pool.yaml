@@ -7,7 +7,7 @@ metadata:
   namespace: metallb-system
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   addresses:
 {{- range .Values.metalLB.addresses }}

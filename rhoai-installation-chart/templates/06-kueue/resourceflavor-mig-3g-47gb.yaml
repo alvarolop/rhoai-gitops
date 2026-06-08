@@ -8,7 +8,7 @@ metadata:
   name: mig-3g-47gb
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "1"
 spec:
 {{- if .Values.distributedWorkloads.topologyAwareScheduling }}
   topologyName: rhoai-hostname

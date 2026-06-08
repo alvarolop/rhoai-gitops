@@ -8,7 +8,7 @@ metadata:
   name: feast-apply-{{ .name }}
   namespace: {{ $.Values.featureStore.namespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "12"
+    argocd.argoproj.io/sync-wave: "5"
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:

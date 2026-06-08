@@ -6,5 +6,5 @@ metadata:
   name: feast-apply-job
   namespace: {{ $.Values.featureStore.namespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "11"
+    argocd.argoproj.io/sync-wave: "1"
 {{- end }}

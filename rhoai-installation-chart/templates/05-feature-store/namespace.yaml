@@ -5,6 +5,8 @@ kind: Namespace
 metadata:
   name: {{ $.Values.featureStore.namespace }}
   annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+  annotations:
     openshift.io/description: "Feature Store Namespace"
     openshift.io/display-name: "RHOAI - Feature Store"
   labels:

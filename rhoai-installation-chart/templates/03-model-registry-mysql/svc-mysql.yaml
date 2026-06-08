@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Values.modelRegistry.mysql.namespace }}
   annotations:
     service.beta.openshift.io/serving-cert-secret-name: {{ .Values.modelRegistry.mysql.name }}-tls
-    argocd.argoproj.io/sync-wave: "-10"
+    argocd.argoproj.io/sync-wave: "-1"
   labels:
     app: {{ .Values.modelRegistry.mysql.name }}
 spec:

@@ -8,6 +8,8 @@ metadata:
     app.opendatahub.io/rhods-dashboard: 'true'
     platform.opendatahub.io/part-of: dashboard
   name: odh-dashboard-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   namespace: redhat-ods-applications
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true

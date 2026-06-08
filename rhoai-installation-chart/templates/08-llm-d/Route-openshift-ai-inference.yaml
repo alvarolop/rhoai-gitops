@@ -6,7 +6,7 @@ metadata:
   name: openshift-ai-inference
   namespace: openshift-ingress
   annotations:
-    argocd.argoproj.io/sync-wave: "12"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   host: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
   port:

@@ -4,5 +4,5 @@ kind: Namespace
 metadata:
   name: {{ .Values.modelsAsService.postgresql.namespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "7"
+    argocd.argoproj.io/sync-wave: "-2"
 {{- end }}

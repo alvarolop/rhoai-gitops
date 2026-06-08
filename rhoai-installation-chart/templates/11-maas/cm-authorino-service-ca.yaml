@@ -7,5 +7,5 @@ metadata:
   namespace: kuadrant-system
   annotations:
     service.beta.openshift.io/inject-cabundle: "true"
-    argocd.argoproj.io/sync-wave: "13"
+    argocd.argoproj.io/sync-wave: "2"
 {{ end }}

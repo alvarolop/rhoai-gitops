@@ -4,6 +4,8 @@ kind: Namespace
 metadata:
   name: models-as-a-service
   annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+  annotations:
     openshift.io/display-name: RHOAI - MaaS
     openshift.io/description: RHOAI - MaaS 
   labels:
