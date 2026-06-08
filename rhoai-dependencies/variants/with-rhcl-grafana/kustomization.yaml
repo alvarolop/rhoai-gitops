@@ -31,3 +31,5 @@ resources:
 
   # Support Cluster Observability Operator for MaaS (Perses)
   - ../../operator-coo
+  - ../../operator-tempo
+  - ../../operator-otel

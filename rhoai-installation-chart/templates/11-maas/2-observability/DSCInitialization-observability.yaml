@@ -28,6 +28,6 @@ spec:
       storage:                                # Storage configuration for trace data
         backend: pv                           # Required: Storage backend for Tempo traces (pv, s3, or gcs)
         retention: 2160h                      # Optional: Retention period for trace data in hours
-      exporters: {}                           # External traces exporters
+      # exporters: {}                           # External traces exporters
 
 {{- end }}
