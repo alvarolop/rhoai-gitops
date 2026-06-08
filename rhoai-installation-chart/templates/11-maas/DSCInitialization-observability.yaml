@@ -1,0 +1,32 @@
+{{- if .Values.modelsAsService.enabled }}
+---
+apiVersion: dscinitialization.opendatahub.io/v1
+kind: DSCInitialization
+metadata:
+  name: default-dsci
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true,SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  monitoring:
+    managementState: Managed
+    namespace: redhat-ods-monitoring
+    alerting: {}
+    metrics:
+      replicas: 1
+      resources:
+        cpulimit: 500m
+        cpurequest: 100m
+        memorylimit: 512Mi
+        memoryrequest: 256Mi
+      storage:
+        size: 5Gi
+        retention: 90d
+      exporters: {}
+    traces:
+      sampleRatio: '0.1'
+      storage:
+        backend: pv
+        retention: 2160h
+      exporters: {}
+{{- end }}
