@@ -9,24 +9,25 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
 spec:
   monitoring:
-    managementState: Managed
-    namespace: redhat-ods-monitoring
-    alerting: {}
-    metrics:
-      replicas: 1
-      resources:
-        cpulimit: 500m
-        cpurequest: 100m
-        memorylimit: 512Mi
-        memoryrequest: 256Mi
-      storage:
-        size: 5Gi
-        retention: 90d
-      exporters: {}
-    traces:
-      sampleRatio: '0.1'
-      storage:
-        backend: pv
-        retention: 2160h
-      exporters: {}
+    managementState: Managed                 # Required: Enables and manages the observability stack
+    namespace: redhat-ods-monitoring    # Required: Namespace where monitoring components are deployed
+    alerting: {}                              # Alertmanager configuration, uses default settings if empty
+    metrics:                                  # Prometheus configuration for metrics collection
+      replicas: 1                             # Optional: Number of Prometheus instances
+      # resources:                              # CPU and memory requests and limits for Prometheus pods
+      #   cpulimit: 500m                        # Optional: Maximum CPU allocation in millicores
+      #   cpurequest: 100m                      # Optional: Minimum CPU allocation in millicores
+      #   memorylimit: 512Mi                    # Optional: Maximum memory allocation in mebibytes
+      #   memoryrequest: 256Mi                  # Optional: Minimum memory allocation in mebibytes
+      storage:                                # Storage configuration for metrics data
+        size: 5Gi                             # Required: Storage size for Prometheus data
+        retention: 90d                        # Required: Retention period for metrics data in days
+      exporters: {}                           # External metrics exporters
+    # traces:                                   # Tempo backend for distributed tracing
+    #   sampleRatio: '0.1'                      # Optional: Portion of traces to sample, expressed as a decimal
+    #   storage:                                # Storage configuration for trace data
+    #     backend: pv                           # Required: Storage backend for Tempo traces (pv, s3, or gcs)
+    #     retention: 2160h                      # Optional: Retention period for trace data in hours
+    #   exporters: {}                           # External traces exporters
+
 {{- end }}
