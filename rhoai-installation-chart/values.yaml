@@ -60,18 +60,18 @@ modelsAsService:
     enabled: true
   # MaaS configurations - each entry creates a Subscription and AuthPolicy
   configs:
-    - name: test
+    - name: basic-models
       displayName: "Basic Models"
       description: "Basic subscription for demo models"
       priority: 50
       groups:
-        - local-users
+        - cluster-admins
       models:
-        # Simple string format (no rate limits)
-        - name: granite-3-3-2b-instruct
-          tokenRateLimits:
-            - limit: 100
-              window: 1h
+        # # Simple string format (no rate limits)
+        # - name: granite-3-3-2b-instruct
+        #   tokenRateLimits:
+        #     - limit: 100
+        #       window: 1h
         # Object format with per-model rate limits
         - name: tinyllama-1b
           tokenRateLimits:
