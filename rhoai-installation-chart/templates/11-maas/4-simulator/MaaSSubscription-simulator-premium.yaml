@@ -1,0 +1,25 @@
+{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.simulator.enabled }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSSubscription
+metadata:
+  name: simulator-premium
+  namespace: {{ .Values.modelsAsService.namespace | default "models-as-a-service" }}
+  annotations:
+    openshift.io/display-name: "Simulator Premium Tier"
+    openshift.io/description: "Premium tier: 10000 tokens/min for premium users"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  owner:
+    groups:
+      - name: system:authenticated
+    users: []
+  modelRefs:
+    - name: facebook-opt-125m-simulated
+      namespace: {{ .Values.modelsAsService.namespace | default "models-as-a-service" }}
+      tokenRateLimits:
+        - limit: 100000
+          window: 1m
+  priority: 20
+{{ end }}

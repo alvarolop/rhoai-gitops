@@ -1,0 +1,17 @@
+{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.simulator.enabled }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: facebook-opt-125m-simulated
+  namespace: {{ .Values.modelsAsService.namespace | default "models-as-a-service" }}
+  annotations:
+    openshift.io/display-name: "Facebook OPT 125M (Simulated)"
+    openshift.io/description: "A simulated OPT-125M model for free-tier testing"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: facebook-opt-125m-simulated
+{{ end }}
