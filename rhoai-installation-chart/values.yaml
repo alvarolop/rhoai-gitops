@@ -106,8 +106,6 @@ trustyai:
 evalHub:
   enabled: true
   namespace: rhoai-evalhub  # Namespace where EvalHub service runs
-  replicas: 1
-  mlflowTrackingUri: "http://mlflow.mlflow.svc.cluster.local:5000"
   providers:
     - lm-evaluation-harness
     - garak

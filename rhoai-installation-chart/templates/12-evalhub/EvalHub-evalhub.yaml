@@ -9,7 +9,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
-  replicas: {{ .Values.evalHub.replicas }}
+  replicas: 1
   database:
     type: postgresql
     secret: evalhub-db-credentials
@@ -23,5 +23,5 @@ spec:
   {{- end }}
   env:
     - name: MLFLOW_TRACKING_URI
-      value: {{ .Values.evalHub.mlflowTrackingUri | quote }}
+      value: "https://mlflow.redhat-ods-applications.svc:8443"
 {{- end }}
