@@ -4,6 +4,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Values.evalHub.namespace }}
+  labels:
+    evalhub.trustyai.opendatahub.io/tenant: ""  # Register as EvalHub tenant namespace
   annotations:
     argocd.argoproj.io/sync-wave: "-2"
 {{- end }}
