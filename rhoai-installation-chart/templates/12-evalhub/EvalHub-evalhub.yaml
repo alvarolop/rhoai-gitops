@@ -1,0 +1,27 @@
+{{- if .Values.evalHub.enabled }}
+---
+apiVersion: trustyai.opendatahub.io/v1alpha1
+kind: EvalHub
+metadata:
+  name: evalhub
+  namespace: {{ .Values.evalHub.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  replicas: {{ .Values.evalHub.replicas }}
+  database:
+    type: postgresql
+    secret: evalhub-db-credentials
+  providers:
+  {{- range .Values.evalHub.providers }}
+    - {{ . }}
+  {{- end }}
+  collections:
+  {{- range .Values.evalHub.collections }}
+    - {{ . }}
+  {{- end }}
+  env:
+    - name: MLFLOW_TRACKING_URI
+      value: {{ .Values.evalHub.mlflowTrackingUri | quote }}
+{{- end }}

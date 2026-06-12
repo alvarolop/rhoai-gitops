@@ -105,6 +105,15 @@ trustyai:
 
 evalHub:
   enabled: false
+  namespace: redhat-ods-applications  # Namespace where EvalHub service runs
+  replicas: 1
+  mlflowTrackingUri: "http://mlflow.mlflow.svc.cluster.local:5000"
+  providers:
+    - lm-evaluation-harness
+    - garak
+    - guidellm
+  collections:
+    - safety-and-fairness-v1
   postgresql:
     enabled: true
     namespace: rhoai-evalhub-db
