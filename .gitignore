@@ -1,3 +1,6 @@
+
+prerequisites/maas-external-models
+
 # General files for the project
 pkg/*
 *.pyc
