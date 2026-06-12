@@ -1,0 +1,16 @@
+{{- if and .Values.evalHub.enabled .Values.evalHub.postgresql.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.evalHub.postgresql.name }}-data
+  namespace: {{ .Values.evalHub.postgresql.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.evalHub.postgresql.connection.storageSize }}
+{{- end }}

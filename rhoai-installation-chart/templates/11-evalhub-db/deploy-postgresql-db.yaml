@@ -1,0 +1,48 @@
+{{- if and .Values.evalHub.enabled .Values.evalHub.postgresql.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.evalHub.postgresql.name }}
+  namespace: {{ .Values.evalHub.postgresql.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.evalHub.postgresql.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.evalHub.postgresql.name }}
+    spec:
+      containers:
+        - name: {{ .Values.evalHub.postgresql.name }}
+          image: {{ .Values.evalHub.postgresql.image }}
+          ports:
+            - containerPort: {{ .Values.evalHub.postgresql.service.port }}
+          env:
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.evalHub.postgresql.name }}-credentials
+                  key: POSTGRES_DB
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.evalHub.postgresql.name }}-credentials
+                  key: POSTGRES_USER
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.evalHub.postgresql.name }}-credentials
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/pgsql/data
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.evalHub.postgresql.name }}-data
+{{- end }}
