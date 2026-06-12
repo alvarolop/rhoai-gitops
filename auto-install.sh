@@ -376,6 +376,7 @@ echo -e "\n🤖 ======================"
 echo -e "🤖 = RHOAI Installation ="
 echo -e "🤖 ======================\n"
 
+exit 0
 echo -e "\n🚀 Trigger the ArgoCD application to install RHOAI instance"
 cat application-rhoai-installation.yaml | \
 CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \

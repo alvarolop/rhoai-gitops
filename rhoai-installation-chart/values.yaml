@@ -105,7 +105,7 @@ trustyai:
 
 evalHub:
   enabled: true
-  namespace: redhat-ods-applications  # Use dedicated namespace (RHOAI docs recommend against redhat-ods-applications)
+  namespace: redhat-ods-applications  # Dashboard eval-hub-ui sidecar only discovers EvalHub in this namespace (RHOAI 3.4.0 limitation)
   providers:
     - lm-evaluation-harness
     - garak
