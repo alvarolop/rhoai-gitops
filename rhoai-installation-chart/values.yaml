@@ -105,7 +105,7 @@ trustyai:
 
 evalHub:
   enabled: true
-  namespace: rhoai-evalhub  # Namespace where EvalHub service runs
+  namespace: redhat-ods-applications  # Must be redhat-ods-applications for dashboard discovery
   providers:
     - lm-evaluation-harness
     - garak
