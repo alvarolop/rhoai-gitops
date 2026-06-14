@@ -5,10 +5,10 @@ metadata:
   name: models-as-a-service
   annotations:
     argocd.argoproj.io/sync-wave: "-2"
-  annotations:
     openshift.io/display-name: RHOAI - MaaS
-    openshift.io/description: RHOAI - MaaS 
+    openshift.io/description: RHOAI - MaaS
   labels:
     opendatahub.io/dashboard: 'true'
     rhoai-serving/model: 'true'
     kueue.openshift.io/managed: 'true'
+    evalhub.trustyai.opendatahub.io/tenant: ""  # Enable EvalHub tenant auto-provisioning (MLflow RBAC + job ServiceAccount)
