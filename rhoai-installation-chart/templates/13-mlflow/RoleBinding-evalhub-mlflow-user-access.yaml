@@ -1,0 +1,26 @@
+{{- if and .Values.evalHub.enabled .Values.mlflow.enabled }}
+---
+# Grant RHOAI admins MLflow experiment permissions in MaaS namespace
+# Workaround: EvalHub uses end-user credentials (not evalhub-service SA) when calling MLflow
+# This is by design in RHOAI 3.4.0 - users creating evaluation jobs need MLflow RBAC permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: evalhub-mlflow-user-access
+  namespace: {{ .Values.modelsAsService.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: trustyai-service-operator-evalhub-mlflow-access
+subjects:
+  # Grant to rhods-admins group (RHOAI administrators)
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: rhods-admins
+  # Grant to all authenticated users (optional - comment out if too permissive)
+  # - apiGroup: rbac.authorization.k8s.io
+  #   kind: Group
+  #   name: system:authenticated
+{{- end }}
