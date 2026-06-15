@@ -40,15 +40,27 @@ pip install requests urllib3
 ```
 
 ### Environment Setup
+
+**When running in RHOAI Workbench (Recommended):**
+The notebooks automatically detect the workbench environment and retrieve:
+- ✅ OpenShift token from `/var/run/secrets/kubernetes.io/serviceaccount/token`
+- ✅ Cluster domain from OpenShift routes (`oc get route`)
+- ✅ Model API token using `oc get secret` commands
+
+**No manual configuration needed!** Just upload the notebooks to your workbench and run the cells.
+
+**When running outside RHOAI (local Jupyter):**
 Export your OpenShift authentication token:
 ```bash
 export OPENSHIFT_TOKEN=$(oc whoami -t)
 ```
 
-Get the model API token for authentication:
+Optionally set the cluster domain:
 ```bash
-export MODEL_API_TOKEN=$(kubectl get secret tinyllama-1b-sa-token -n models-as-a-service -o jsonpath='{.data.token}' | base64 -d)
+export CLUSTER_DOMAIN="ocp.sandbox5548.opentlc.com"
 ```
+
+The model API token is automatically retrieved using `oc` commands if `oc` CLI is available.
 
 ## Notebooks
 
@@ -57,11 +69,18 @@ export MODEL_API_TOKEN=$(kubectl get secret tinyllama-1b-sa-token -n models-as-a
 Creates an evaluation job for the "Arc Easy" benchmark on the TinyLlama model.
 
 **Features:**
-- Configure EvalHub endpoint and authentication
-- List available evaluation providers (lm-evaluation-harness, garak, guidellm)
-- List available evaluation collections (safety-and-fairness-v1, etc.)
-- Create an evaluation job with model authentication
-- Save job ID for later monitoring
+- 🔍 Auto-detect RHOAI workbench environment (token, cluster domain, namespace)
+- 🔌 Configure EvalHub endpoint and authentication automatically
+- 📋 List available evaluation providers (lm-evaluation-harness, garak, guidellm)
+- 📚 List available evaluation collections (safety-and-fairness-v1, etc.)
+- 🚀 Create an evaluation job with model authentication
+- 💾 Save job ID for later monitoring
+
+**Auto-Detection:**
+The notebook automatically retrieves:
+- OpenShift token from ServiceAccount (when running in workbench)
+- Cluster domain by querying OpenShift routes
+- Model API token from Kubernetes secrets
 
 **Example Usage:**
 ```python
@@ -216,21 +235,41 @@ volumes:
 
 ## Example Workflow
 
-```bash
-# 1. Set up environment
-export OPENSHIFT_TOKEN=$(oc whoami -t)
-export MODEL_API_TOKEN=$(kubectl get secret tinyllama-1b-sa-token -n models-as-a-service -o jsonpath='{.data.token}' | base64 -d)
+### From RHOAI Workbench (Recommended)
 
-# 2. Start JupyterLab or Jupyter Notebook
+```bash
+# 1. Create a workbench in RHOAI dashboard
+#    - Name: evalhub-testing
+#    - Image: Standard Data Science
+#    - Container size: Small
+
+# 2. Upload notebooks
+#    - Upload 01-create-evaluation.ipynb
+#    - Upload 02-check-evaluations.ipynb
+
+# 3. Run notebooks in order
+#    - All configuration auto-detected!
+#    - No environment variables needed
+#    - Just execute cells sequentially
+
+# 4. Monitor from terminal (optional)
+oc get jobs -n models-as-a-service -w
+oc get pods -n models-as-a-service -w
+```
+
+### From Local Jupyter
+
+```bash
+# 1. Set up environment (optional - auto-detected if oc CLI available)
+export OPENSHIFT_TOKEN=$(oc whoami -t)
+export CLUSTER_DOMAIN="ocp.sandbox5548.opentlc.com"
+
+# 2. Start JupyterLab
 jupyter lab
 
 # 3. Run notebooks in order
 # - 01-create-evaluation.ipynb
 # - 02-check-evaluations.ipynb
-
-# 4. Monitor from CLI (optional)
-kubectl get jobs -n models-as-a-service -w
-kubectl get pods -n models-as-a-service -w
 ```
 
 ## MLflow Integration
