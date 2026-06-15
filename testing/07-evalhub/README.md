@@ -90,11 +90,22 @@ evaluation_job = {
     "model": {
         "name": "tinyllama-1b",
         "url": "https://maas.apps.ocp.sandbox5548.opentlc.com/models-as-a-service/tinyllama-1b",
-        "api_key": MODEL_API_TOKEN
+        "auth": {
+            "api_key": MODEL_API_TOKEN
+        }
     },
-    "evaluation": "Arc Easy",
-    "provider": "lm-evaluation-harness",
-    "limit": 10
+    "benchmarks": [
+        {
+            "id": "arc_easy",
+            "provider_id": "lm_evaluation_harness",
+            "primary_score": {"metric": "acc_norm"},
+            "pass_criteria": {"threshold": 0.25},
+            "parameters": {"limit": 10, "num_fewshot": 0}
+        }
+    ],
+    "experiment": {
+        "name": "EvalHub test 01"
+    }
 }
 ```
 
