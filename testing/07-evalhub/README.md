@@ -91,7 +91,7 @@ evaluation_job = {
         "name": "tinyllama-1b",
         "url": "https://maas.apps.ocp.sandbox5548.opentlc.com/models-as-a-service/tinyllama-1b",
         "auth": {
-            "api_key": MODEL_API_TOKEN
+            "secret_ref": MODEL_API_TOKEN  # ⚠ Will trigger RHOAI 3.4.0 bug!
         }
     },
     "benchmarks": [
@@ -108,6 +108,8 @@ evaluation_job = {
     }
 }
 ```
+
+**⚠ Known Issue:** The job will be created successfully via the API, but will fail when the Kubernetes pod tries to start. EvalHub uses the token VALUE (1000+ char JWT) as the secret name, which violates Kubernetes naming constraints. See Known Issues section below.
 
 ### 2. Check Evaluations (`02-check-evaluations.ipynb`)
 
