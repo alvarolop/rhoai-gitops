@@ -19,6 +19,10 @@ subjects:
   - apiGroup: rbac.authorization.k8s.io
     kind: Group
     name: rhods-admins
+  # Grant to cluster-admins group (OpenShift cluster administrators)
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: cluster-admins
   # Grant to all authenticated users (optional - comment out if too permissive)
   # - apiGroup: rbac.authorization.k8s.io
   #   kind: Group
