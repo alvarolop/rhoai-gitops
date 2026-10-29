@@ -67,7 +67,7 @@ spec:
               subPath: minio
           terminationMessagePolicy: File
           # Latest release with full feature set
-          image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z 
+          image: quay.io/minio/aistor/minio:RELEASE.2025-04-17T21-01-37Z
           args:
             - server
             - /data
