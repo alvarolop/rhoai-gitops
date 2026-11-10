@@ -15,11 +15,13 @@ spec:
   source:
     repoURL: https://github.com/rh-aiservices-bu/s4.git
     path: charts/s4
-    targetRevision: main
+    targetRevision: v0.4.0
     helm:
       valueFiles: []
       values: |
         replicaCount: 1
+        image:
+          tag: "0.4.0"
         s3:
           endpoint: "http://localhost:7480"
           region: $S4_S3_REGION
