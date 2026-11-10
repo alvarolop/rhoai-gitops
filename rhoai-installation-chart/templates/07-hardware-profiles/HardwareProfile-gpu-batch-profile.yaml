@@ -6,34 +6,35 @@ metadata:
   annotations:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
-    opendatahub.io/display-name: MIG 3g.47gb
-    opendatahub.io/description: "MIG 3g.47gb profile: Medium GPU slice with ~47GB memory, suitable for medium-sized models. 2 instances per GPU."
+    opendatahub.io/display-name: gpu-batch-profile
+    opendatahub.io/description: GPU batch and training workloads (spot capacity). Queue batch-lq borrows idle GPUs and is evicted and requeued when model serving needs them back; keep jobs restartable.
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "1"
-  name: mig-3g-47gb-profile
+  name: gpu-batch-profile
   namespace: redhat-ods-applications
 spec:
   identifiers:
-    - defaultCount: '2'
+    - defaultCount: '1'
       displayName: CPU
       identifier: cpu
       maxCount: '8'
       minCount: 1
       resourceType: CPU
-    - defaultCount: 16Gi
+    - defaultCount: 12Gi
       displayName: Memory
       identifier: memory
       maxCount: 32Gi
       minCount: 1Gi
       resourceType: Memory
     - defaultCount: 1
-      displayName: MIG 3g.47gb
-      identifier: nvidia.com/mig-3g.47gb
-      maxCount: 2
+      displayName: GPU
+      identifier: nvidia.com/gpu
+      maxCount: 4
       minCount: 1
       resourceType: Accelerator
   scheduling:
     type: Queue
     kueue:
-      localQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName | quote }}
+      localQueueName: "batch-lq"
+      priorityClass: batch-nightly
 {{- end }}

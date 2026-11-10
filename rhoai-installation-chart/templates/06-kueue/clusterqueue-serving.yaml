@@ -1,0 +1,86 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+# Reserved-spot pattern (see https://github.com/MarkusGersdorf/kueue-reserved-spot).
+#
+# serving-cq OWNS the whole GPU pool. Classical preemption only lets a workload reclaim quota from the cohort when it
+# fits inside its own queue's nominal quota, so owning all of it means a model can always take its GPUs back from
+# batch-cq. `reclaimWithinCohort: Any` makes that independent of the priority values used by each team.
+#
+# Used by model serving (gpu-profile -> LocalQueue serving-lq). Every project that needs it must have that LocalQueue.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: ClusterQueue
+metadata:
+  name: serving-cq
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  cohortName: gpu-cluster
+  namespaceSelector: {} # match all.
+  # Priority is absolute for serving: a model-critical replica is never overtaken by a lower-priority one.
+  queueingStrategy: StrictFIFO
+  preemption:
+    reclaimWithinCohort: Any
+    withinClusterQueue: LowerPriority
+  resourceGroups:
+    - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
+      flavors:
+        - name: "gpu-flavor"
+          resources:
+            - name: "cpu"
+              nominalQuota: {{ .Values.distributedWorkloads.quotas.gpuFlavor.cpu | quote }}
+            - name: "memory"
+              nominalQuota: {{ .Values.distributedWorkloads.quotas.gpuFlavor.memory | quote }}
+            - name: "nvidia.com/gpu"
+              nominalQuota: {{ .Values.distributedWorkloads.quotas.gpuFlavor.gpu | quote }}
+#
+# ---------------------------------------------------------------------------
+# Reference: NVIDIA H100 with MIG (mixed strategy). Replacement resourceGroups. Not rendered: remove the leading "# " to use it.
+# Replace the resourceGroups block above with this one and add the MIG ResourceFlavors (resourceflavor-gpu-flavor.yaml).
+# A resource name can only be covered by ONE resourceGroup, so keep a single group, add the MIG resources to
+# coveredResources and one flavor per MIG profile. Every flavor lists ALL covered resources in the same order,
+# with 0 for the ones it does not provide. Quotas are examples for 2 H100 GPUs: adjust them to your cluster.
+# See README-MIG.md.
+# ---------------------------------------------------------------------------
+#   resourceGroups:
+#     - coveredResources:
+#         - "cpu"
+#         - "memory"
+#         - "nvidia.com/gpu"
+#         - "nvidia.com/mig-1g.12gb"
+#         - "nvidia.com/mig-3g.47gb"
+#         - "nvidia.com/mig-7g.94gb"
+#       flavors:
+#         - name: "gpu-flavor"
+#           resources:
+#             - {name: "cpu", nominalQuota: "6"}
+#             - {name: "memory", nominalQuota: "24Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "1"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "0"}
+#         - name: "mig-1g-12gb"
+#           resources:
+#             - {name: "cpu", nominalQuota: "16"}
+#             - {name: "memory", nominalQuota: "64Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "14"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "0"}
+#         - name: "mig-3g-47gb"
+#           resources:
+#             - {name: "cpu", nominalQuota: "16"}
+#             - {name: "memory", nominalQuota: "64Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "4"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "0"}
+#         - name: "mig-7g-94gb"
+#           resources:
+#             - {name: "cpu", nominalQuota: "32"}
+#             - {name: "memory", nominalQuota: "128Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "0"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "2"}
+{{- end }}

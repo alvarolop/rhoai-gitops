@@ -7,7 +7,7 @@ metadata:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
     opendatahub.io/display-name: gpu-profile
-    opendatahub.io/description: GPU workloads with NVIDIA accelerators. Scheduling via Kueue queue; GPU nodes and taints come from the gpu ResourceFlavor.
+    opendatahub.io/description: GPU model serving with NVIDIA accelerators. Queue serving-lq (serving-cq owns the GPUs and reclaims them from batch); GPU nodes and taints come from the gpu ResourceFlavor.
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "1"
   name: gpu-profile
@@ -35,5 +35,123 @@ spec:
   scheduling:
     type: Queue
     kueue:
-      localQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName | quote }}
+      localQueueName: "serving-lq"
+      priorityClass: model-critical
+#
+# ---------------------------------------------------------------------------
+# Reference: NVIDIA H100 with MIG (mixed strategy). One HardwareProfile per MIG profile. Not rendered: remove the leading "# " to use it.
+# They point at serving-lq; use batch-lq for spot capacity. Do not use them for workbenches (they need a non-preemptive queue).
+# See README-MIG.md.
+# ---------------------------------------------------------------------------
+# ---
+# apiVersion: infrastructure.opendatahub.io/v1
+# kind: HardwareProfile
+# metadata:
+#   annotations:
+#     opendatahub.io/dashboard-feature-visibility: '[]'
+#     opendatahub.io/disabled: 'false'
+#     opendatahub.io/display-name: MIG 1g.12gb
+#     opendatahub.io/description: "MIG 1g.12gb profile: Small GPU slice with ~12GB memory, ideal for inference or small models. 7 instances per GPU."
+#     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+#     argocd.argoproj.io/sync-wave: "1"
+#   name: mig-1g-12gb-profile
+#   namespace: redhat-ods-applications
+# spec:
+#   identifiers:
+#     - defaultCount: '1'
+#       displayName: CPU
+#       identifier: cpu
+#       maxCount: '4'
+#       minCount: 1
+#       resourceType: CPU
+#     - defaultCount: 8Gi
+#       displayName: Memory
+#       identifier: memory
+#       maxCount: 16Gi
+#       minCount: 1Gi
+#       resourceType: Memory
+#     - defaultCount: 1
+#       displayName: MIG 1g.12gb
+#       identifier: nvidia.com/mig-1g.12gb
+#       maxCount: 7
+#       minCount: 1
+#       resourceType: Accelerator
+#   scheduling:
+#     type: Queue
+#     kueue:
+#       localQueueName: "serving-lq"  # or "batch-lq" for spot capacity
+# ---
+# apiVersion: infrastructure.opendatahub.io/v1
+# kind: HardwareProfile
+# metadata:
+#   annotations:
+#     opendatahub.io/dashboard-feature-visibility: '[]'
+#     opendatahub.io/disabled: 'false'
+#     opendatahub.io/display-name: MIG 3g.47gb
+#     opendatahub.io/description: "MIG 3g.47gb profile: Medium GPU slice with ~47GB memory, suitable for medium-sized models. 2 instances per GPU."
+#     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+#     argocd.argoproj.io/sync-wave: "1"
+#   name: mig-3g-47gb-profile
+#   namespace: redhat-ods-applications
+# spec:
+#   identifiers:
+#     - defaultCount: '2'
+#       displayName: CPU
+#       identifier: cpu
+#       maxCount: '8'
+#       minCount: 1
+#       resourceType: CPU
+#     - defaultCount: 16Gi
+#       displayName: Memory
+#       identifier: memory
+#       maxCount: 32Gi
+#       minCount: 1Gi
+#       resourceType: Memory
+#     - defaultCount: 1
+#       displayName: MIG 3g.47gb
+#       identifier: nvidia.com/mig-3g.47gb
+#       maxCount: 2
+#       minCount: 1
+#       resourceType: Accelerator
+#   scheduling:
+#     type: Queue
+#     kueue:
+#       localQueueName: "serving-lq"  # or "batch-lq" for spot capacity
+# ---
+# apiVersion: infrastructure.opendatahub.io/v1
+# kind: HardwareProfile
+# metadata:
+#   annotations:
+#     opendatahub.io/dashboard-feature-visibility: '[]'
+#     opendatahub.io/disabled: 'false'
+#     opendatahub.io/display-name: MIG 7g.94gb (Full GPU)
+#     opendatahub.io/description: "MIG 7g.94gb profile: Full GPU with 94GB memory, for large models and training workloads. 1 instance per GPU."
+#     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+#     argocd.argoproj.io/sync-wave: "1"
+#   name: mig-7g-94gb-profile
+#   namespace: redhat-ods-applications
+# spec:
+#   identifiers:
+#     - defaultCount: '4'
+#       displayName: CPU
+#       identifier: cpu
+#       maxCount: '16'
+#       minCount: 1
+#       resourceType: CPU
+#     - defaultCount: 24Gi
+#       displayName: Memory
+#       identifier: memory
+#       maxCount: 64Gi
+#       minCount: 1Gi
+#       resourceType: Memory
+#     - defaultCount: 1
+#       displayName: MIG 7g.94gb (Full GPU)
+#       identifier: nvidia.com/mig-7g.94gb
+#       maxCount: 1
+#       minCount: 1
+#       resourceType: Accelerator
+#   scheduling:
+#     type: Queue
+#     kueue:
+#       localQueueName: "serving-lq"  # or "batch-lq" for spot capacity
 {{- end }}

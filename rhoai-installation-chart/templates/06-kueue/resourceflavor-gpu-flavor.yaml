@@ -17,4 +17,55 @@ spec:
     - effect: NoSchedule
       key: nvidia.com/gpu
       operator: Exists
+#
+# ---------------------------------------------------------------------------
+# Reference: NVIDIA H100 with MIG (mixed strategy). One ResourceFlavor per MIG profile. Not rendered: remove the leading "# " to use it.
+# Also add the MIG resources to serving-cq and batch-cq (see the commented blocks at the end of those files).
+# See README-MIG.md.
+# ---------------------------------------------------------------------------
+# ---
+# # MIG 1g.12gb nodes: tolerate MIG taints for small GPU slices
+# # Small instance with ~12GB memory, ideal for inference workloads
+# apiVersion: kueue.x-k8s.io/v1beta2
+# kind: ResourceFlavor
+# metadata:
+#   name: mig-1g-12gb
+#   annotations:
+#     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+#     argocd.argoproj.io/sync-wave: "1"
+# spec:
+#   tolerations:
+#     - effect: NoSchedule
+#       key: nvidia.com/gpu
+#       operator: Exists
+# ---
+# # MIG 3g.47gb nodes: tolerate MIG taints for medium GPU slices
+# # Medium instance with ~47GB memory, suitable for medium-sized models
+# apiVersion: kueue.x-k8s.io/v1beta2
+# kind: ResourceFlavor
+# metadata:
+#   name: mig-3g-47gb
+#   annotations:
+#     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+#     argocd.argoproj.io/sync-wave: "1"
+# spec:
+#   tolerations:
+#     - effect: NoSchedule
+#       key: nvidia.com/gpu
+#       operator: Exists
+# ---
+# # MIG 7g.94gb nodes: tolerate MIG taints for full GPU (via MIG)
+# # Full H100 instance with 94GB memory, for large models and training
+# apiVersion: kueue.x-k8s.io/v1beta2
+# kind: ResourceFlavor
+# metadata:
+#   name: mig-7g-94gb
+#   annotations:
+#     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+#     argocd.argoproj.io/sync-wave: "1"
+# spec:
+#   tolerations:
+#     - effect: NoSchedule
+#       key: nvidia.com/gpu
+#       operator: Exists
 {{- end }}

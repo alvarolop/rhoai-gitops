@@ -1,6 +1,11 @@
 # NVIDIA MIG Configuration for RHOAI
 
-This directory contains HardwareProfile configurations for NVIDIA H100 94GB GPUs with Multi-Instance GPU (MIG) support.
+Reference configuration for NVIDIA H100 94GB GPUs with Multi-Instance GPU (MIG) support.
+
+> [!NOTE]
+> **Not deployed by default.** The chart targets AWS `g6` nodes (1x NVIDIA L4, which does not support MIG): one `gpu-flavor`
+> with a plain `nvidia.com/gpu` quota. The MIG configuration is kept as **commented blocks at the end of the same files**
+> as the default one (marked `Reference: NVIDIA H100 with MIG`). See [Enabling MIG](#enabling-mig).
 
 ## Overview
 
@@ -23,7 +28,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-4 cores
 - **Memory Range**: 1-16 GiB
 
-**File**: `HardwareProfile-mig-1g-12gb.yaml`
+**Defined (commented) in**: `templates/07-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-1g-12gb-profile`)
 
 ### 2. MIG 3g.47gb (Medium Instance)
 - **Resource**: `nvidia.com/mig-3g.47gb`
@@ -33,7 +38,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-8 cores
 - **Memory Range**: 1-32 GiB
 
-**File**: `HardwareProfile-mig-3g-47gb.yaml`
+**Defined (commented) in**: `templates/07-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-3g-47gb-profile`)
 
 ### 3. MIG 7g.94gb (Full GPU)
 - **Resource**: `nvidia.com/mig-7g.94gb`
@@ -43,7 +48,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-16 cores
 - **Memory Range**: 1-64 GiB
 
-**File**: `HardwareProfile-mig-7g-94gb.yaml`
+**Defined (commented) in**: `templates/07-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-7g-94gb-profile`)
 
 ## Prerequisites
 
@@ -85,42 +90,32 @@ oc describe node <node-name> | grep -A 5 "Capacity:"
 # nvidia.com/mig-7g.94gb: 1
 ```
 
-## ClusterQueue Configuration
+## Enabling MIG
 
-The ClusterQueue in `06-kueue/clusterqueue-cluster-queue.yaml` defines quotas for each MIG profile:
+Uncomment (remove the leading `# `) the block marked `Reference: NVIDIA H100 with MIG` at the end of each of these files:
 
-```yaml
-resourceGroups:
-  # MIG 1g.12gb - Small instances
-  - coveredResources: ["cpu", "memory", "nvidia.com/mig-1g.12gb"]
-    flavors:
-      - name: "mig-1g-12gb"
-        resources:
-          - name: "nvidia.com/mig-1g.12gb"
-            nominalQuota: "14"  # 2 GPUs × 7 instances
-  
-  # MIG 3g.47gb - Medium instances
-  - coveredResources: ["cpu", "memory", "nvidia.com/mig-3g.47gb"]
-    flavors:
-      - name: "mig-3g-47gb"
-        resources:
-          - name: "nvidia.com/mig-3g.47gb"
-            nominalQuota: "4"  # 2 GPUs × 2 instances
-  
-  # MIG 7g.94gb - Full GPU instances
-  - coveredResources: ["cpu", "memory", "nvidia.com/mig-7g.94gb"]
-    flavors:
-      - name: "mig-7g-94gb"
-        resources:
-          - name: "nvidia.com/mig-7g.94gb"
-            nominalQuota: "2"  # 2 full GPUs
-```
+| File (in `templates/`) | What to uncomment |
+|---|---|
+| `06-kueue/resourceflavor-gpu-flavor.yaml` | the three MIG ResourceFlavors |
+| `06-kueue/clusterqueue-serving.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `06-kueue/clusterqueue-batch.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `07-hardware-profiles/HardwareProfile-gpu-profile.yaml` | the three MIG HardwareProfiles |
 
-Adjust the `nominalQuota` values based on your cluster's actual GPU count and desired allocation.
+A resource name can only be covered by **one** `resourceGroup` per ClusterQueue, so do not add one group per MIG profile
+(Kueue rejects it with `Duplicate value: "cpu"`). The replacement block keeps a single group, adds the MIG resources to
+`coveredResources` and one flavor per MIG profile, and every flavor lists all covered resources **in the same order**,
+with quota `0` for the ones it does not provide. The quotas in the examples are for 2 H100 GPUs: adjust them to your
+cluster. Because `serving-cq` owns all the MIG slices, `batch-cq` borrows them and is evicted when a model needs them
+back, exactly like the plain GPU pool.
 
 ## Using MIG Profiles in RHOAI
 
 ### In Workbenches
+
+> [!WARNING]
+> RHOAI only lets workbenches use a **non-preemptive** queue, because workbenches cannot be suspended. The MIG
+> profiles point at `serving-lq` (or `batch-lq`), whose queues can preempt workloads, so use them for model serving and
+> batch work, not for workbenches.
 
 Users can select the appropriate MIG profile when creating a workbench:
 1. Create a new workbench
@@ -197,7 +192,7 @@ spec:
 
 ### Pods stuck in Pending
 
-1. **Check ResourceFlavor tolerations** in `06-kueue/resourceflavor-mig-*.yaml`
+1. **Check ResourceFlavor tolerations** in `06-kueue/resourceflavor-gpu-flavor.yaml`
 2. **Verify ClusterQueue quotas** are not exhausted
 3. **Check node taints** match the ResourceFlavor tolerations
 

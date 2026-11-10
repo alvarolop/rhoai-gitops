@@ -1,0 +1,45 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+# WorkloadPriorityClass orders workloads inside a queue and, with withinClusterQueue: LowerPriority, decides who gets
+# preempted there. It is independent of the Kubernetes PriorityClass. Referenced from a HardwareProfile
+# (spec.scheduling.kueue.priorityClass) or with the label kueue.x-k8s.io/priority-class on the workload.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: WorkloadPriorityClass
+metadata:
+  name: model-critical
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+value: 1000000
+description: Production model servers. Admitted ahead of everything else.
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: WorkloadPriorityClass
+metadata:
+  name: model-standard
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+value: 100000
+description: Staging and canary model servers. Yields to model-critical.
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: WorkloadPriorityClass
+metadata:
+  name: batch-interactive
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+value: 1000
+description: Someone is waiting at a notebook. Jumps ahead of nightly batch work.
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: WorkloadPriorityClass
+metadata:
+  name: batch-nightly
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+value: 100
+description: Bulk batch work. Lowest priority, first to be evicted, expected to be restartable.
+{{- end }}

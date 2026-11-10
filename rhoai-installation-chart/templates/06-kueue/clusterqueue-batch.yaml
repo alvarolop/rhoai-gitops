@@ -1,0 +1,88 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+# Reserved-spot pattern: batch-cq is the "spot" side. It owns nothing and may borrow the whole GPU pool of serving-cq,
+# so every admitted batch workload is borrowing, which is exactly what serving-cq is allowed to reclaim (it is evicted
+# and requeued, not failed). `reclaimWithinCohort: Never` also guarantees batch can never evict a model server.
+#
+# Used by training and other batch work (gpu-batch-profile -> LocalQueue batch-lq, or label your jobs with
+# kueue.x-k8s.io/queue-name: batch-lq). Keep jobs restartable (checkpoints) and small: Kueue preempts a whole Workload.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: ClusterQueue
+metadata:
+  name: batch-cq
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  cohortName: gpu-cluster
+  namespaceSelector: {} # match all.
+  # A big job that does not fit must not block the small ones behind it: throughput beats strict ordering here.
+  queueingStrategy: BestEffortFIFO
+  preemption:
+    reclaimWithinCohort: Never
+    withinClusterQueue: LowerPriority
+  resourceGroups:
+    - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
+      flavors:
+        - name: "gpu-flavor"
+          resources:
+            - name: "cpu"
+              nominalQuota: "0"
+              borrowingLimit: {{ .Values.distributedWorkloads.quotas.gpuFlavor.cpu | quote }}
+            - name: "memory"
+              nominalQuota: "0"
+              borrowingLimit: {{ .Values.distributedWorkloads.quotas.gpuFlavor.memory | quote }}
+            - name: "nvidia.com/gpu"
+              nominalQuota: "0"
+              borrowingLimit: {{ .Values.distributedWorkloads.quotas.gpuFlavor.gpu | quote }}
+#
+# ---------------------------------------------------------------------------
+# Reference: NVIDIA H100 with MIG (mixed strategy). Replacement resourceGroups. Not rendered: remove the leading "# " to use it.
+# Replace the resourceGroups block above with this one and add the MIG ResourceFlavors (resourceflavor-gpu-flavor.yaml).
+# A resource name can only be covered by ONE resourceGroup, so keep a single group, add the MIG resources to
+# coveredResources and one flavor per MIG profile. Every flavor lists ALL covered resources in the same order,
+# with 0 for the ones it does not provide. Quotas are examples for 2 H100 GPUs: adjust them to your cluster.
+# See README-MIG.md.
+# ---------------------------------------------------------------------------
+#   resourceGroups:
+#     - coveredResources:
+#         - "cpu"
+#         - "memory"
+#         - "nvidia.com/gpu"
+#         - "nvidia.com/mig-1g.12gb"
+#         - "nvidia.com/mig-3g.47gb"
+#         - "nvidia.com/mig-7g.94gb"
+#       flavors:
+#         - name: "gpu-flavor"
+#           resources:
+#             - {name: "cpu", nominalQuota: "0", borrowingLimit: "6"}
+#             - {name: "memory", nominalQuota: "0", borrowingLimit: "24Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "0", borrowingLimit: "1"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "0", borrowingLimit: "0"}
+#         - name: "mig-1g-12gb"
+#           resources:
+#             - {name: "cpu", nominalQuota: "0", borrowingLimit: "16"}
+#             - {name: "memory", nominalQuota: "0", borrowingLimit: "64Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "0", borrowingLimit: "14"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "0", borrowingLimit: "0"}
+#         - name: "mig-3g-47gb"
+#           resources:
+#             - {name: "cpu", nominalQuota: "0", borrowingLimit: "16"}
+#             - {name: "memory", nominalQuota: "0", borrowingLimit: "64Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "0", borrowingLimit: "4"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "0", borrowingLimit: "0"}
+#         - name: "mig-7g-94gb"
+#           resources:
+#             - {name: "cpu", nominalQuota: "0", borrowingLimit: "32"}
+#             - {name: "memory", nominalQuota: "0", borrowingLimit: "128Gi"}
+#             - {name: "nvidia.com/gpu", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-1g.12gb", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-3g.47gb", nominalQuota: "0", borrowingLimit: "0"}
+#             - {name: "nvidia.com/mig-7g.94gb", nominalQuota: "0", borrowingLimit: "2"}
+{{- end }}

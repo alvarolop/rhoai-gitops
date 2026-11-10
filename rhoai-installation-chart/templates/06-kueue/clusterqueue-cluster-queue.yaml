@@ -1,11 +1,10 @@
 {{- if .Values.distributedWorkloads.enabled }}
 ---
-# The Kueue ClusterQueue object manages a pool of cluster resources such as pods, CPUs, memory, and accelerators.
+# General-purpose queue: workbenches and other CPU workloads on untainted workers. It is the default queue RHOAI
+# uses for new projects (see defaultClusterQueueName in the DataScienceCluster).
 #
-# A resource name can only be covered by ONE resourceGroup, so cpu and memory live in a single group and each
-# hardware type is a flavor inside it. Every flavor lists all covered resources in the same order as
-# coveredResources, with a quota of 0 for the ones it does not provide. Kueue admits a workload into the first
-# flavor that has quota for everything it requests (cpu-flavor first, so CPU-only jobs prefer untainted nodes).
+# Workbenches cannot be suspended, so RHOAI only allows them in a NON-PREEMPTIVE queue. Preemption is therefore
+# disabled explicitly (these are also the defaults). No cohort: it never lends or borrows.
 apiVersion: kueue.x-k8s.io/v1beta2
 kind: ClusterQueue
 metadata:
@@ -15,92 +14,16 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   namespaceSelector: {} # match all.
+  preemption:
+    reclaimWithinCohort: Never
+    withinClusterQueue: Never
   resourceGroups:
-    - coveredResources:
-        - "cpu"
-        - "memory"
-        - "nvidia.com/gpu"
-        - "nvidia.com/mig-1g.12gb"
-        - "nvidia.com/mig-3g.47gb"
-        - "nvidia.com/mig-7g.94gb"
+    - coveredResources: ["cpu", "memory"]
       flavors:
-        # CPU-only workloads
         - name: "cpu-flavor"
           resources:
             - name: "cpu"
-              nominalQuota: "32"
+              nominalQuota: {{ .Values.distributedWorkloads.quotas.cpuFlavor.cpu | quote }}
             - name: "memory"
-              nominalQuota: 128Gi
-            - name: "nvidia.com/gpu"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-1g.12gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-3g.47gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-7g.94gb"
-              nominalQuota: "0"
-
-        # Full GPUs
-        - name: "gpu-flavor"
-          resources:
-            - name: "cpu"
-              nominalQuota: "9"
-            - name: "memory"
-              nominalQuota: 36Gi
-            - name: "nvidia.com/gpu"
-              nominalQuota: "5"
-            - name: "nvidia.com/mig-1g.12gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-3g.47gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-7g.94gb"
-              nominalQuota: "0"
-
-        # MIG 1g.12gb instances (small slices)
-        - name: "mig-1g-12gb"
-          resources:
-            - name: "cpu"
-              nominalQuota: "16"
-            - name: "memory"
-              nominalQuota: 64Gi
-            - name: "nvidia.com/gpu"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-1g.12gb"
-              nominalQuota: "14"  # 2 GPUs × 7 instances = 14
-            - name: "nvidia.com/mig-3g.47gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-7g.94gb"
-              nominalQuota: "0"
-
-        # MIG 3g.47gb instances (medium slices)
-        - name: "mig-3g-47gb"
-          resources:
-            - name: "cpu"
-              nominalQuota: "16"
-            - name: "memory"
-              nominalQuota: 64Gi
-            - name: "nvidia.com/gpu"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-1g.12gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-3g.47gb"
-              nominalQuota: "4"  # 2 GPUs × 2 instances = 4
-            - name: "nvidia.com/mig-7g.94gb"
-              nominalQuota: "0"
-
-        # MIG 7g.94gb instances (full GPU via MIG)
-        - name: "mig-7g-94gb"
-          resources:
-            - name: "cpu"
-              nominalQuota: "32"
-            - name: "memory"
-              nominalQuota: 128Gi
-            - name: "nvidia.com/gpu"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-1g.12gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-3g.47gb"
-              nominalQuota: "0"
-            - name: "nvidia.com/mig-7g.94gb"
-              nominalQuota: "2"  # 2 full GPUs
+              nominalQuota: {{ .Values.distributedWorkloads.quotas.cpuFlavor.memory | quote }}
 {{- end }}

@@ -20,7 +20,8 @@ Red Hat OpenShift AI (RHOAI) is OpenShift’s enterprise AI/MLOps platform for t
       2. [NVIDIA GPU partitioning](#nvidia-gpu-partitioning)
       3. [Pipeline S3 storage](#pipeline-s3-storage)
       4. [Managing distributed workloads](#managing-distributed-workloads)
-      5. [Model Registry](#model-registry)
+      5. [Kueue queues (reserved-spot)](#kueue-queues-reserved-spot)
+      6. [Model Registry](#model-registry)
    6. [Monitoring, Safety and Evaluation](#monitoring-safety-and-evaluation)
    7. [Deploying models (inference serving)](#deploying-models-inference-serving)
    8. [Extra Components](#extra-components)
@@ -225,6 +226,39 @@ You can also see some stats from the RHOAI dasboard:
 ![Distributed Workload - Metrics](docs/images/distributed-workload-metrics.png)
 
 ![Distributed Workload - Status](docs/images/distributed-workload-status.png)
+
+### Kueue queues (reserved-spot)
+
+GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](https://github.com/MarkusGersdorf/kueue-reserved-spot): model servers own the GPU quota and batch work borrows whatever is idle and is evicted and requeued (never failed) when a model needs it back. Queues live in `rhoai-installation-chart/templates/06-kueue/` (Kueue `v1beta2`) and are selected through the HardwareProfile (`spec.scheduling.kueue`):
+
+| ClusterQueue | Flavor | Role | HardwareProfile → LocalQueue |
+|---|---|---|---|
+| `cluster-queue` | `cpu-flavor` | General queue and workbenches. Non-preemptive, as RHOAI requires for workbenches | `cpu-profile` → `default` |
+| `serving-cq` | `gpu-flavor` | Owns the whole GPU pool and reclaims it from batch (`reclaimWithinCohort: Any`) | `gpu-profile` → `serving-lq` |
+| `batch-cq` | `gpu-flavor` | Owns nothing, borrows idle GPUs (`borrowingLimit`) | `gpu-batch-profile` → `batch-lq` |
+
+`serving-cq` and `batch-cq` share the cohort `gpu-cluster`. Four `WorkloadPriorityClass` objects (`model-critical`, `model-standard`, `batch-interactive`, `batch-nightly`) order work inside each queue.
+
+- **Quotas** are the `distributedWorkloads.quotas` values. The defaults fit one AWS `g6.2xlarge` node (1x NVIDIA L4, no MIG). The H100/MIG configuration is kept commented at the end of the same files, see [README-MIG.md](rhoai-installation-chart/README-MIG.md).
+- **LocalQueues:** RHOAI only creates `default` (pointing to `cluster-queue`) in new projects. Create `serving-lq` and `batch-lq` in every project that uses the GPU profiles:
+
+  ```bash
+  oc apply -n <project> -f - <<EOF
+  apiVersion: kueue.x-k8s.io/v1beta2
+  kind: LocalQueue
+  metadata: {name: serving-lq}
+  spec: {clusterQueue: serving-cq}
+  ---
+  apiVersion: kueue.x-k8s.io/v1beta2
+  kind: LocalQueue
+  metadata: {name: batch-lq}
+  spec: {clusterQueue: batch-cq}
+  EOF
+  ```
+
+- **Namespaces** must carry `kueue.openshift.io/managed=true` or Kueue ignores them. The dashboard adds it to new projects when Kueue is enabled; projects created with GitOps need to set it (as `models-as-a-service` does).
+- **Kueue CR:** with `kueue: Unmanaged` the RHOAI operator creates the `Kueue` CR itself, including the frameworks RHOAI needs (Ray, PyTorchJob, TrainJob, ...). It is not managed here. Gang scheduling uses the Red Hat build of Kueue 1.5 default (`ByWorkloadDefaults`, 30 minute readiness timeout).
+- Keep batch jobs small and restartable: Kueue preempts a whole Workload, and an evicted Job restarts from the beginning unless it checkpoints.
 
 ### Model Registry
 

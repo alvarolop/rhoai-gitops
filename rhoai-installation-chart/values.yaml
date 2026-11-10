@@ -23,8 +23,21 @@ modelRegistry:
 distributedWorkloads:
   enabled: true
   # Must match ClusterQueue and LocalQueue names used on the cluster (see templates/05-distributed-workloads).
+  # General-purpose queue (workbenches and other CPU workloads). Also the default queue RHOAI creates in new projects.
   clusterQueueName: cluster-queue
   defaultLocalQueueName: default
+  # Quotas per resource flavor (see templates/06-kueue/). Defaults fit one AWS g6.2xlarge GPU node
+  # (1x NVIDIA L4, 8 vCPU, 32 GiB). Adjust them to your cluster; for MIG/H100 see README-MIG.md.
+  quotas:
+    # cpu-flavor: untainted workers, used by cluster-queue
+    cpuFlavor:
+      cpu: "32"
+      memory: 128Gi
+    # gpu-flavor: the GPU pool. serving-cq owns it all and batch-cq may borrow it (reserved-spot)
+    gpuFlavor:
+      gpu: "1"
+      cpu: "6"
+      memory: 24Gi
   # Topology Aware Scheduling: Commented out as it's not needed for basic Kueue functionality.
   # Topology CR + ResourceFlavor.spec.topologyName + nodeLabels prevent SchedulingGated deadlocks
   # for GPU serving workloads, but adds complexity. Uncomment if needed for advanced scheduling.
