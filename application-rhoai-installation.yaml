@@ -71,8 +71,16 @@ spec:
             #       url: https://github.com/rhoai-mlops/jukebox
             #       ref: main
             #       featureRepoPath: 7-feature_store/feature_repo
+  ignoreDifferences:
+    # The service CA operator injects data.service-ca.crt because of the inject-cabundle annotation.
+    - kind: ConfigMap
+      name: openshift-service-ca.crt
+      namespace: kuadrant-system
+      jsonPointers:
+        - /data
   syncPolicy:
     automated:
       prune: false
       selfHeal: false
-    syncOptions: []
+    syncOptions:
+      - RespectIgnoreDifferences=true
