@@ -33,13 +33,15 @@ distributedWorkloads:
   # models-as-a-service); whoever owns any other namespace has to create and label it, or the sync fails.
   localQueueNamespaces:
     - models-as-a-service
-  # Quotas per resource flavor (see templates/06-kueue/). Defaults fit one AWS g6.2xlarge GPU node
-  # (1x NVIDIA L4, 8 vCPU, 32 GiB). Adjust them to your cluster; for MIG/H100 see README-MIG.md.
+  # Quotas per resource flavor (see templates/06-kueue/). Defaults assume a test cluster with at most one GPU (one AWS
+  # g6.2xlarge: 1x NVIDIA L4, 7.5 CPU / 28 GiB allocatable) and three workers of 15.5 CPU / 58 GiB. Keep them at or
+  # below what is really free after the platform pods: above that Kueue admits workloads the scheduler cannot place.
+  # Adjust them to your cluster; for MIG/H100 see README-MIG.md.
   quotas:
-    # cpu-flavor: untainted workers, used by cluster-queue
+    # cpu-flavor: untainted workers, used by cluster-queue. Measured: about 22 CPU and 126 GiB left after the platform.
     cpuFlavor:
-      cpu: "32"
-      memory: 128Gi
+      cpu: "20"
+      memory: 100Gi
     # gpu-flavor: the GPU pool. serving-cq owns it all and batch-cq may borrow it (reserved-spot)
     gpuFlavor:
       gpu: "1"
