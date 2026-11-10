@@ -42,11 +42,8 @@ spec:
           enabled: false
           size: 5Gi
 
-        # OpenShift: container writes to image paths (/app/backend/open_webui/static/,
-        # .webui_secret_key) that require root. The restricted SCC assigns a random UID
-        # that cannot write to these files, so anyuid SCC is needed.
-        containerSecurityContext:
-          runAsUser: 0
+        # OpenShift: no securityContext needed. Since 0.11 the image runs with the arbitrary UID that the
+        # restricted-v2 SCC assigns (group 0 can write /app), so it does not need root or the anyuid SCC.
 
         volumes:
             - name: config-trusted-cabundle
@@ -124,20 +121,6 @@ spec:
               tls:
                 termination: edge
               wildcardPolicy: None
-
-          # ClusterRoleBinding for anyuid SCC
-          - apiVersion: rbac.authorization.k8s.io/v1
-            kind: ClusterRoleBinding
-            metadata:
-              name: open-webui-anyuid
-            subjects:
-              - kind: ServiceAccount
-                name: open-webui-sa
-                namespace: open-webui
-            roleRef:
-              apiGroup: rbac.authorization.k8s.io
-              kind: ClusterRole
-              name: system:openshift:scc:anyuid
   syncPolicy:
     automated:
       prune: false
