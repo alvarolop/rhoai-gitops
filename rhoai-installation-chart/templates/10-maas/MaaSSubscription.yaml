@@ -36,6 +36,6 @@ spec:
     {{- range .groups }}
       - name: {{ . }}
     {{- end }}
-  priority: {{ .priority | default 1 }}
+  priority: {{ .priority | default 0 }}
 {{- end }}
 {{- end }}

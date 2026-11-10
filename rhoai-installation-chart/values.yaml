@@ -81,7 +81,9 @@ modelsAsService:
       ssl: false
   simulator:
     enabled: true
-  # MaaS configurations - each entry creates a Subscription and AuthPolicy
+  # MaaS configurations - each entry creates a Subscription and AuthPolicy.
+  # priority only picks the default subscription when a user belongs to several. Recommended scheme (RHOAI 3.5 guide):
+  # production 100, staging 50, development/experimentation 0 (the default), sandbox -10. Here: free 0, basic 50, premium 100.
   configs:
     - name: basic-models
       displayName: "Basic Models"
