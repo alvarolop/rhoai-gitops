@@ -22,8 +22,9 @@ modelRegistry:
 
 distributedWorkloads:
   enabled: true
-  # Must match ClusterQueue and LocalQueue names used on the cluster (see templates/05-distributed-workloads).
-  # General-purpose queue (workbenches and other CPU workloads). Also the default queue RHOAI creates in new projects.
+  # General-purpose ClusterQueue (workbenches and other CPU workloads) and the LocalQueue that points to it. They are also
+  # the defaults RHOAI uses for new projects (defaultClusterQueueName/defaultLocalQueueName in the DataScienceCluster).
+  # All the queues are defined in templates/06-kueue/.
   clusterQueueName: cluster-queue
   defaultLocalQueueName: default
   # Namespaces that get the three LocalQueues: default -> cluster-queue, serving-lq -> serving-cq, batch-lq -> batch-cq.
