@@ -370,7 +370,7 @@ Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI plat
 >   - **Workaround**: Manually enable "Enable New Sign Ups" in Admin Panel → Settings → General → Authentication
 > - **Default User Role**: New users get `"user"` role (non-admin)
 > 
-> Override defaults using environment variables from your Fedora system:
+> Override defaults using environment variables from your Fedora system. To use a Models-as-a-Service model, `eval "$(./maas-api-key.sh tinyllama-1b)"` creates an API key and sets `OPENAI_API_URL` and `OPENAI_API_KEY` for you:
 
 ```bash
 cat application-open-webui.yaml | \
