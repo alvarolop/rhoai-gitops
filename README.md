@@ -13,7 +13,7 @@ Red Hat OpenShift AI (RHOAI) is OpenShift’s enterprise AI/MLOps platform for t
    3. [RHOAI Architecture](#rhoai-architecture)
       1. [DataScienceCluster components](#datasciencecluster-components)
    4. [Installation](#installation)
-      1. [Installation on non-4.21 OCP](#installation-on-non-421-ocp)
+      1. [Installation on non-4.22 OCP](#installation-on-non-422-ocp)
       2. [Let's install!!](#lets-install)
    5. [Things you should know!](#things-you-should-know)
       1. [NVIDIA GPU nodes](#nvidia-gpu-nodes)
@@ -68,6 +68,8 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 
 RHOAI needs GPU infrastructure, platform operators, object storage, and a `DataScienceCluster` configuration. Use `auto-install.sh` to apply the Argo CD applications in order.
 
+**Tested on:** OpenShift Container Platform **4.22** (latest). Some components are tied to the OCP version, see [Installation on non-4.22 OCP](#installation-on-non-422-ocp) for older releases.
+
 **Prerequisites:** `oc` login, OpenShift GitOps (Argo CD) on the cluster, and enough memory on untainted workers (checked against `REQUIRED_MEMORY_Gi`, default 70 Gi).
 
 Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. By default the script:
@@ -81,12 +83,12 @@ Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. 
 
 If you plan to use GPU nodes on AWS, the script also prints the Service Quotas commands to request and check the Running On-Demand G and VT instances limit.
 
-### Installation on non-4.21 OCP
+### Installation on non-4.22 OCP
 
-Some of the components deployed in this repo are bound to an specific version of OpenShift. If you want to deploy RHOAI on an older version (For example 4.20), you have to make the following modifications:
+Some of the components deployed in this repo are bound to an specific version of OpenShift. If you want to deploy RHOAI on an older version (For example 4.21), you have to make the following modifications:
 
 - Change the channel of ODF:
-  - In `./ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.20`.
+  - In `./ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.21`.
 
 ### Let's install!!
 
