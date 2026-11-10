@@ -54,6 +54,24 @@ spec:
     llmGatewayField: true
     # vLLM Deployment on MaaS
     vLLMDeploymentOnMaaS: {{ .Values.modelsAsService.enabled }}
+    # Generally available (already on by default, pinned explicitly)
+    projectRBAC: true
+    roleManagement: true
+    trainingJobs: true
+    gpuaas: true
+    # Technology Preview (RHOAI 3.5 default: false). Enabled to enrich the UI.
+    automl: true
+    autorag: true
+    connectionTest: true  # Verify connection credentials (e.g. S4) before saving
+    deploymentWizardYAMLViewer: true
+    externalModels: {{ .Values.modelsAsService.enabled }}
+    featureStoreAdmin: {{ .Values.featureStore.enabled }}
+    genAiTracing: true
+    guardrails: {{ .Values.trustyai.enabled }}
+    llmdTemplates: {{ .Values.llm_d.enabled }}
+    mcpCatalog: true
+    promptManagement: {{ .Values.mlflow.enabled }}  # Loads prompts from the MLflow prompt registry
+    toolCalling: true
   groupsConfig:
     adminGroups: rhods-admins
     allowedGroups: system:authenticated
