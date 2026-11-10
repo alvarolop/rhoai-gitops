@@ -98,10 +98,11 @@ modelsAsService:
         #   tokenRateLimits:
         #     - limit: 100
         #       window: 1h
-        # Object format with per-model rate limits
+        # Object format with per-model rate limits. Limits count prompt + completion tokens, and a client like Open WebUI
+        # also sends title/tags/follow-up requests for each message (about 300 tokens each), so keep them generous.
         - name: tinyllama-1b
           tokenRateLimits:
-            - limit: 1000
+            - limit: 100000
               window: 1h
 
 llm_d:
