@@ -179,7 +179,7 @@ spec:
                     resources:
                       requests:
                         storage: 10Gi
-          # Grant anyuid SCC to the fixed-UID pods: Postgres (999), Valkey (1000), ClickHouse (101)
+          # Grant anyuid SCC to the fixed-UID pods that do not set a seccomp profile: Postgres (999), ClickHouse (101)
           - apiVersion: rbac.authorization.k8s.io/v1
             kind: RoleBinding
             metadata:
@@ -194,10 +194,22 @@ spec:
                 name: langfuse-postgresql
                 namespace: langfuse
               - kind: ServiceAccount
-                name: langfuse-redis
-                namespace: langfuse
-              - kind: ServiceAccount
                 name: langfuse-clickhouse
+                namespace: langfuse
+          # Valkey (uid 1000) sets seccompProfile RuntimeDefault, which anyuid rejects (it has no seccompProfiles),
+          # and restricted-v2 rejects its fixed uid/fsGroup. nonroot-v2 allows both.
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: RoleBinding
+            metadata:
+              name: langfuse-nonroot
+              namespace: langfuse
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: system:openshift:scc:nonroot-v2
+            subjects:
+              - kind: ServiceAccount
+                name: langfuse-redis
                 namespace: langfuse
           - apiVersion: route.openshift.io/v1
             kind: Route
