@@ -14,6 +14,14 @@ spec:
     path: .
     repoURL: https://github.com/alvarolop/rhoai-environment.git
     targetRevision: main
+    helm:
+      values: |
+        pipelines:
+          storageBackend: s4
+          scheme: http
+          awsS3Endpoint: s4.$S4_NAMESPACE.svc.cluster.local
+          awsS3Port: "7480"
+          awsDefaultRegion: $S4_S3_REGION
   ignoreDifferences:
     # 1. Ignore the Operator-injected changes in the Notebook
     - group: kubeflow.org

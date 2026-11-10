@@ -8,7 +8,7 @@ set -e
 
 CREATE_GPU_MACHINESETS=true
 GPU_NODE_COUNT=0  # Total GPU nodes to distribute across AZs (a, b, c)
-INSTALL_MINIO=true
+INSTALL_MINIO=false  # Deprecated in favor of S4. Still deployable, but S4 is the default S3 backend
 INSTALL_ODF=false
 INSTALL_MONITORING=true
 INSTALL_GRAFANA=true
@@ -265,28 +265,29 @@ if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "\n3️⃣ Let's wait until all the pods are up and running"
     while oc get pods -n $MINIO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
 
-    if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+    # Buckets live in S4 when it is installed; MinIO only gets one as a fallback.
+    if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ ! "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
         ./prerequisites/s3-bucket/create-minio-s3-bucket.sh "$MINIO_NAMESPACE" "$MINIO_SERVICE_NAME" # TODO: remove the AWS dependency
     else
-        echo "⏭️  Skip creation of RHOAI Playground environment MinIO Bucket..."
+        echo "⏭️  Skip creation of RHOAI Playground environment MinIO Bucket (S4 is the bucket backend)..."
     fi
 
 else
     echo "⏭️  Skip installation of MinIO..."
 fi
 
-# --- S4 (Super Simple Storage Service) - placeholder ---
-if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+# --- S4 (Super Simple Storage Service) ---
+S4_NAMESPACE="s4"
+S4_S3_ACCESS_KEY="s4admin"
+S4_S3_SECRET_KEY="s4secret"
+S4_S3_REGION="us-east-1"
+S4_S3_ENDPOINT="http://localhost:7480"
+# UI auth (required when auth.enabled=true; defaults aligned with S3 credentials)
+S4_AUTH_USERNAME="${S4_AUTH_USERNAME:-s4admin}"
+S4_AUTH_PASSWORD="${S4_AUTH_PASSWORD:-s4secret}"
+S4_STORAGE_SIZE="10Gi"
 
-    S4_NAMESPACE="s4"
-    S4_S3_ACCESS_KEY="s4admin"
-    S4_S3_SECRET_KEY="s4secret"
-    S4_S3_REGION="us-east-1"
-    S4_S3_ENDPOINT="http://localhost:7480"
-    # UI auth (required when auth.enabled=true; defaults aligned with S3 credentials)
-    S4_AUTH_USERNAME="${S4_AUTH_USERNAME:-s4admin}"
-    S4_AUTH_PASSWORD="${S4_AUTH_PASSWORD:-s4secret}"
-    S4_STORAGE_SIZE="10Gi"
+if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     echo -e "\n--- S4 ---"
     echo -e "1️⃣ Trigger the ArgoCD application to install S4 instance"
@@ -311,6 +312,14 @@ if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
         echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
     else
         echo -e "\t⚠️  S4 route not found; skipping ConsoleLink. Create it later with: oc get route -n $S4_NAMESPACE s4 -o jsonpath='{.spec.host}'"
+    fi
+
+    echo -e "\n5️⃣ Create the RHOAI Playground pipelines bucket and data connection in S4"
+    if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+        S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+        ./prerequisites/s3-bucket/create-s4-s3-bucket.sh "$S4_NAMESPACE" "s4" "$S4_S3_REGION"
+    else
+        echo "⏭️  Skip creation of RHOAI Playground environment S4 Bucket..."
     fi
 
 else
@@ -376,7 +385,6 @@ echo -e "\n🤖 ======================"
 echo -e "🤖 = RHOAI Installation ="
 echo -e "🤖 ======================\n"
 
-exit 0
 echo -e "\n🚀 Trigger the ArgoCD application to install RHOAI instance"
 cat application-rhoai-installation.yaml | \
 CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
@@ -400,24 +408,24 @@ echo -e "🛠️ ==========================\n"
 
 if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "🎮 Trigger the ArgoCD application to deploy the RHOAI Playground environment"
-    oc apply -f application-rhoai-playground-env.yaml
+    cat application-rhoai-playground-env.yaml | \
+    S4_NAMESPACE=$S4_NAMESPACE S4_S3_REGION=$S4_S3_REGION \
+    envsubst | oc apply -f -
 else
     echo "⏭️  Skip creation of RHOAI Playground environment..."
 fi
 
-if [[ "$INSTALL_LANGFUSE" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-    echo "🚀 Installing Langfuse via ArgoCD application"
-    MINIO_NAMESPACE="${MINIO_NAMESPACE:-minio}"
-    MINIO_SERVICE_NAME="${MINIO_SERVICE_NAME:-minio}"
-    MINIO_ADMIN_USERNAME="${MINIO_ADMIN_USERNAME:-minio}"
-    MINIO_ADMIN_PASSWORD="${MINIO_ADMIN_PASSWORD:-minio123}"
+if [[ "$INSTALL_LANGFUSE" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+    echo "🚀 Installing Langfuse via ArgoCD application (S3 backend: S4)"
+    S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+    ./prerequisites/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "langfuse" "$S4_S3_REGION"
     cat application-langfuse.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    MINIO_NAMESPACE=$MINIO_NAMESPACE MINIO_SERVICE_NAME=$MINIO_SERVICE_NAME \
-    MINIO_ADMIN_USERNAME=$MINIO_ADMIN_USERNAME MINIO_ADMIN_PASSWORD=$MINIO_ADMIN_PASSWORD \
+    S4_NAMESPACE=$S4_NAMESPACE S4_S3_REGION=$S4_S3_REGION \
+    S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
     envsubst | oc apply -f -
 else
-    echo "⏭️  Skip installation of Langfuse (requires INSTALL_LANGFUSE and INSTALL_MINIO enabled)..."
+    echo "⏭️  Skip installation of Langfuse (requires INSTALL_LANGFUSE and INSTALL_S4 enabled)..."
 fi
 
 echo -e "\n💡 To use GPU nodes, increase the AWS EC2 quota for Running On-Demand G and VT instances, then wait until AWS approves the request (Status: PENDING → approved):"

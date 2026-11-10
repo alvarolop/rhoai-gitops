@@ -74,10 +74,10 @@ Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. 
 
 1. *(Optional)* Provisions AWS GPU worker MachineSets when `GPU_NODE_COUNT` > 0 (`AWS_GPU_INSTANCE`, default `g6.2xlarge`; nodes are GPU-tainted).
 2. Deploys dependencies via `application-rhoai-dependencies.yaml` (NVIDIA GPU stack, Kueue, Leader Worker Set, JobSet, RHCL, KEDA) and enables the NVIDIA GPU console plugin.
-3. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`) and S3 storage: MinIO and S4 (`INSTALL_MINIO`, `INSTALL_S4`), including a playground bucket when `CREATE_RHOAI_ENV=true`.
+3. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`) and S3 storage: S4 (`INSTALL_S4`, default) and MinIO (`INSTALL_MINIO`, deprecated and off by default). Buckets are created in S4, including a playground bucket when `CREATE_RHOAI_ENV=true`.
 4. *(Optional)* Installs ODF in MCG mode (`INSTALL_ODF`, off by default) or user-workload monitoring (`INSTALL_MONITORING`, off by default).
 5. Waits for GPU nodes when `GPU_NODE_COUNT` > 0, then installs RHOAI via `application-rhoai-installation.yaml` (operator + Helm chart defaults: model registry, distributed workloads, TrustyAI, Feast, MLflow, Llama Stack, llm-d, and related settings).
-6. *(Optional)* Deploys the RHOAI Playground project (`CREATE_RHOAI_ENV`) and Langfuse when `INSTALL_LANGFUSE` is enabled (requires MinIO).
+6. *(Optional)* Deploys the RHOAI Playground project (`CREATE_RHOAI_ENV`, with its pipelines storage pointing to S4) and Langfuse when `INSTALL_LANGFUSE` is enabled.
 
 If you plan to use GPU nodes on AWS, the script also prints the Service Quotas commands to request and check the Running On-Demand G and VT instances limit.
 
@@ -189,7 +189,7 @@ This repo does not enable time-slicing or MIG by default; options depend on your
 
 ### Pipeline S3 storage
 
-Pipelines need S3-compatible storage for artifacts. With the default `auto-install.sh` settings (`INSTALL_MINIO=true`, `CREATE_RHOAI_ENV=true`), MinIO is deployed and `create-minio-s3-bucket.sh` creates the bucket and dashboard connection secret—no manual step.
+Pipelines need S3-compatible storage for artifacts. With the default `auto-install.sh` settings (`INSTALL_S4=true`, `CREATE_RHOAI_ENV=true`), S4 is deployed and `create-s4-s3-bucket.sh` creates the bucket and dashboard connection secret—no manual step. The playground DSPA is pointed at S4 (`s4.s4.svc.cluster.local:7480`) by `application-rhoai-playground-env.yaml`.
 
 For AWS S3, ODF/NooBaa, or a custom endpoint, use the scripts and templates under `prerequisites/s3-bucket/` (see `aws-env-vars.example` for AWS).
 
@@ -286,7 +286,10 @@ Model serving (predictive and generative workloads, Argo CD applications, Helm c
 
 ### MinIO
 
-This demo is fully oriented to use the default and production ready capabilities provided by OpenShift. However, if your current deployment already uses minio and you cannot change it, you can optionally deploy a MinIO application in a side namespace using the following ArgoCD application. **This application is included in the `auto-install.sh` automation**:
+> [!WARNING]
+> **Deprecated in favor of [S4](https://github.com/rh-aiservices-bu/s4).** MinIO is disabled by default (`INSTALL_MINIO=false` in `auto-install.sh`) and any bucket needed by this repo is created in S4. Set `INSTALL_MINIO=true` to deploy it anyway; if S4 is disabled too, the playground pipelines bucket falls back to MinIO (`create-minio-s3-bucket.sh`), but the playground DSPA will still point at S4 unless you override `pipelines.awsS3Endpoint`/`awsS3Port` in `application-rhoai-playground-env.yaml`.
+
+This demo is fully oriented to use the default and production ready capabilities provided by OpenShift. However, if your current deployment already uses minio and you cannot change it, you can optionally deploy a MinIO application in a side namespace using the following ArgoCD application. **This application is included in the `auto-install.sh` automation (when `INSTALL_MINIO=true`)**:
 
 ```bash
 cat application-minio.yaml | \
@@ -364,11 +367,21 @@ The password for the Attu GUI is `root` / `Milvus`.
 
 [Langfuse](https://langfuse.com/self-hosting/deployment/kubernetes-helm) is an open-source platform for tracing, logging, and monitoring AI applications. It provides a unified view of your AI pipeline, allowing you to troubleshoot issues, optimize performance, and improve reliability.
 
+Langfuse stores events, media and exports in an external bucket (`langfuse`) in S4 instead of its bundled storage (`s3.deploy: false`), so it requires `INSTALL_S4=true`. `auto-install.sh` creates the bucket and renders the Application:
+
 ```bash
-oc apply -f application-langfuse.yaml
+./prerequisites/s3-bucket/create-s4-bucket.sh s4 s4 langfuse   # needs S4_S3_ACCESS_KEY / S4_S3_SECRET_KEY exported
+cat application-langfuse.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    S4_NAMESPACE=s4 S4_S3_REGION=us-east-1 S4_S3_ACCESS_KEY=s4admin S4_S3_SECRET_KEY=s4secret \
+    envsubst | oc apply -f -
 ```
 
-or you can deploy it manually with the following command:
+The endpoint is the in-cluster S4 service, so presigned media URLs are only reachable from inside the cluster.
+
+The Application pins Langfuse chart `2.2.x` (app v4). ClickHouse is mandatory for Langfuse, but this demo runs it as a single standalone pod defined in `extraManifests` (`clickhouse.deploy: false`, `cluster.enabled: false`) instead of the chart's operator-managed cluster, so no ClickHouse operator, cert-manager or Keeper is needed. It has no HA and is not for production; for that, use the chart's bundled `clickhouse.deploy: true` (requires cert-manager and the ClickHouse operator). All credentials are pinned because Argo CD renders with `helm template`, where the chart cannot look up generated secrets.
+
+For a plain Helm install with the chart's bundled storage instead:
 
 ```bash
 helm repo add langfuse https://langfuse.github.io/langfuse-k8s

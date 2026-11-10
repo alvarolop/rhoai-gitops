@@ -14,7 +14,7 @@ spec:
   source:
     # https://github.com/langfuse/langfuse-k8s
     repoURL: https://langfuse.github.io/langfuse-k8s
-    targetRevision: "1.5.18"
+    targetRevision: "2.2.4"
     chart: langfuse
     helm:
       values: |
@@ -52,31 +52,138 @@ spec:
               value: "password"
         postgresql:
           auth:
-            username: postgres
             password: "dev-postgres-password-change-in-production"
+          # Dedicated SA (the sub-chart defaults to 'default') so anyuid is not granted to every pod using 'default'
+          serviceAccount:
+            create: true
+            name: langfuse-postgresql
         clickhouse:
-          # Single-user: 1 replica instead of 3 (saves 2 pods)
-          replicaCount: 1
-          # Disable ON CLUSTER queries for single-replica (avoids cluster config issues)
-          clusterEnabled: false
+          # Demo setup: one standalone ClickHouse pod (see extraManifests) instead of the chart's
+          # operator-managed cluster, which needs the ClickHouse operator, cert-manager and a Keeper quorum.
+          deploy: false
+          host: langfuse-clickhouse
           auth:
-            password: "dev-clickhouse-password-change-in-production"
-          # Single-user: 1 ZooKeeper replica instead of 3 (saves 2 pods)
-          zookeeper:
-            replicaCount: 1
+            username: langfuse
+            existingSecret: langfuse-clickhouse-auth
+            existingSecretKey: password
+          cluster:
+            # Single non-clustered node: no ON CLUSTER DDL
+            enabled: false
         redis:
           auth:
             password: "dev-redis-password-change-in-production"
+        # External S3 backend: S4 (bucket created by prerequisites/s3-bucket/create-s4-bucket.sh)
         s3:
-          auth:
-            rootUser: "minio"
-            rootPassword: "minio123"
+          deploy: false
+          bucket: "langfuse"
+          region: "$S4_S3_REGION"
+          endpoint: "http://s4.$S4_NAMESPACE.svc.cluster.local:7480"
+          forcePathStyle: true
+          accessKeyId:
+            value: "$S4_S3_ACCESS_KEY"
+          secretAccessKey:
+            value: "$S4_S3_SECRET_KEY"
         extraManifests:
-          # Grant anyuid SCC to Bitnami subchart service accounts (fix Clickhouse, Postgres, Redis)
+          # Standalone ClickHouse for the demo (Langfuse requires ClickHouse; no HA, not for production)
+          - apiVersion: v1
+            kind: Secret
+            metadata:
+              name: langfuse-clickhouse-auth
+              namespace: langfuse
+            type: Opaque
+            stringData:
+              password: "dev-clickhouse-password-change-in-production"
+          - apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+              name: langfuse-clickhouse
+              namespace: langfuse
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              name: langfuse-clickhouse
+              namespace: langfuse
+            spec:
+              selector:
+                app.kubernetes.io/name: langfuse-clickhouse
+              ports:
+                - name: http
+                  port: 8123
+                - name: native
+                  port: 9000
+          - apiVersion: apps/v1
+            kind: StatefulSet
+            metadata:
+              name: langfuse-clickhouse
+              namespace: langfuse
+            spec:
+              serviceName: langfuse-clickhouse
+              replicas: 1
+              selector:
+                matchLabels:
+                  app.kubernetes.io/name: langfuse-clickhouse
+              template:
+                metadata:
+                  labels:
+                    app.kubernetes.io/name: langfuse-clickhouse
+                spec:
+                  serviceAccountName: langfuse-clickhouse
+                  securityContext:
+                    runAsUser: 101
+                    runAsGroup: 101
+                    fsGroup: 101
+                  containers:
+                    - name: clickhouse
+                      image: docker.io/clickhouse/clickhouse-server:26.8.36.3
+                      env:
+                        - name: CLICKHOUSE_DB
+                          value: default
+                        - name: CLICKHOUSE_USER
+                          value: langfuse
+                        - name: CLICKHOUSE_PASSWORD
+                          valueFrom:
+                            secretKeyRef:
+                              name: langfuse-clickhouse-auth
+                              key: password
+                      ports:
+                        - name: http
+                          containerPort: 8123
+                        - name: native
+                          containerPort: 9000
+                      readinessProbe:
+                        httpGet:
+                          path: /ping
+                          port: http
+                        periodSeconds: 10
+                      livenessProbe:
+                        httpGet:
+                          path: /ping
+                          port: http
+                        initialDelaySeconds: 30
+                        periodSeconds: 20
+                      resources:
+                        requests:
+                          cpu: 500m
+                          memory: 1Gi
+                        limits:
+                          memory: 4Gi
+                      volumeMounts:
+                        - name: data
+                          mountPath: /var/lib/clickhouse
+              volumeClaimTemplates:
+                - metadata:
+                    name: data
+                  spec:
+                    accessModes:
+                      - ReadWriteOnce
+                    resources:
+                      requests:
+                        storage: 10Gi
+          # Grant anyuid SCC to the fixed-UID pods: Postgres (999), Valkey (1000), ClickHouse (101)
           - apiVersion: rbac.authorization.k8s.io/v1
             kind: RoleBinding
             metadata:
-              name: langfuse-bitnami-anyuid
+              name: langfuse-anyuid
               namespace: langfuse
             roleRef:
               apiGroup: rbac.authorization.k8s.io
@@ -84,13 +191,13 @@ spec:
               name: system:openshift:scc:anyuid
             subjects:
               - kind: ServiceAccount
-                name: langfuse-clickhouse
-                namespace: langfuse
-              - kind: ServiceAccount
                 name: langfuse-postgresql
                 namespace: langfuse
               - kind: ServiceAccount
-                name: langfuse-redis-primary
+                name: langfuse-redis
+                namespace: langfuse
+              - kind: ServiceAccount
+                name: langfuse-clickhouse
                 namespace: langfuse
           - apiVersion: route.openshift.io/v1
             kind: Route
