@@ -2,7 +2,7 @@
 ---
 # MIG 3g.47gb nodes: tolerate MIG taints for medium GPU slices
 # Medium instance with ~47GB memory, suitable for medium-sized models
-apiVersion: kueue.x-k8s.io/v1beta1
+apiVersion: kueue.x-k8s.io/v1beta2
 kind: ResourceFlavor
 metadata:
   name: mig-3g-47gb

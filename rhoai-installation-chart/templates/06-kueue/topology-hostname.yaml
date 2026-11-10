@@ -5,7 +5,7 @@
 #
 # {{- if and .Values.distributedWorkloads.enabled .Values.distributedWorkloads.topologyAwareScheduling }}
 # ---
-# apiVersion: kueue.x-k8s.io/v1beta1
+# apiVersion: kueue.x-k8s.io/v1beta2
 # kind: Topology
 # metadata:
 #   name: rhoai-hostname

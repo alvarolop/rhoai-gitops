@@ -2,7 +2,7 @@
 ---
 # MIG 1g.12gb nodes: tolerate MIG taints for small GPU slices
 # Small instance with ~12GB memory, ideal for inference workloads
-apiVersion: kueue.x-k8s.io/v1beta1
+apiVersion: kueue.x-k8s.io/v1beta2
 kind: ResourceFlavor
 metadata:
   name: mig-1g-12gb

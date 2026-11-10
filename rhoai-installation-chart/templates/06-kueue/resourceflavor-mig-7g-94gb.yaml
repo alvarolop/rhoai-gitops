@@ -2,7 +2,7 @@
 ---
 # MIG 7g.94gb nodes: tolerate MIG taints for full GPU (via MIG)
 # Full H100 instance with 94GB memory, for large models and training
-apiVersion: kueue.x-k8s.io/v1beta1
+apiVersion: kueue.x-k8s.io/v1beta2
 kind: ResourceFlavor
 metadata:
   name: mig-7g-94gb
