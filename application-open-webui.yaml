@@ -42,8 +42,9 @@ spec:
           enabled: false
           size: 5Gi
 
-        # OpenShift: no securityContext needed. Since 0.11 the image runs with the arbitrary UID that the
-        # restricted-v2 SCC assigns (group 0 can write /app), so it does not need root or the anyuid SCC.
+        # OpenShift: no securityContext needed, the image runs with the arbitrary UID that the restricted-v2 SCC assigns.
+        # The published image is not built with USE_PERMISSION_HARDENING, so only open_webui/static is writable by
+        # group 0: anything else the app writes has to live in the data volume (see WEBUI_SECRET_KEY_FILE below).
 
         volumes:
             - name: config-trusted-cabundle
@@ -74,7 +75,10 @@ spec:
             stringData:
               # Authentication - disabled for testing
               WEBUI_AUTH: "false"
-              
+
+              # start.sh writes the generated secret key to /app/backend, which a non-root UID cannot write
+              WEBUI_SECRET_KEY_FILE: /app/backend/data/.webui_secret_key
+
               # Trusted CA bundle
               REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
 
