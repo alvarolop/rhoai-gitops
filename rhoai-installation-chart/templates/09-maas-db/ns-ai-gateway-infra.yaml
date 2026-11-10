@@ -1,0 +1,10 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.postgresql.enabled }}
+# The AI Gateway operator creates this namespace when MaaS is enabled, but the maas-db-config secret has to exist
+# in it and Argo CD applies the secret before the operator runs, so create it first. The operator adds its own labels.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.modelsAsService.infraNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+{{- end }}

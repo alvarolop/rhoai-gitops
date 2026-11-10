@@ -22,10 +22,16 @@ spec:
       managementState: Managed
     feastoperator:
       managementState: {{ if .Values.featureStore.enabled }}Managed{{ else }}Removed{{ end }}
+    # Models-as-a-Service (MaaS) lives in the AI Gateway component since RHOAI 3.5. It no longer needs KServe.
+    aigateway:
+      managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
+      modelsAsAService:
+        managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
     kserve:
       managementState: Managed
+      # Deprecated since 3.5 (kept through 3.6) in favor of aigateway.modelsAsAService. Removed -> Managed is blocked.
       modelsAsService:
-        managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
+        managementState: Removed
       nim:
         managementState: Managed
       rawDeploymentServiceConfig: Headless
@@ -33,8 +39,11 @@ spec:
       defaultClusterQueueName: {{ .Values.distributedWorkloads.clusterQueueName }}
       defaultLocalQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName }}
       managementState: {{ if .Values.distributedWorkloads.enabled }}Unmanaged{{ else }}Removed{{ end }}
-    llamastackoperator:
+    # Llama Stack was renamed to OGX in RHOAI 3.5. llamastackoperator is deprecated and kept Removed so only OGX runs.
+    ogx:
       managementState: {{ if .Values.llamaStack.enabled }}Managed{{ else }}Removed{{ end }}
+    llamastackoperator:
+      managementState: Removed
     modelregistry:
       managementState: {{ if .Values.modelRegistry.enabled }}Managed{{ else }}Removed{{ end }}
       registriesNamespace: rhoai-model-registries

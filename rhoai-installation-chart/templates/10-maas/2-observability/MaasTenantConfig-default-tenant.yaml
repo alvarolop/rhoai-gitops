@@ -1,0 +1,22 @@
+{{- if .Values.modelsAsService.enabled }}
+---
+# Configuration of the default MaaS tenant (RHOAI 3.5+). The controller creates this object for the default AITenant,
+# which already uses maas-default-gateway, so the deprecated Tenant CR (gatewayRef + telemetry) is no longer needed.
+# Server-side apply makes this manifest own only the fields below and leave the rest to the controller.
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaasTenantConfig
+metadata:
+  name: default-tenant
+  namespace: models-as-a-service
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true,SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  telemetry:
+    enabled: true
+    metrics:
+      captureOrganization: true
+      captureUser: true
+      captureGroup: false
+      captureModelUsage: true
+{{- end }}

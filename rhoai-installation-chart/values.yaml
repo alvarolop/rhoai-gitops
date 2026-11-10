@@ -44,16 +44,20 @@ distributedWorkloads:
   # topologyAwareScheduling: false
   # Topology name (`rhoai-hostname`) and ResourceFlavor `nodeLabels` are in templates/06-kueue/.
 
+# Enables the OGX component (Llama Stack was renamed to OGX in RHOAI 3.5).
 llamaStack:
   enabled: true
 
-# When true: DataScienceCluster sets kserve.modelsAsService to Managed and the chart applies the
+# When true: DataScienceCluster sets aigateway.modelsAsAService to Managed and the chart applies the
 # maas-default-gateway GatewayClass (Gateway API). Required for MaaS-style LLMInferenceService
 # deployments that use router.gateway.refs. Set false if you only use normal Route-based inference
 # without a shared Gateway API gateway.
 modelsAsService:
   enabled: true
   namespace: models-as-a-service
+  # Infrastructure namespace of MaaS (RHOAI 3.5+). The maas-db-config secret must live here; the AI Gateway operator
+  # uses this default name (see MaasTenantConfig .status.infraNamespace).
+  infraNamespace: redhat-ai-gateway-infra
   grafana:
     enabled: true
   postgresql:

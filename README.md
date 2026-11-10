@@ -55,7 +55,8 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 | dashboard | RHOAI dashboard | Managed |
 | workbenches | Notebook/IDE workbenches (`rhods-notebooks`) | Managed |
 | aipipelines | Kubeflow Pipelines + embedded Argo Workflows | Managed |
-| kserve | Model serving (KServe RawDeployment, NIM; optional Models-as-a-Service) | Managed |
+| kserve | Model serving (KServe RawDeployment, NIM) | Managed |
+| aigateway | AI Gateway with the Models-as-a-Service (MaaS) controller. It replaces the deprecated `kserve.modelsAsService` | Managed if `modelsAsService.enabled` |
 | ray | Distributed Ray workloads | Managed |
 | trainingoperator | Distributed training (PyTorch, TensorFlow, MPI) | Managed |
 | kueue | Queues for distributed workloads (operator installed separately) | Unmanaged if `distributedWorkloads.enabled` |
@@ -63,7 +64,7 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 | trustyai | Bias, drift, guardrails, LM-Eval | Managed if `trustyai.enabled` |
 | feastoperator | Feast feature store | Managed if `featureStore.enabled` |
 | mlflowoperator | MLflow tracking | Managed if `mlflow.enabled` |
-| llamastackoperator | Llama Stack RAG/agent APIs | Managed if `llamaStack.enabled` |
+| ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `llamaStack.enabled` |
 
 ## Installation
 
