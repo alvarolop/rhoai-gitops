@@ -79,6 +79,11 @@ spec:
               # start.sh writes the generated secret key to /app/backend, which a non-root UID cannot write
               WEBUI_SECRET_KEY_FILE: /app/backend/data/.webui_secret_key
 
+              # Open WebUI 0.13 sends its built-in tools to every model (native function calling), and vLLM rejects
+              # that with 400 '"auto" tool choice requires --enable-auto-tool-choice' unless it was started with a
+              # tool-call parser (tinyllama-1b was not). "legacy" turns it off for all models; a model can override it.
+              DEFAULT_MODEL_PARAMS: '{"function_calling": "legacy"}'
+
               # Trusted CA bundle
               REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
 
