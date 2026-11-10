@@ -1,0 +1,39 @@
+{{- if .Values.distributedWorkloads.enabled }}
+{{- range .Values.distributedWorkloads.localQueueNamespaces }}
+---
+# LocalQueues are the namespaced handle that HardwareProfiles (and the kueue.x-k8s.io/queue-name label) point to.
+# default is used by cpu-profile, serving-lq by gpu-profile and batch-lq by gpu-batch-profile.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: LocalQueue
+metadata:
+  name: {{ $.Values.distributedWorkloads.defaultLocalQueueName }}
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterQueue: {{ $.Values.distributedWorkloads.clusterQueueName }}
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: LocalQueue
+metadata:
+  name: serving-lq
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterQueue: serving-cq
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: LocalQueue
+metadata:
+  name: batch-lq
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterQueue: batch-cq
+{{- end }}
+{{- end }}

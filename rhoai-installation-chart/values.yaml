@@ -26,6 +26,12 @@ distributedWorkloads:
   # General-purpose queue (workbenches and other CPU workloads). Also the default queue RHOAI creates in new projects.
   clusterQueueName: cluster-queue
   defaultLocalQueueName: default
+  # Namespaces that get the three LocalQueues: default -> cluster-queue, serving-lq -> serving-cq, batch-lq -> batch-cq.
+  # HardwareProfiles are global, so the queue they name must exist in every namespace that deploys with them.
+  # Each namespace must already exist and carry the label kueue.openshift.io/managed=true (this chart sets it on
+  # models-as-a-service); whoever owns any other namespace has to create and label it, or the sync fails.
+  localQueueNamespaces:
+    - models-as-a-service
   # Quotas per resource flavor (see templates/06-kueue/). Defaults fit one AWS g6.2xlarge GPU node
   # (1x NVIDIA L4, 8 vCPU, 32 GiB). Adjust them to your cluster; for MIG/H100 see README-MIG.md.
   quotas:

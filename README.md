@@ -241,7 +241,7 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
 `serving-cq` and `batch-cq` share the cohort `gpu-cluster`. Four `WorkloadPriorityClass` objects (`model-critical`, `model-standard`, `batch-interactive`, `batch-nightly`) order work inside each queue.
 
 - **Quotas** are the `distributedWorkloads.quotas` values. The defaults fit one AWS `g6.2xlarge` node (1x NVIDIA L4, no MIG). The H100/MIG configuration is kept commented at the end of the same files, see [README-MIG.md](rhoai-installation-chart/README-MIG.md).
-- **LocalQueues:** RHOAI only creates `default` (pointing to `cluster-queue`) in new projects. Create `serving-lq` and `batch-lq` in every project that uses the GPU profiles:
+- **LocalQueues:** HardwareProfiles are global, so the LocalQueue they name has to exist in every namespace that deploys with them, and RHOAI only creates `default` (pointing to `cluster-queue`) in new dashboard projects. This chart creates `default`, `serving-lq` and `batch-lq` in the namespaces listed in `distributedWorkloads.localQueueNamespaces` (`models-as-a-service` by default). For any other namespace, its owner (for example the repo that deploys the models) must create the namespace with the label below and the same three LocalQueues:
 
   ```bash
   oc apply -n <project> -f - <<EOF
@@ -257,7 +257,9 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
   EOF
   ```
 
-- **Namespaces** must carry `kueue.openshift.io/managed=true` or Kueue ignores them. The dashboard adds it to new projects when Kueue is enabled; projects created with GitOps need to set it (as `models-as-a-service` does).
+  Add such a namespace to the list only if it already exists with the label, otherwise the sync of the chart fails.
+- **Namespaces** must carry `kueue.openshift.io/managed=true` or Kueue ignores them. The dashboard adds it to new projects when Kueue is enabled; projects created with GitOps need to set it (this chart does for `models-as-a-service`).
+- **Priority:** in RHOAI 3.5 the HardwareProfile `priorityClass` was not applied to an `LLMInferenceService` (only the queue label was, so its Workload got priority 0). Set the label `kueue.x-k8s.io/priority-class: model-critical` on the workload itself.
 - **Kueue CR:** with `kueue: Unmanaged` the RHOAI operator creates the `Kueue` CR itself, including the frameworks RHOAI needs (Ray, PyTorchJob, TrainJob, ...). It is not managed here. Gang scheduling uses the Red Hat build of Kueue 1.5 default (`ByWorkloadDefaults`, 30 minute readiness timeout).
 - Keep batch jobs small and restartable: Kueue preempts a whole Workload, and an evicted Job restarts from the beginning unless it checkpoints.
 
