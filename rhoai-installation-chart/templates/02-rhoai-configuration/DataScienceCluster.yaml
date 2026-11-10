@@ -5,13 +5,12 @@ metadata:
   name: default-dsc
   annotations:
     argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     app.kubernetes.io/name: datasciencecluster
     app.kubernetes.io/part-of: rhods-operator
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: rhods-operator
-  annotations:
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   components:
     dashboard:
