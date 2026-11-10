@@ -5,6 +5,10 @@ kind: LLMInferenceService
 metadata:
   name: facebook-opt-125m-simulated
   namespace: {{ .Values.modelsAsService.namespace | default "models-as-a-service" }}
+  labels:
+    # CPU-only simulator: same queue as cpu-profile. Without the label Kueue only adds it implicitly through the
+    # default LocalQueue, and it would not be queued if that queue did not exist.
+    kueue.x-k8s.io/queue-name: {{ .Values.distributedWorkloads.defaultLocalQueueName }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
