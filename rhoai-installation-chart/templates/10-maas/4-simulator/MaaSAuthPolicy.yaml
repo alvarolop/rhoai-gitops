@@ -17,5 +17,4 @@ spec:
   subjects:
     groups:
       - name: system:authenticated
-    users: []
 {{ end }}
