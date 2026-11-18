@@ -15,7 +15,10 @@ spec:
   sources:
     - repoURL: https://zilliztech.github.io/milvus-helm/
       chart: milvus
-      targetRevision: 5.0.34
+      # 5.0.25 is the last chart paired with Milvus 2.6 (appVersion 2.6.21). From 5.0.27 the chart ships Milvus 3.0,
+      # whose images have /milvus/bin and /milvus/lib as milvus:milvus without access for "other", so the arbitrary
+      # UID of the restricted-v2 SCC gets "exec milvus failed: Permission denied".
+      targetRevision: 5.0.25
       helm:
         releaseName: vectordb
         values: |
