@@ -427,11 +427,9 @@ cat application-open-webui.yaml | \
 It is deployed from the [official Milvus chart](https://milvus.io/docs/install_cluster-helm.md) (`zilliztech/milvus-helm`, pinned in `application-milvus.yaml`) in standalone mode: one Milvus pod, one etcd and one MinIO, with the Woodpecker message queue embedded in Milvus. The chart ships Attu (`attu.enabled`) and its OpenShift Route, so there is no custom manifest anymore. The release is called `vectordb`, so Milvus answers at `vectordb-milvus.milvus.svc.cluster.local:19530`. `addons/milvus` only holds the ConsoleLink to Attu.
 
 ```bash
-CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}')
-cat application-milvus.yaml | CLUSTER_DOMAIN=$CLUSTER_DOMAIN envsubst | oc apply -f -
-
-# Optional: link to Attu in the OpenShift application menu
-cat addons/milvus/ConsoleLink.yaml | ATTU_HREF=https://attu-milvus.apps.$CLUSTER_DOMAIN envsubst | oc apply -f -
+cat application-milvus.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    envsubst | oc apply -f -
 ```
 
 Attu is at `https://attu-milvus.apps.<cluster domain>`. Authentication is disabled in Milvus by default, so Attu does not ask for credentials unless you enable it (the default user is `root` / `Milvus`).
