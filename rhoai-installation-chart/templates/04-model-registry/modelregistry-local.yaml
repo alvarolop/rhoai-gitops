@@ -11,20 +11,15 @@ metadata:
   name: local
   namespace: rhoai-model-registries
 spec:
-  grpc:
-    port: 9090
-  mysql:
-    database: model_registry_db
-    host: mysql.rhoai-model-registries-mysql.svc.cluster.local
-    passwordSecret:
-      key: database-password
-      name: model-registry-db
-    port: 3306
-    username: root
-    sslRootCertificateConfigMap:
-      key: ca-bundle.crt
-      name: odh-trusted-ca-bundle
   rest:
     port: 8080
     serviceRoute: disabled
+  # kube-rbac-proxy (default) publishes the registry in the route local-https; callers authenticate with an OpenShift token.
+  kubeRBACProxy:
+    serviceRoute: enabled
+  # "Default database" of the dashboard: the operator deploys and manages a PostgreSQL next to the registry.
+  # Evaluation and demos only, Red Hat does not support it in production. For production point to an external
+  # PostgreSQL (16.x) or MySQL instead: postgres.host/port/database/username/passwordSecret (or the mysql block).
+  postgres:
+    generateDeployment: true
 {{- end }}

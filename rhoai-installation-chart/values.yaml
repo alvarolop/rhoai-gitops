@@ -8,17 +8,9 @@ global:
   # DNS segment after apps. in route hostnames (e.g. ocp.sandbox3642.opentlc.com for *.apps.ocp.sandbox3642.opentlc.com).
   clusterDomain: "ocp.sandbox437.opentlc.com"
 
+# Model registry `local` in rhoai-model-registries. Its PostgreSQL is deployed by the operator (demo use only).
 modelRegistry:
   enabled: true
-  mysql:
-    enabled: true
-    namespace: rhoai-model-registries-mysql
-    name: mysql
-    metrics:
-      enabled: false
-    persistence:
-      enabled: true
-      size: 30Gi
 
 distributedWorkloads:
   enabled: true

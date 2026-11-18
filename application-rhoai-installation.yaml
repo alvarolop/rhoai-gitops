@@ -23,13 +23,6 @@ spec:
 
         modelRegistry:
           enabled: true
-          mysql:
-            enabled: true
-            namespace: rhoai-model-registries-mysql
-            name: mysql
-            persistence:
-              enabled: true
-              size: 30Gi
         
         distributedWorkloads:
           enabled: true
