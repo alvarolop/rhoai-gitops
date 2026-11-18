@@ -20,5 +20,5 @@ spec:
       datasourceName: Prometheus
   # https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/deploy_models_using_distributed_inference_with_llm-d/monitoring-llmd-deployments#llmd-grafana-dashboards_monitoring-llmd
   json: |
-{{- .Files.Get "files/08-llm-d/llm-d-diagnostic-drilldown-dashboard.json" | nindent 4 }}
+{{- .Files.Get "files/09-llm-d/llm-d-diagnostic-drilldown-dashboard.json" | nindent 4 }}
 {{ end }}

@@ -28,7 +28,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-4 cores
 - **Memory Range**: 1-16 GiB
 
-**Defined (commented) in**: `templates/07-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-1g-12gb-profile`)
+**Defined (commented) in**: `templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-1g-12gb-profile`)
 
 ### 2. MIG 3g.47gb (Medium Instance)
 - **Resource**: `nvidia.com/mig-3g.47gb`
@@ -38,7 +38,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-8 cores
 - **Memory Range**: 1-32 GiB
 
-**Defined (commented) in**: `templates/07-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-3g-47gb-profile`)
+**Defined (commented) in**: `templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-3g-47gb-profile`)
 
 ### 3. MIG 7g.94gb (Full GPU)
 - **Resource**: `nvidia.com/mig-7g.94gb`
@@ -48,7 +48,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-16 cores
 - **Memory Range**: 1-64 GiB
 
-**Defined (commented) in**: `templates/07-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-7g-94gb-profile`)
+**Defined (commented) in**: `templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-7g-94gb-profile`)
 
 ## Prerequisites
 
@@ -96,10 +96,10 @@ Uncomment (remove the leading `# `) the block marked `Reference: NVIDIA H100 wit
 
 | File (in `templates/`) | What to uncomment |
 |---|---|
-| `06-kueue/ResourceFlavor-gpu-flavor.yaml` | the three MIG ResourceFlavors |
-| `06-kueue/ClusterQueue-serving.yaml` | the replacement `resourceGroups` (replace the active one) |
-| `06-kueue/ClusterQueue-batch.yaml` | the replacement `resourceGroups` (replace the active one) |
-| `07-hardware-profiles/HardwareProfile-gpu-profile.yaml` | the three MIG HardwareProfiles |
+| `04-kueue/ResourceFlavor-gpu-flavor.yaml` | the three MIG ResourceFlavors |
+| `04-kueue/ClusterQueue-serving.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `04-kueue/ClusterQueue-batch.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `05-hardware-profiles/HardwareProfile-gpu-profile.yaml` | the three MIG HardwareProfiles |
 
 A resource name can only be covered by **one** `resourceGroup` per ClusterQueue, so do not add one group per MIG profile
 (Kueue rejects it with `Duplicate value: "cpu"`). The replacement block keeps a single group, adds the MIG resources to
@@ -192,7 +192,7 @@ spec:
 
 ### Pods stuck in Pending
 
-1. **Check ResourceFlavor tolerations** in `06-kueue/ResourceFlavor-gpu-flavor.yaml`
+1. **Check ResourceFlavor tolerations** in `04-kueue/ResourceFlavor-gpu-flavor.yaml`
 2. **Verify ClusterQueue quotas** are not exhausted
 3. **Check node taints** match the ResourceFlavor tolerations
 

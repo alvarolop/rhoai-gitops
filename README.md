@@ -67,6 +67,25 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 | ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `llamaStack.enabled` |
 | mcplifecycleoperator | Deploys the MCP servers of the dashboard's MCP Catalog and Registry | Managed if `mcp.enabled` |
 
+### Chart layout
+
+The templates of `rhoai-installation-chart` are numbered in the order that makes sense when you read them: first the operator and its configuration, then the infrastructure it needs, the platform services, the model serving stacks and, last, the apps and the demo content. Each service keeps its own database in a `db` folder.
+
+| Folder | What it deploys |
+|---|---|
+| `01-rhoai-operator` | OpenShift AI operator (namespace, OperatorGroup, Subscription) |
+| `02-rhoai-configuration` | DataScienceCluster, dashboard configuration, notebook culler |
+| `03-metalLB` | IP pool for `LoadBalancer` services on bare metal |
+| `04-kueue` | Queues, flavors and priorities (reserved-spot) |
+| `05-hardware-profiles` | Hardware profiles that point to the queues |
+| `06-model-registry` | Model registry |
+| `07-feature-store` | Feast feature stores |
+| `08-mlflow` | MLflow tracking server |
+| `09-llm-d` | Direct llm-d gateway and dashboards |
+| `10-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana` |
+| `11-evalhub` | EvalHub: `1-db`, `2-evalhub` |
+| `12-maas-demo` | MaaS demo content (simulator model, sample subscriptions): `1-simulator`, `2-configs` |
+
 ## Installation
 
 RHOAI needs GPU infrastructure, platform operators, object storage, and a `DataScienceCluster` configuration. Use `auto-install.sh` to apply the Argo CD applications in order.
@@ -231,7 +250,7 @@ You can also see some stats from the RHOAI dasboard:
 
 ### Kueue queues (reserved-spot)
 
-GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](https://github.com/MarkusGersdorf/kueue-reserved-spot): model servers own the GPU quota and batch work borrows whatever is idle and is evicted and requeued (never failed) when a model needs it back. Queues live in `rhoai-installation-chart/templates/06-kueue/` (Kueue `v1beta2`) and are selected through the HardwareProfile (`spec.scheduling.kueue`):
+GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](https://github.com/MarkusGersdorf/kueue-reserved-spot): model servers own the GPU quota and batch work borrows whatever is idle and is evicted and requeued (never failed) when a model needs it back. Queues live in `rhoai-installation-chart/templates/04-kueue/` (Kueue `v1beta2`) and are selected through the HardwareProfile (`spec.scheduling.kueue`):
 
 | ClusterQueue | Flavor | Role | HardwareProfile → LocalQueue |
 |---|---|---|---|
@@ -266,7 +285,7 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
 
 ### Model Registry
 
-OpenShift AI now includes the possibility to deploy a model registry to store community and customized AI models. The chart creates the registry `local` in `rhoai-model-registries`, with the PostgreSQL that the operator deploys for it (`postgres.generateDeployment`, the dashboard's *Default database*). It is meant for tests and demos, not for production: edit `templates/04-model-registry/ModelRegistry-local.yaml` to point it to an external PostgreSQL or MySQL. The registry stores the metadata of your models. Once deployed, your training pipelines can add an extra step putting model metadata to the registry.
+OpenShift AI now includes the possibility to deploy a model registry to store community and customized AI models. The chart creates the registry `local` in `rhoai-model-registries`, with the PostgreSQL that the operator deploys for it (`postgres.generateDeployment`, the dashboard's *Default database*). It is meant for tests and demos, not for production: edit `templates/06-model-registry/ModelRegistry-local.yaml` to point it to an external PostgreSQL or MySQL. The registry stores the metadata of your models. Once deployed, your training pipelines can add an extra step putting model metadata to the registry.
 
 Using RHOAI Model Registry you have a centralized source of models as well as a simple way to deploy prepared models:
 
@@ -305,7 +324,7 @@ If you want to try this feature, I recommend you to follow the RH documentation:
 
 ### Feature Store
 
-`featureStore.enabled` turns on the Feast operator and creates a `FeatureStore` for each enabled entry of `featureStore.examples` in `rhoai-feature-store` (see `templates/05-feature-store/`). Two examples are defined in `values.yaml`:
+`featureStore.enabled` turns on the Feast operator and creates a `FeatureStore` for each enabled entry of `featureStore.examples` in `rhoai-feature-store` (see `templates/07-feature-store/`). Two examples are defined in `values.yaml`:
 
 - `sample` (enabled): the project that `feast init` generates (`feastProjectDir.init.template: local`, driver statistics). Nothing to clone, so it works on any cluster. Other templates are `milvus`, `ray_rag`, `pytorch_nlp`, `postgres`, `spark`, and so on.
 - `banking` (disabled): a feature repository cloned from Git (`feastProjectDir.git`), with `authz.enabled` to turn on Kubernetes RBAC.
@@ -322,7 +341,7 @@ The stores are ephemeral, which is fine for short-lived clusters. To keep them i
 
 ### MLflow
 
-`mlflow.enabled` creates the cluster-wide `MLflow` (`templates/13-mlflow/`). Its metadata lives in SQLite on a PVC and its artifacts in the `mlflow` bucket of S4, which `auto-install.sh` creates (`INSTALL_S4`). The credentials come from `mlflow.artifacts.s3` and end up in the Secret `mlflow-s3-credentials`. Without S4, `auto-install.sh` sets `mlflow.artifacts.s3.enabled=false` and the artifacts stay on the PVC.
+`mlflow.enabled` creates the cluster-wide `MLflow` (`templates/08-mlflow/`). Its metadata lives in SQLite on a PVC and its artifacts in the `mlflow` bucket of S4, which `auto-install.sh` creates (`INSTALL_S4`). The credentials come from `mlflow.artifacts.s3` and end up in the Secret `mlflow-s3-credentials`. Without S4, `auto-install.sh` sets `mlflow.artifacts.s3.enabled=false` and the artifacts stay on the PVC.
 
 Each project is an MLflow workspace. From a workbench, `pip install "mlflow[kubernetes]>=3.11"` and `MLFLOW_TRACKING_AUTH=kubernetes-namespaced` are enough. The chart only grants access in `models-as-a-service`; other projects need the `mlflow-operator-mlflow-edit` ClusterRole bound to their users.
 
@@ -336,7 +355,7 @@ Several independent pieces collect metrics, and not all of them need OpenShift u
 
 | Source | Needs UWM? | Notes |
 |---|---|---|
-| RHOAI observability stack (`DSCInitialization.spec.monitoring`, `templates/10-maas/2-observability/`) | No | Own Prometheus, Alertmanager, Thanos querier, OTel collector and Tempo in `redhat-ods-monitoring`. Needs the COO, Tempo and OpenTelemetry operators. It feeds the *Observe & monitor* dashboards. To include a user workload, label its pod template with `monitoring.opendatahub.io/scrape=true`. |
+| RHOAI observability stack (`DSCInitialization.spec.monitoring`, `templates/10-maas/3-observability/`) | No | Own Prometheus, Alertmanager, Thanos querier, OTel collector and Tempo in `redhat-ods-monitoring`. Needs the COO, Tempo and OpenTelemetry operators. It feeds the *Observe & monitor* dashboards. To include a user workload, label its pod template with `monitoring.opendatahub.io/scrape=true`. |
 | NVIDIA GPU Operator (DCGM exporter) | No, if the namespace is labelled | The `ClusterPolicy` creates the `ServiceMonitor` in `nvidia-gpu-operator`, which carries `openshift.io/cluster-monitoring: 'true'`, so the cluster Prometheus scrapes it. Without that label it would need UWM. The *Cluster* dashboard GPU charts depend on it. |
 | Operator namespaces (Kueue, RHCL, KEDA, LWS, JobSet, NFD, COO, Tempo, OTel) | No | Same `openshift.io/cluster-monitoring` label. |
 | llm-d (`LLMInferenceService`) | Yes (per the RHOAI 3.5 docs) | The controller creates a `PodMonitor` (vLLM) and a `ServiceMonitor` (scheduler) in the model namespace, and the docs list UWM as a prerequisite. |

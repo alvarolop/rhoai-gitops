@@ -13,7 +13,7 @@ modelRegistry:
 
 distributedWorkloads:
   enabled: true
-  # General-purpose queue (cpu-profile, workbenches). All the queues are defined in templates/06-kueue/.
+  # General-purpose queue (cpu-profile, workbenches). All the queues are defined in templates/04-kueue/.
   clusterQueueName: cluster-queue
   defaultLocalQueueName: default
   # Namespaces that get the LocalQueues (default, serving-lq, batch-lq). Each one must already exist and carry the label
@@ -32,7 +32,7 @@ distributedWorkloads:
       gpu: "1"
       cpu: "6"
       memory: 24Gi
-  # Topology Aware Scheduling (disabled): see templates/06-kueue/Topology-hostname.yaml.
+  # Topology Aware Scheduling (disabled): see templates/04-kueue/Topology-hostname.yaml.
   # topologyAwareScheduling: false
 
 # OGX is the new name of Llama Stack
@@ -64,7 +64,7 @@ modelsAsService:
     service:
       port: 5432
       ssl: false
-  # Demo content (templates/15-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
+  # Demo content (templates/12-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
   demo:
     enabled: true
   # Each entry creates a MaaSSubscription and a MaaSAuthPolicy. priority picks the default subscription when a user matches
