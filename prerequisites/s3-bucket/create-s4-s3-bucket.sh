@@ -31,7 +31,7 @@ echo -e "==============\n"
 
 echo -e "\nCreate the Pipelines Datasource Secret"
 oc get project $NOTEBOOK_NAMESPACE || oc new-project $NOTEBOOK_NAMESPACE
-oc process -f ./prerequisites/s3-bucket/secret-data-connection-pipelines.yaml \
+oc process -f ./prerequisites/s3-bucket/Secret-data-connection-pipelines.yaml \
     -p SECRET_NAME=$BUCKET_SECRET_NAME \
     -p AWS_S3_ENDPOINT=$S4_ENDPOINT_SVC \
     -p AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \

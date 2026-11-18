@@ -116,21 +116,21 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     echo "🎯 Adding $GPU_NODE_COUNT GPU node(s) to the cluster (AZ a: $REPLICAS_A, b: $REPLICAS_B, c: $REPLICAS_C)"
 
-    oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
+    oc process -f prerequisites/ocp-nodes/MachineSet-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
         -p REGION="$AWS_DEFAULT_REGION" \
         -p AMI_ID="$AMI_ID" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="a" -p REPLICAS=$REPLICAS_A | \
         oc apply -n openshift-machine-api -f -
 
-    oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
+    oc process -f prerequisites/ocp-nodes/MachineSet-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
         -p REGION="$AWS_DEFAULT_REGION" \
         -p AMI_ID="$AMI_ID" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="b" -p REPLICAS=$REPLICAS_B | \
         oc apply -n openshift-machine-api -f -
 
-    oc process -f prerequisites/ocp-nodes/template-gpu-worker.yaml \
+    oc process -f prerequisites/ocp-nodes/MachineSet-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
         -p REGION="$AWS_DEFAULT_REGION" \
         -p AMI_ID="$AMI_ID" \
