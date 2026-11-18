@@ -1,14 +1,12 @@
-{{- if .Values.clusterDomain }}
----
+# ConsoleLink for Milvus Attu - appears in Application Menu under "OpenShift Self Managed Services"
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
 metadata:
-  name: {{ .Release.Namespace }}-attu
+  name: milvus-attu
 spec:
-  href: "https://attu-{{ .Release.Namespace }}.apps.{{ .Values.clusterDomain }}"
+  href: "${ATTU_HREF}"
   location: ApplicationMenu
   text: "Milvus | Attu"
   applicationMenu:
     section: OpenShift Self Managed Services
     imageURL: "https://images.crunchbase.com/image/upload/c_pad,h_170,w_170,f_auto,b_white,q_auto:eco,dpr_1/qa7uilyathgvb36hsfrf"
-{{- end }}
