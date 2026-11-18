@@ -116,21 +116,21 @@ if [[ "$CREATE_GPU_MACHINESETS" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     echo "🎯 Adding $GPU_NODE_COUNT GPU node(s) to the cluster (AZ a: $REPLICAS_A, b: $REPLICAS_B, c: $REPLICAS_C)"
 
-    oc process -f prerequisites/ocp-nodes/MachineSet-gpu-worker.yaml \
+    oc process -f addons/ocp-nodes/MachineSet-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
         -p REGION="$AWS_DEFAULT_REGION" \
         -p AMI_ID="$AMI_ID" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="a" -p REPLICAS=$REPLICAS_A | \
         oc apply -n openshift-machine-api -f -
 
-    oc process -f prerequisites/ocp-nodes/MachineSet-gpu-worker.yaml \
+    oc process -f addons/ocp-nodes/MachineSet-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
         -p REGION="$AWS_DEFAULT_REGION" \
         -p AMI_ID="$AMI_ID" \
         -p INSTANCE_TYPE="$AWS_GPU_INSTANCE" -p AZ="b" -p REPLICAS=$REPLICAS_B | \
         oc apply -n openshift-machine-api -f -
 
-    oc process -f prerequisites/ocp-nodes/MachineSet-gpu-worker.yaml \
+    oc process -f addons/ocp-nodes/MachineSet-gpu-worker.yaml \
         -p INFRASTRUCTURE_ID=$(oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster) \
         -p REGION="$AWS_DEFAULT_REGION" \
         -p AMI_ID="$AMI_ID" \
@@ -221,7 +221,7 @@ fi
     GRAFANA_ROUTE_HOST=$(oc get route -n "grafana" grafana-route -o jsonpath='{.spec.host}' 2>/dev/null || true)
     if [[ -n "$GRAFANA_ROUTE_HOST" ]]; then
         GRAFANA_HREF="https://${GRAFANA_ROUTE_HOST}"
-        cat prerequisites/grafana/ConsoleLink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
+        cat addons/grafana/ConsoleLink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
         echo -e "\t✅ ConsoleLink 'grafana' created (href: $GRAFANA_HREF)."
     else
         echo -e "\t⚠️  Grafana route not found; skipping ConsoleLink. Create it later with: oc get route -n grafana grafana -o jsonpath='{.spec.host}'"
@@ -267,7 +267,7 @@ if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
     # Buckets live in S4 when it is installed; MinIO only gets one as a fallback.
     if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ ! "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-        ./prerequisites/s3-bucket/create-minio-s3-bucket.sh "$MINIO_NAMESPACE" "$MINIO_SERVICE_NAME" # TODO: remove the AWS dependency
+        ./addons/s3-bucket/create-minio-s3-bucket.sh "$MINIO_NAMESPACE" "$MINIO_SERVICE_NAME" # TODO: remove the AWS dependency
     else
         echo "⏭️  Skip creation of RHOAI Playground environment MinIO Bucket (S4 is the bucket backend)..."
     fi
@@ -308,7 +308,7 @@ if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     S4_ROUTE_HOST=$(oc get route -n "$S4_NAMESPACE" s4 -o jsonpath='{.spec.host}' 2>/dev/null || true)
     if [[ -n "$S4_ROUTE_HOST" ]]; then
         S4_HREF="https://${S4_ROUTE_HOST}"
-        cat prerequisites/s4/ConsoleLink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
+        cat addons/s4/ConsoleLink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
         echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
     else
         echo -e "\t⚠️  S4 route not found; skipping ConsoleLink. Create it later with: oc get route -n $S4_NAMESPACE s4 -o jsonpath='{.spec.host}'"
@@ -317,14 +317,14 @@ if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "\n5️⃣ Create the RHOAI Playground pipelines bucket and data connection in S4"
     if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
         S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
-        ./prerequisites/s3-bucket/create-s4-s3-bucket.sh "$S4_NAMESPACE" "s4" "$S4_S3_REGION"
+        ./addons/s3-bucket/create-s4-s3-bucket.sh "$S4_NAMESPACE" "s4" "$S4_S3_REGION"
     else
         echo "⏭️  Skip creation of RHOAI Playground environment S4 Bucket..."
     fi
 
     echo -e "\n6️⃣ Create the MLflow artifacts bucket in S4"
     S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
-    ./prerequisites/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "mlflow" "$S4_S3_REGION"
+    ./addons/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "mlflow" "$S4_S3_REGION"
 
 else
     echo "⏭️  Skip installation of S4..."
@@ -426,7 +426,7 @@ fi
 if [[ "$INSTALL_LANGFUSE" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo "🚀 Installing Langfuse via ArgoCD application (S3 backend: S4)"
     S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
-    ./prerequisites/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "langfuse" "$S4_S3_REGION"
+    ./addons/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "langfuse" "$S4_S3_REGION"
     cat application-langfuse.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
     S4_NAMESPACE=$S4_NAMESPACE S4_S3_REGION=$S4_S3_REGION \

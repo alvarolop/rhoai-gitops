@@ -55,7 +55,7 @@ spec:
     # ConsoleLink to Attu in the OpenShift application menu
     - repoURL: https://github.com/alvarolop/rhoai-gitops.git
       targetRevision: main
-      path: components/milvus
+      path: addons/milvus
       helm:
         values: |
           clusterDomain: $CLUSTER_DOMAIN

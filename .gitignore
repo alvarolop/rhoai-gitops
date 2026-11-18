@@ -1,5 +1,5 @@
 
-prerequisites/maas-external-models
+addons/maas-external-models
 
 # General files for the project
 pkg/*

@@ -195,7 +195,7 @@ This repo does not enable time-slicing or MIG by default; options depend on your
 
 Pipelines need S3-compatible storage for artifacts. With the default `auto-install.sh` settings (`INSTALL_S4=true`, `CREATE_RHOAI_ENV=true`), S4 is deployed and `create-s4-s3-bucket.sh` creates the bucket and dashboard connection secret—no manual step. The playground DSPA is pointed at S4 (`s4.s4.svc.cluster.local:7480`) by `application-rhoai-playground-env.yaml`.
 
-For AWS S3, ODF/NooBaa, or a custom endpoint, use the scripts and templates under `prerequisites/s3-bucket/` (see `aws-env-vars.example` for AWS).
+For AWS S3, ODF/NooBaa, or a custom endpoint, use the scripts and templates under `addons/s3-bucket/` (see `aws-env-vars.example` for AWS).
 
 ### Managing distributed workloads
 
@@ -380,7 +380,7 @@ cat application-minio.yaml | \
 or you can deploy it manually with the following command:
 
 ```bash
-helm template components/minio \
+helm template addons/minio \
     --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
     --set namespace="minio" --set service.name="minio" \
     --set adminUser.username="minio" --set adminUser.password="minio123" | oc apply -f -
@@ -424,7 +424,7 @@ cat application-open-webui.yaml | \
 
 **Attu** is an efficient open-source management tool for Milvus. It features an intuitive graphical user interface (GUI), allowing you to easily interact with your databases.
 
-It is deployed from the [official Milvus chart](https://milvus.io/docs/install_cluster-helm.md) (`zilliztech/milvus-helm`, pinned in `application-milvus.yaml`) in standalone mode: one Milvus pod, one etcd and one MinIO, with the Woodpecker message queue embedded in Milvus. The chart ships Attu (`attu.enabled`) and its OpenShift Route, so there is no custom manifest anymore. The release is called `vectordb`, so Milvus answers at `vectordb-milvus.milvus.svc.cluster.local:19530`. `components/milvus` only holds the ConsoleLink to Attu.
+It is deployed from the [official Milvus chart](https://milvus.io/docs/install_cluster-helm.md) (`zilliztech/milvus-helm`, pinned in `application-milvus.yaml`) in standalone mode: one Milvus pod, one etcd and one MinIO, with the Woodpecker message queue embedded in Milvus. The chart ships Attu (`attu.enabled`) and its OpenShift Route, so there is no custom manifest anymore. The release is called `vectordb`, so Milvus answers at `vectordb-milvus.milvus.svc.cluster.local:19530`. `addons/milvus` only holds the ConsoleLink to Attu.
 
 ```bash
 cat application-milvus.yaml | \
@@ -441,7 +441,7 @@ Attu is at `https://attu-milvus.apps.<cluster domain>`. Authentication is disabl
 Langfuse stores events, media and exports in an external bucket (`langfuse`) in S4 instead of its bundled storage (`s3.deploy: false`), so it requires `INSTALL_S4=true`. `auto-install.sh` creates the bucket and renders the Application:
 
 ```bash
-./prerequisites/s3-bucket/create-s4-bucket.sh s4 s4 langfuse   # needs S4_S3_ACCESS_KEY / S4_S3_SECRET_KEY exported
+./addons/s3-bucket/create-s4-bucket.sh s4 s4 langfuse   # needs S4_S3_ACCESS_KEY / S4_S3_SECRET_KEY exported
 cat application-langfuse.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
     S4_NAMESPACE=s4 S4_S3_REGION=us-east-1 S4_S3_ACCESS_KEY=s4admin S4_S3_SECRET_KEY=s4secret \

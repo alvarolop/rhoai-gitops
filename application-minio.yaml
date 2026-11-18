@@ -11,7 +11,7 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: components/minio
+    path: addons/minio
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
     helm:

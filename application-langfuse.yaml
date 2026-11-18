@@ -72,7 +72,7 @@ spec:
         redis:
           auth:
             password: "dev-redis-password-change-in-production"
-        # External S3 backend: S4 (bucket created by prerequisites/s3-bucket/create-s4-bucket.sh)
+        # External S3 backend: S4 (bucket created by addons/s3-bucket/create-s4-bucket.sh)
         s3:
           deploy: false
           bucket: "langfuse"
