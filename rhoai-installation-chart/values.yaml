@@ -8,56 +8,42 @@ global:
   # DNS segment after apps. in route hostnames (e.g. ocp.sandbox3642.opentlc.com for *.apps.ocp.sandbox3642.opentlc.com).
   clusterDomain: "ocp.sandbox437.opentlc.com"
 
-# Model registry `local` in rhoai-model-registries. Its PostgreSQL is deployed by the operator (demo use only).
 modelRegistry:
   enabled: true
 
 distributedWorkloads:
   enabled: true
-  # General-purpose ClusterQueue (workbenches and other CPU workloads) and the LocalQueue that points to it. They are also
-  # the defaults RHOAI uses for new projects (defaultClusterQueueName/defaultLocalQueueName in the DataScienceCluster).
-  # All the queues are defined in templates/06-kueue/.
+  # General-purpose queue (cpu-profile, workbenches). All the queues are defined in templates/06-kueue/.
   clusterQueueName: cluster-queue
   defaultLocalQueueName: default
-  # Namespaces that get the three LocalQueues: default -> cluster-queue, serving-lq -> serving-cq, batch-lq -> batch-cq.
-  # HardwareProfiles are global, so the queue they name must exist in every namespace that deploys with them.
-  # Each namespace must already exist and carry the label kueue.openshift.io/managed=true (this chart sets it on
-  # models-as-a-service); whoever owns any other namespace has to create and label it, or the sync fails.
+  # Namespaces that get the LocalQueues (default, serving-lq, batch-lq). Each one must already exist and carry the label
+  # kueue.openshift.io/managed=true (this chart sets it on models-as-a-service).
   localQueueNamespaces:
     - models-as-a-service
-  # Quotas per resource flavor (see templates/06-kueue/). Defaults assume a test cluster with at most one GPU (one AWS
-  # g6.2xlarge: 1x NVIDIA L4, 7.5 CPU / 28 GiB allocatable) and three workers of 15.5 CPU / 58 GiB. Keep them at or
-  # below what is really free after the platform pods: above that Kueue admits workloads the scheduler cannot place.
-  # Adjust them to your cluster; for MIG/H100 see README-MIG.md.
+  # Quotas per flavor, sized for a test cluster with at most one GPU (g6.2xlarge) and three 15.5 CPU / 58 GiB workers.
+  # Keep them at or below what is free after the platform pods. For MIG/H100 see README-MIG.md.
   quotas:
-    # cpu-flavor: untainted workers, used by cluster-queue. Measured: about 22 CPU and 126 GiB left after the platform.
+    # Untainted workers (cluster-queue)
     cpuFlavor:
       cpu: "20"
       memory: 100Gi
-    # gpu-flavor: the GPU pool. serving-cq owns it all and batch-cq may borrow it (reserved-spot)
+    # GPU pool: serving-cq owns it, batch-cq may borrow it
     gpuFlavor:
       gpu: "1"
       cpu: "6"
       memory: 24Gi
-  # Topology Aware Scheduling: Commented out as it's not needed for basic Kueue functionality.
-  # Topology CR + ResourceFlavor.spec.topologyName + nodeLabels prevent SchedulingGated deadlocks
-  # for GPU serving workloads, but adds complexity. Uncomment if needed for advanced scheduling.
+  # Topology Aware Scheduling (disabled): see templates/06-kueue/Topology-hostname.yaml.
   # topologyAwareScheduling: false
-  # Topology name (`rhoai-hostname`) and ResourceFlavor `nodeLabels` are in templates/06-kueue/.
 
-# Enables the OGX component (Llama Stack was renamed to OGX in RHOAI 3.5).
+# OGX is the new name of Llama Stack
 llamaStack:
   enabled: true
 
-# When true: DataScienceCluster sets aigateway.modelsAsAService to Managed and the chart applies the
-# maas-default-gateway GatewayClass (Gateway API). Required for MaaS-style LLMInferenceService
-# deployments that use router.gateway.refs. Set false if you only use normal Route-based inference
-# without a shared Gateway API gateway.
+# Models-as-a-Service: aigateway.modelsAsAService plus the maas-default-gateway GatewayClass
 modelsAsService:
   enabled: true
   namespace: models-as-a-service
-  # Infrastructure namespace of MaaS (RHOAI 3.5+). The maas-db-config secret must live here; the AI Gateway operator
-  # uses this default name (see MaasTenantConfig .status.infraNamespace).
+  # MaaS infrastructure namespace, where the maas-db-config secret must live
   infraNamespace: redhat-ai-gateway-infra
   grafana:
     enabled: true
@@ -76,9 +62,8 @@ modelsAsService:
       ssl: false
   simulator:
     enabled: true
-  # MaaS configurations - each entry creates a Subscription and AuthPolicy.
-  # priority only picks the default subscription when a user belongs to several. Recommended scheme (RHOAI 3.5 guide):
-  # production 100, staging 50, development/experimentation 0 (the default), sandbox -10. Here: free 0, basic 50, premium 100.
+  # Each entry creates a MaaSSubscription and a MaaSAuthPolicy. priority picks the default subscription when a user matches
+  # several (production 100, staging 50, development 0, sandbox -10).
   configs:
     - name: basic-models
       displayName: "Basic Models"
@@ -92,8 +77,7 @@ modelsAsService:
         #   tokenRateLimits:
         #     - limit: 100
         #       window: 1h
-        # Object format with per-model rate limits. Limits count prompt + completion tokens, and a client like Open WebUI
-        # also sends title/tags/follow-up requests for each message (about 300 tokens each), so keep them generous.
+        # Limits count prompt and completion tokens; Open WebUI sends extra title/tags requests, so keep them generous
         - name: tinyllama-1b
           tokenRateLimits:
             - limit: 100000
@@ -146,28 +130,26 @@ evalHub:
     service:
       port: 5432
 
-# Feast Feature Store. Each enabled example creates a FeatureStore in `namespace`: the operator runs `feast apply` when its
-# pod starts and, if `materializeSchedule` is set, a CronJob it manages materializes the features into the online store.
+# Feast: each enabled example creates a FeatureStore (see the README)
 featureStore:
   enabled: true
   namespace: rhoai-feature-store
   examples:
-    # Sample project generated by `feast init` (driver statistics): nothing to clone, so it also works offline.
-    # Other `init.template` values: minimal, milvus, ray_rag, pytorch_nlp, postgres, spark...
+    # Project generated by `feast init`. Other templates: minimal, milvus, ray_rag, pytorch_nlp, postgres, spark...
     - enabled: true
       name: sample
       materializeSchedule: "*/15 * * * *"
       feastProjectDir:
         init:
           template: local
-      # persistence:  # only for the commented PVC templates (pvc-feature-store-*.yaml)
+      # persistence:  # for the commented pvc-feature-store-*.yaml templates
       #   online:
       #     size: 5Gi
       #   offline:
       #     size: 5Gi
       #   registry:
       #     size: 5Gi
-    # Feature repository from a Git repository. authz.enabled turns on Kubernetes RBAC for the Feast services.
+    # Feature repository from Git; authz.enabled turns on Kubernetes RBAC
     - enabled: false
       name: banking
       authz:
@@ -177,7 +159,7 @@ featureStore:
         git:
           url: https://github.com/alvarolop/banking-feature-store
           ref: rbac
-          # featureRepoPath: feature_repo  # when the repository is not at the root
+          # featureRepoPath: feature_repo
 
 metalLB:
   enabled: false
