@@ -221,7 +221,7 @@ fi
     GRAFANA_ROUTE_HOST=$(oc get route -n "grafana" grafana-route -o jsonpath='{.spec.host}' 2>/dev/null || true)
     if [[ -n "$GRAFANA_ROUTE_HOST" ]]; then
         GRAFANA_HREF="https://${GRAFANA_ROUTE_HOST}"
-        cat prerequisites/grafana/consolelink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
+        cat prerequisites/grafana/ConsoleLink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
         echo -e "\t✅ ConsoleLink 'grafana' created (href: $GRAFANA_HREF)."
     else
         echo -e "\t⚠️  Grafana route not found; skipping ConsoleLink. Create it later with: oc get route -n grafana grafana -o jsonpath='{.spec.host}'"
@@ -308,7 +308,7 @@ if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     S4_ROUTE_HOST=$(oc get route -n "$S4_NAMESPACE" s4 -o jsonpath='{.spec.host}' 2>/dev/null || true)
     if [[ -n "$S4_ROUTE_HOST" ]]; then
         S4_HREF="https://${S4_ROUTE_HOST}"
-        cat prerequisites/s4/consolelink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
+        cat prerequisites/s4/ConsoleLink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
         echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
     else
         echo -e "\t⚠️  S4 route not found; skipping ConsoleLink. Create it later with: oc get route -n $S4_NAMESPACE s4 -o jsonpath='{.spec.host}'"

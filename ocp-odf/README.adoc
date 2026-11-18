@@ -19,7 +19,7 @@ oc apply -k ocp-odf/odf-operator
 + 
 [source, bash]
 ----
-oc apply -f ocp-odf/storagecluster-ocs-storagecluster.yaml
+oc apply -f ocp-odf/StorageCluster-ocs-storagecluster.yaml
 ----
 +
 3. Install RadosGW to provide S3 storage based on Ceph on OCP clusters deployed on Cloud Providers:

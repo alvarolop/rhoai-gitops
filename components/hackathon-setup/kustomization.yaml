@@ -4,7 +4,7 @@ kind: Kustomization
 
 resources:
 
-  - group-rhods-admins.yaml
+  - Group-rhods-admins.yaml
   - crb-rhods-admin-cluster-reader.yaml
 
   - rb-rhods-admin-ic-shared-minio.yaml

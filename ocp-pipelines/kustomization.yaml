@@ -4,6 +4,6 @@ kind: Kustomization
 resources:
   - sub-openshift-pipelines-operator.yaml
   - sa-enable-pipelines-plugin.yaml
-  - cr-enable-pipelines-plugin.yaml
+  - ClusterRole-enable-pipelines-plugin.yaml
   - crb-enable-pipelines-plugin.yaml
-  - job-enable-pipelines-plugin.yaml
+  - Job-enable-pipelines-plugin.yaml

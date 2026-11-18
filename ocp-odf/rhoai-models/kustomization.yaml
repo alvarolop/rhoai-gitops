@@ -7,4 +7,4 @@ namespace: rhoai-models
 resources:
 - ns-rhoai-models.yaml
 - obc-models.yaml
-- job-sync-model.yaml
+- Job-sync-model.yaml
