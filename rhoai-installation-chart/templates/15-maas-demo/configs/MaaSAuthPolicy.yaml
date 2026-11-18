@@ -1,4 +1,4 @@
-{{- if .Values.modelsAsService.enabled }}
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.demo.enabled }}
 {{- range .Values.modelsAsService.configs }}
 ---
 apiVersion: maas.opendatahub.io/v1alpha1

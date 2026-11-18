@@ -1,4 +1,4 @@
-{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.simulator.enabled }}
+{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.demo.enabled }}
 ---
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSModelRef
