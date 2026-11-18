@@ -20,7 +20,7 @@ EvalHub is a service for evaluating LLM models using standardized benchmarks and
 ### Permissions
 Users creating evaluation jobs need MLflow RBAC permissions. The GitOps chart includes a RoleBinding:
 ```yaml
-# See: rhoai-installation-chart/templates/13-mlflow/RoleBinding-evalhub-mlflow-user-access.yaml
+# See: rhoai-installation-chart/templates/13-mlflow/rb-evalhub-mlflow-user-access.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:

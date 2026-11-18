@@ -265,7 +265,7 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
 
 ### Model Registry
 
-OpenShift AI now includes the possibility to deploy a model registry to store community and customized AI models. The chart creates the registry `local` in `rhoai-model-registries`, with the PostgreSQL that the operator deploys for it (`postgres.generateDeployment`, the dashboard's *Default database*). It is meant for tests and demos, not for production: edit `templates/04-model-registry/modelregistry-local.yaml` to point it to an external PostgreSQL or MySQL. The registry stores the metadata of your models. Once deployed, your training pipelines can add an extra step putting model metadata to the registry.
+OpenShift AI now includes the possibility to deploy a model registry to store community and customized AI models. The chart creates the registry `local` in `rhoai-model-registries`, with the PostgreSQL that the operator deploys for it (`postgres.generateDeployment`, the dashboard's *Default database*). It is meant for tests and demos, not for production: edit `templates/04-model-registry/ModelRegistry-local.yaml` to point it to an external PostgreSQL or MySQL. The registry stores the metadata of your models. Once deployed, your training pipelines can add an extra step putting model metadata to the registry.
 
 Using RHOAI Model Registry you have a centralized source of models as well as a simple way to deploy prepared models:
 
