@@ -265,7 +265,7 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
 
 ### Model Registry
 
-OpenShift AI now includes the possibility to deploy a model registry to store community and customized AI models. This model registry uses a `mysql` database as backend to store metadata and artifacts from your applications. Once deployed, your training pipelines can add an extra step putting model metadata to the registry.
+OpenShift AI now includes the possibility to deploy a model registry to store community and customized AI models. The chart creates the registry `local` in `rhoai-model-registries`, with the PostgreSQL that the operator deploys for it (`postgres.generateDeployment`, the dashboard's *Default database*). It is meant for tests and demos, not for production: edit `templates/04-model-registry/modelregistry-local.yaml` to point it to an external PostgreSQL or MySQL. The registry stores the metadata of your models. Once deployed, your training pipelines can add an extra step putting model metadata to the registry.
 
 Using RHOAI Model Registry you have a centralized source of models as well as a simple way to deploy prepared models:
 
@@ -274,8 +274,8 @@ Using RHOAI Model Registry you have a centralized source of models as well as a 
 Here you can find examples of REST requests to query model metadata:
 
 ```bash
-MODEL_REGISTRY_NAME=default
-MODEL_REGISTRY_HOST=$(oc get route default-https -n rhoai-model-registries -o go-template='https://{{.spec.host}}')
+MODEL_REGISTRY_NAME=local
+MODEL_REGISTRY_HOST=$(oc get route ${MODEL_REGISTRY_NAME}-https -n rhoai-model-registries -o go-template='https://{{.spec.host}}')
 TOKEN=$(oc whoami -t)
 
 # List models
@@ -291,16 +291,16 @@ curl -s "$MODEL_REGISTRY_HOST/api/model_registry/v1alpha3/registered_model?name=
   -H "accept: application/json" \
   -H "Authorization: Bearer ${TOKEN}" | jq .
 
-curl -s "$MODEL_REGISTRY_HOST/api/model_registry/v1alpha/registered_models/${MODEL_ID}/versions?name=${MODEL_NAME}&pageSize=100&orderBy=ID&sortOrder=DESC" \
+curl -s "$MODEL_REGISTRY_HOST/api/model_registry/v1alpha3/registered_models/${MODEL_ID}/versions?name=${MODEL_NAME}&pageSize=100&orderBy=ID&sortOrder=DESC" \
   -H "accept: application/json" \
   -H "Authorization: Bearer ${TOKEN}" | jq .
 ```
 
 If you want to try this feature, I recommend you to follow the RH documentation:
 
-- Documentation step 1: [Enabling the model registry component](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries/enabling-the-model-registry-component_managing-model-registries).
-- Documentation step 2: [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries).
-- Documentation step 3: [Working with model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_model_registries).
+- Documentation step 1: [Enabling the model registry component](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/managing_model_registries/enabling-the-model-registry-component_managing-model-registries).
+- Documentation step 2: [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/managing_model_registries).
+- Documentation step 3: [Working with model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_model_registries).
 
 ## Monitoring, Safety and Evaluation
 
