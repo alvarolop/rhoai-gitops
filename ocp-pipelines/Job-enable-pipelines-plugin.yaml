@@ -3,6 +3,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: enable-pipelines-plugin
+  annotations:
+    # A Job cannot change its image in place, so Argo CD recreates it on every sync
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
   namespace: openshift-operators
   labels:
     app: ocp-pipelines
@@ -15,7 +19,7 @@ spec:
     spec:
       containers:
       - name: enable-plugin
-        image: registry.redhat.io/openshift4/ose-cli-rhel9:latest
+        image: registry.redhat.io/openshift4/ose-cli-rhel9:v4.22
         imagePullPolicy: Always
         command:
           - /bin/bash

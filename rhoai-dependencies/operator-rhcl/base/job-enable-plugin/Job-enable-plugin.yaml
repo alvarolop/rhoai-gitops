@@ -19,7 +19,7 @@ spec:
     spec:
       initContainers:
       - name: wait-for-operator
-        image: registry.redhat.io/openshift4/ose-cli-rhel9:latest
+        image: registry.redhat.io/openshift4/ose-cli-rhel9:v4.22
         imagePullPolicy: Always
         command:
           - /bin/bash
@@ -33,7 +33,7 @@ spec:
             echo "Operator is ready."
       containers:
       - name: enable-plugin
-        image: registry.redhat.io/openshift4/ose-cli-rhel9:latest
+        image: registry.redhat.io/openshift4/ose-cli-rhel9:v4.22
         imagePullPolicy: Always
         command:
           - /bin/bash
