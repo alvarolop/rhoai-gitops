@@ -1,0 +1,10 @@
+{{- if and .Values.evalHub.enabled (ne .Values.evalHub.namespace "redhat-ods-applications") }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.evalHub.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    openshift.io/display-name: "RHOAI - EvalHub"
+{{- end }}

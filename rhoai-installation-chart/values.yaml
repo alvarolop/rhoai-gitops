@@ -110,7 +110,7 @@ trustyai:
 
 evalHub:
   enabled: true
-  namespace: redhat-ods-applications  # the dashboard only discovers EvalHub here (RHOAI 3.4.0 limitation)
+  namespace: rhoai-evalhub  # the 3.4.0 dashboard only found EvalHub in redhat-ods-applications; go back there if it does not show up
   # All the providers and collections that the operator ships
   providers:
     - lm-evaluation-harness
@@ -132,9 +132,9 @@ evalHub:
     - long-context-v1
     - toxicity-and-ethical-principles
     - model-validation
-  # false: in-memory SQLite (demo); true: this PostgreSQL, which keeps the jobs across restarts
+  # true: this PostgreSQL, which keeps the jobs across restarts; false: in-memory SQLite
   postgresql:
-    enabled: false
+    enabled: true
     namespace: rhoai-evalhub-db
     name: evalhub-postgresql
     image: registry.redhat.io/rhel9/postgresql-15:latest
