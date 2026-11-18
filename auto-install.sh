@@ -84,6 +84,9 @@ else
     fi
 fi
 
+# Base domain of the cluster. The ConsoleLinks are composed from it instead of reading the Routes, which may not exist yet
+CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}')
+
 
 # Get non-tainted nodes
 # oc get nodes -o go-template='{{range .items}}{{if not .spec.taints }}{{.metadata.name}}{{"\n"}}{{end}}{{end}}'
@@ -214,19 +217,14 @@ if [[ "$INSTALL_GRAFANA" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "1️⃣ Trigger the ArgoCD application to deploy Grafana"
     oc apply -f https://raw.githubusercontent.com/alvarolop/quarkus-observability-app/refs/heads/main/apps/application-grafana.yaml
     echo -e "\t✅ Grafana ArgoCD application applied."
+
+    echo -e "\n2️⃣ Creating ConsoleLink for Grafana (Application Menu → Observability)"
+    GRAFANA_HREF="https://grafana-route-grafana.apps.${CLUSTER_DOMAIN}"
+    cat addons/grafana/ConsoleLink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
+    echo -e "\t✅ ConsoleLink 'grafana' created (href: $GRAFANA_HREF)."
 else
     echo "⏭️  Skip Grafana installation..."
 fi
-    echo -e "\n2️⃣ Creating ConsoleLink for Grafana (Application Menu → Observability)"
-    GRAFANA_ROUTE_HOST=$(oc get route -n "grafana" grafana-route -o jsonpath='{.spec.host}' 2>/dev/null || true)
-    if [[ -n "$GRAFANA_ROUTE_HOST" ]]; then
-        GRAFANA_HREF="https://${GRAFANA_ROUTE_HOST}"
-        cat addons/grafana/ConsoleLink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
-        echo -e "\t✅ ConsoleLink 'grafana' created (href: $GRAFANA_HREF)."
-    else
-        echo -e "\t⚠️  Grafana route not found; skipping ConsoleLink. Create it later with: oc get route -n grafana grafana-route -o jsonpath='{.spec.host}'"
-    fi
-
 
 echo -e "\n🔧 ====================="
 echo -e "🔧 =   OCP Pipelines   ="
@@ -305,14 +303,9 @@ if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     echo -e "\t✅ S4 is deployed in namespace $S4_NAMESPACE."
 
     echo -e "\n4️⃣ Creating ConsoleLink for S4 (Application Menu → OpenShift Self Managed Services)"
-    S4_ROUTE_HOST=$(oc get route -n "$S4_NAMESPACE" s4 -o jsonpath='{.spec.host}' 2>/dev/null || true)
-    if [[ -n "$S4_ROUTE_HOST" ]]; then
-        S4_HREF="https://${S4_ROUTE_HOST}"
-        cat addons/s4/ConsoleLink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
-        echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
-    else
-        echo -e "\t⚠️  S4 route not found; skipping ConsoleLink. Create it later with: oc get route -n $S4_NAMESPACE s4 -o jsonpath='{.spec.host}'"
-    fi
+    S4_HREF="https://s4-${S4_NAMESPACE}.apps.${CLUSTER_DOMAIN}"
+    cat addons/s4/ConsoleLink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
+    echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
 
     echo -e "\n5️⃣ Create the RHOAI Playground pipelines bucket and data connection in S4"
     if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
