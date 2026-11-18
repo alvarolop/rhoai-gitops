@@ -1,6 +1,6 @@
 {{- if .Values.evalHub.enabled }}
 ---
-apiVersion: trustyai.opendatahub.io/v1alpha1
+apiVersion: trustyai.opendatahub.io/v1
 kind: EvalHub
 metadata:
   name: evalhub
@@ -11,8 +11,12 @@ metadata:
 spec:
   replicas: 1
   database:
+{{- if .Values.evalHub.postgresql.enabled }}
     type: postgresql
     secret: evalhub-db-credentials
+{{- else }}
+    type: sqlite  # in memory: lost when the pod restarts
+{{- end }}
   providers:
   {{- range .Values.evalHub.providers }}
     - {{ . }}
@@ -21,6 +25,9 @@ spec:
   {{- range .Values.evalHub.collections }}
     - {{ . }}
   {{- end }}
+  # otel:
+  #   exporterEndpoint: data-science-collector.redhat-ods-monitoring.svc:4317
+  #   exporterInsecure: true
   env:
     - name: MLFLOW_TRACKING_URI
       value: "https://mlflow.redhat-ods-applications.svc:8443"
