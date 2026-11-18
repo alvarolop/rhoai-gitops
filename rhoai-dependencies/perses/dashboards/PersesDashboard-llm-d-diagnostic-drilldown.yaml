@@ -1,0 +1,495 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: llm-d-diagnostic-drilldown
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: llm-d Diagnostic Drill-Down
+      description: Detailed diagnostic metrics for troubleshooting llm-d inference server (Tier 2 metrics)
+    duration: 6h
+    variables:
+    - kind: ListVariable
+      spec:
+        name: namespace
+        display:
+          name: namespace
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: namespace
+        defaultValue: $__all
+    - kind: ListVariable
+      spec:
+        name: model_name
+        display:
+          name: model_name
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: model_name
+            matchers:
+            - vllm:generation_tokens_total
+        defaultValue: $__all
+    panels:
+      p201:
+        kind: Panel
+        spec:
+          display:
+            name: KV Cache Utilization
+            description: KV cache utilization percentage by pod and model
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: percent-decimal
+                min: 0
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: avg by(pod) (vllm:kv_cache_usage_perc{namespace=~"$namespace",model_name=~"$model_name"})
+                  seriesNameFormat: '{{pod}}-{{model_name}}'
+      p202:
+        kind: Panel
+        spec:
+          display:
+            name: Request Queue Lengths
+            description: Number of requests waiting in queue by pod and model
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(pod) (vllm:num_requests_waiting{namespace=~"$namespace",model_name=~"$model_name"})
+                  seriesNameFormat: '{{pod}}-{{model_name}}'
+      p203:
+        kind: Panel
+        spec:
+          display:
+            name: Model Throughput
+            description: Total token throughput (prompt + generation tokens) per second by model and pod
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(model_name, pod) (rate(vllm:prompt_tokens_total{namespace=~"$namespace",model_name=~"$model_name"}[5m])
+                    + rate(vllm:generation_tokens_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{model_name}}-{{pod}}'
+      p204:
+        kind: Panel
+        spec:
+          display:
+            name: Generation Token Rate
+            description: Generation token rate per second by model and pod
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(model_name, pod) (rate(vllm:generation_tokens_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{model_name}}-{{pod}}'
+      p205:
+        kind: Panel
+        spec:
+          display:
+            name: Queue Utilization
+            description: Average number of running requests per pod (queue utilization)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: avg by(pod) (vllm:num_requests_running{namespace=~"$namespace",model_name=~"$model_name"})
+                  seriesNameFormat: '{{pod}}'
+      p301:
+        kind: Panel
+        spec:
+          display:
+            name: Request Distribution
+            description: Request distribution (QPS) per vLLM instance
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(pod) (rate(inference_objective_request_total{target_model_name!="",namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{pod}}'
+      p302:
+        kind: Panel
+        spec:
+          display:
+            name: Token Distribution
+            description: Token distribution (tokens/sec) per vLLM instance
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(pod) (rate(vllm:prompt_tokens_total{namespace=~"$namespace",model_name=~"$model_name"}[5m])
+                    + rate(vllm:generation_tokens_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{pod}}'
+      p303:
+        kind: Panel
+        spec:
+          display:
+            name: Idle GPU Time
+            description: Percentage of time GPUs are idle (not processing tokens)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: percent-decimal
+                min: 0
+                max: 1
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: 1 - avg by(pod) (rate(vllm:iteration_tokens_total_count{namespace=~"$namespace",model_name=~"$model_name"}[5m])
+                    > 0)
+                  seriesNameFormat: '{{pod}}'
+      p304:
+        kind: Panel
+        spec:
+          display:
+            name: Routing Decision Latency
+            description: P99 latency for routing decision by scheduler plugin
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le, plugin_type) (rate(inference_extension_plugin_duration_seconds_bucket{namespace=~"$namespace"}[5m])))
+                  seriesNameFormat: '{{plugin_type}}'
+      p401:
+        kind: Panel
+        spec:
+          display:
+            name: Prefix Cache Hit Rate
+            description: Overall prefix cache hit rate across all instances
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: percent-decimal
+              thresholds:
+                steps:
+                - value: 0.5
+                  color: '#F2CC0C'
+                - value: 0.8
+                  color: '#56A64B'
+                defaultColor: '#E02F44'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(vllm:prefix_cache_hits_total{namespace=~"$namespace",model_name=~"$model_name"}[5m])) /
+                    sum(rate(vllm:prefix_cache_queries_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: Hit Rate
+      p402:
+        kind: Panel
+        spec:
+          display:
+            name: Per-Instance Hit Rate
+            description: Prefix cache hit rate by individual vLLM instance
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: percent-decimal
+                min: 0
+                max: 1
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(pod) (rate(vllm:prefix_cache_hits_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                    / sum by(pod) (rate(vllm:prefix_cache_queries_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{pod}}'
+      p501:
+        kind: Panel
+        spec:
+          display:
+            name: Prefill Worker Utilization
+            description: Average number of running requests on prefill workers
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: avg by(pod) (vllm:num_requests_running{pod=~".*prefill.*",namespace=~"$namespace",model_name=~"$model_name"})
+                  seriesNameFormat: '{{pod}}'
+      p502:
+        kind: Panel
+        spec:
+          display:
+            name: Decode Worker Utilization
+            description: KV cache usage percentage on decode workers
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: percent-decimal
+                min: 0
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: avg by(pod) (vllm:kv_cache_usage_perc{pod=~".*decode.*",namespace=~"$namespace",model_name=~"$model_name"})
+                  seriesNameFormat: '{{pod}}'
+      p503:
+        kind: Panel
+        spec:
+          display:
+            name: Prefill Queue Length
+            description: Number of requests waiting in prefill worker queues
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(pod) (vllm:num_requests_waiting{pod=~".*prefill.*",namespace=~"$namespace",model_name=~"$model_name"})
+                  seriesNameFormat: '{{pod}}'
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p201'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p202'
+        - x: 0
+          y: 8
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p203'
+        - x: 12
+          y: 8
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p204'
+        - x: 0
+          y: 16
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p205'
+        display:
+          title: Model Serving
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p301'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p302'
+        - x: 0
+          y: 8
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p303'
+        - x: 12
+          y: 8
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p304'
+        display:
+          title: Routing
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 8
+          height: 8
+          content:
+            $ref: '#/spec/panels/p401'
+        - x: 8
+          y: 0
+          width: 16
+          height: 8
+          content:
+            $ref: '#/spec/panels/p402'
+        display:
+          title: Prefix Caching
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p501'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p502'
+        - x: 0
+          y: 8
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p503'
+        display:
+          title: P/D Disaggregation
+          collapse:
+            open: true

@@ -31,5 +31,7 @@ resources:
 
   # Support Cluster Observability Operator for MaaS (Perses)
   - ../../operator-coo
+  # Perses dashboards in the console (UIPlugin, datasource, dashboards of llm-d, MaaS and RHCL)
+  - ../../perses
   - ../../operator-tempo
   - ../../operator-otel

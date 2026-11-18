@@ -1,0 +1,799 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: rhcl-app-developer
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: App Developer Dashboard
+      description: App Developer Dashboard
+    duration: 15m
+    variables:
+    - kind: ListVariable
+      spec:
+        name: api
+        display:
+          name: API name
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: name
+            matchers:
+            - gatewayapi_httproute_labels
+        defaultValue: $__all
+    panels:
+      p153:
+        kind: Panel
+        spec:
+          display:
+            name: App Developer Dashboard
+          plugin:
+            kind: Markdown
+            spec:
+              text: |-
+                #### Overview of API/HTTPRoute Metrics
+
+                The row of panels below is repeated for each HTTPRoute resource in your cluster.
+                They provide real-time & historical insights into the performance and health of each API.
+                Metrics displayed include request rates, success/error breakdown, and latency percentiles, giving a snapshot of API efficiency and reliability.
+                Use this dashboard to monitor traffic patterns, identify potential issues, and ensure optimal performance of your services.
+
+                *Important: HTTPRoutes must include a "service" and "deployment" label with a value that matches the name of the service & deployment being routed to. eg. "service=myapp, deployment=myapp"*
+      p97:
+        kind: Panel
+        spec:
+          display:
+            name: table
+            description: |
+              Hostname: "Domain name for the API server." | API Namespace: "Kubernetes namespace where the API is deployed." | Gateway name: "Name of the Gateway API gateway the HTTPRoute is targeting" | Gateway name: "Name of the Gateway API gateway namespace"
+          plugin:
+            kind: Table
+            spec:
+              density: compact
+              pagination: true
+              columnSettings:
+              - name: timestamp
+                hide: true
+              - name: name
+                header: API Name (HTTPRoute)
+                enableSorting: true
+              - name: Time 1
+                header: Time 1
+                enableSorting: true
+              - name: __name__ 1
+                header: __name__ 1
+                enableSorting: true
+              - name: container 1
+                header: container 1
+                enableSorting: true
+              - name: customresource_group 1
+                header: customresource_group 1
+                enableSorting: true
+              - name: customresource_kind 1
+                header: customresource_kind 1
+                enableSorting: true
+              - name: customresource_version 1
+                header: customresource_version 1
+                enableSorting: true
+              - name: hostname
+                header: Hostname
+                enableSorting: true
+              - name: instance 1
+                header: instance 1
+                enableSorting: true
+              - name: job 1
+                header: job 1
+                enableSorting: true
+              - name: namespace 1
+                header: Namespace
+                enableSorting: true
+              - name: prometheus 1
+                header: prometheus 1
+                enableSorting: true
+              - name: 'Value #A'
+                header: 'Value #A'
+                enableSorting: true
+              - name: Time 2
+                header: ''
+                enableSorting: true
+              - name: __name__ 2
+                header: __name__ 2
+                enableSorting: true
+              - name: container 2
+                header: container 2
+                enableSorting: true
+              - name: customresource_group 2
+                header: customresource_group 2
+                enableSorting: true
+              - name: customresource_kind 2
+                header: ''
+                enableSorting: true
+              - name: customresource_version 2
+                header: customresource_version 2
+                enableSorting: true
+              - name: deployment
+                header: API Workload (Deployment)
+                enableSorting: true
+              - name: instance 2
+                header: instance 2
+                enableSorting: true
+              - name: job 2
+                header: job 2
+                enableSorting: true
+              - name: namespace 2
+                header: namespace 2
+                enableSorting: true
+              - name: prometheus 2
+                header: prometheus 2
+                enableSorting: true
+              - name: 'Value #B'
+                header: 'Value #B'
+                enableSorting: true
+              - name: receive 1
+                header: receive 1
+                enableSorting: true
+              - name: replica 1
+                header: replica 1
+                enableSorting: true
+              - name: tenant_id 1
+                header: tenant_id 1
+                enableSorting: true
+              - name: cluster_id 2
+                header: cluster_id 2
+                enableSorting: true
+              - name: receive 2
+                header: receive 2
+                enableSorting: true
+              - name: replica 2
+                header: replica 2
+                enableSorting: true
+              - name: service
+                header: Service
+                enableSorting: true
+              - name: tenant_id 2
+                header: tenant_id 2
+                enableSorting: true
+              - name: Time 3
+                header: Time 3
+                enableSorting: true
+              - name: __name__ 3
+                header: __name__ 3
+                enableSorting: true
+              - name: cluster_id 3
+                header: cluster_id 3
+                enableSorting: true
+              - name: container 3
+                header: container 3
+                enableSorting: true
+              - name: customresource_group 3
+                header: customresource_group 3
+                enableSorting: true
+              - name: customresource_kind 3
+                header: customresource_kind 3
+                enableSorting: true
+              - name: customresource_version 3
+                header: customresource_version 3
+                enableSorting: true
+              - name: instance 3
+                header: instance 3
+                enableSorting: true
+              - name: job 3
+                header: job 3
+                enableSorting: true
+              - name: namespace 3
+                header: namespace 3
+                enableSorting: true
+              - name: parent_group
+                header: parent_group
+                enableSorting: true
+              - name: parent_kind
+                header: parent_kind
+                enableSorting: true
+              - name: parent_name
+                header: Gateway name
+                enableSorting: true
+              - name: parent_namespace
+                header: Gateway namespace
+                enableSorting: true
+              - name: prometheus 3
+                header: prometheus 3
+                enableSorting: true
+              - name: receive 3
+                header: receive 3
+                enableSorting: true
+              - name: replica 3
+                header: replica 3
+                enableSorting: true
+              - name: tenant_id 3
+                header: tenant_id 3
+                enableSorting: true
+              - name: 'Value #C'
+                header: ''
+                enableSorting: true
+              - name: cluster_id 1
+                header: Cluster ID
+                enableSorting: true
+              - name: Time 1
+                hide: true
+              - name: Time 2
+                hide: true
+              - name: 'Value #A'
+                hide: true
+              - name: 'Value #B'
+                hide: true
+              - name: __name__ 1
+                hide: true
+              - name: __name__ 2
+                hide: true
+              - name: container 1
+                hide: true
+              - name: container 2
+                hide: true
+              - name: customresource_group 1
+                hide: true
+              - name: customresource_group 2
+                hide: true
+              - name: customresource_kind 1
+                hide: true
+              - name: customresource_kind 2
+                hide: true
+              - name: customresource_version 1
+                hide: true
+              - name: customresource_version 2
+                hide: true
+              - name: exported_namespace 2
+                hide: true
+              - name: instance 1
+                hide: true
+              - name: instance 2
+                hide: true
+              - name: job 1
+                hide: true
+              - name: job 2
+                hide: true
+              - name: name
+                hide: true
+              - name: namespace 2
+                hide: true
+              - name: prometheus 1
+                hide: true
+              - name: prometheus 2
+                hide: true
+              transforms:
+              - kind: MergeSeries
+                spec: {}
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_httproute_hostname_info{name=~"$api"}
+                  seriesNameFormat: __auto
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_httproute_labels{name=~"$api"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_httproute_parent_info{name=~"$api"}
+      p156:
+        kind: Panel
+        spec:
+          display:
+            name: request breakdown by code (req/s)
+            description: Requests per second, broken down by response code e.g. 200, 302, 403, 500
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+                  decimalPlaces: 2
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{destination_service_name=~"$api"}[5m])) by (destination_service_name)
+                    * on(destination_service_name) group_right() (group without(cluster_id, instance, app_kubernetes_io_instance)
+                    (label_replace(gatewayapi_httproute_labels{deployment=~"$api"}, "destination_service_name", "$1","service",
+                    "(.+)")))
+                  seriesNameFormat: total
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{destination_service_name=~"$api"}[5m])) by (destination_service_name,
+                    response_code) * on(destination_service_name) group_left(name) (group without(cluster_id, instance, app_kubernetes_io_instance)
+                    (label_replace(gatewayapi_httproute_labels{deployment=~"$api"}, "destination_service_name", "$1","service",
+                    "(.+)")))
+                  seriesNameFormat: '{{response_code}}'
+      p137:
+        kind: Panel
+        spec:
+          display:
+            name: total
+            description: Total requests per second
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: requests/sec
+                decimalPlaces: 2
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{destination_service_name=~"$api"}[5m])) by (destination_service_name)
+                    * on(destination_service_name) group_right() (group without(cluster_id, instance, app_kubernetes_io_instance)
+                    (label_replace(gatewayapi_httproute_labels{deployment=~"$api"}, "destination_service_name", "$1","service",
+                    "(.+)")))
+                  seriesNameFormat: __auto
+      p149:
+        kind: Panel
+        spec:
+          display:
+            name: total
+            description: Total number of responses.
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+                decimalPlaces: 0
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(increase(istio_requests_total{destination_service_name=~"$api"}[$__range])) by (destination_service_name)
+                    * on(destination_service_name) group_right() (group without(cluster_id, instance, app_kubernetes_io_instance)
+                    (label_replace(gatewayapi_httproute_labels{service=~"$api"}, "destination_service_name", "$1","service",
+                    "(.+)")))
+                  seriesNameFormat: __auto
+      p129:
+        kind: Panel
+        spec:
+          display:
+            name: request latency (percentiles)
+            description: Time it takes to process a request
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: milliseconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name)) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: P95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.90, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name)) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: P90
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name)) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: P99
+      p139:
+        kind: Panel
+        spec:
+          display:
+            name: P99
+            description: 99% of API requests were completed inside this value, while the remaining 1% took longer.
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: milliseconds
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name)) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: P99 {{destination_service_name}}
+      p147:
+        kind: Panel
+        spec:
+          display:
+            name: success
+            description: Requests per second that resulted in a success (2xx, 3xx).
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: requests/sec
+                decimalPlaces: 2
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"2.*|3.*",destination_service_name=~"$api"}[5m])) by
+                    (destination_service_name) * on(destination_service_name) group_right() (group without(cluster_id, instance,
+                    app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"}, "destination_service_name",
+                    "$1","service", "(.+)")))
+                  seriesNameFormat: __auto
+      p150:
+        kind: Panel
+        spec:
+          display:
+            name: success
+            description: Total number of success response (2xx, 3xx).
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+                decimalPlaces: 0
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(increase(istio_requests_total{response_code=~"2.*|3.*",destination_service_name=~"$api"}[$__range]))
+                    by (destination_service_name) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{service=~"$api"}, "destination_service_name",
+                    "$1","service", "(.+)")))
+                  seriesNameFormat: __auto
+      p146:
+        kind: Panel
+        spec:
+          display:
+            name: P95
+            description: 95% of API requests were completed inside this value, while the remaining 5% took longer.
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: milliseconds
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name)) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: __auto
+      p148:
+        kind: Panel
+        spec:
+          display:
+            name: error
+            description: Requests per second that resulted in an error (4xx, 5xx).
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: requests/sec
+                decimalPlaces: 2
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"4.*|5.*",destination_service_name=~"$api"}[5m])) by
+                    (destination_service_name) * on(destination_service_name) group_right() (group without(cluster_id, instance,
+                    app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"}, "destination_service_name",
+                    "$1","service", "(.+)")))
+                  seriesNameFormat: __auto
+      p151:
+        kind: Panel
+        spec:
+          display:
+            name: error
+            description: Total number of error response (4xx, 5xx).
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+                decimalPlaces: 0
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(increase(istio_requests_total{response_code=~"4.*|5.*",destination_service_name=~"$api"}[$__range]))
+                    by (destination_service_name) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{service=~"$api"}, "destination_service_name",
+                    "$1","service", "(.+)")))
+                  seriesNameFormat: __auto
+      p138:
+        kind: Panel
+        spec:
+          display:
+            name: P90
+            description: Shows that 90% of API requests were completed inside this value, while the remaining 10% took longer.
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: milliseconds
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.90, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name)) * on(destination_service_name) group_right() (group without(cluster_id,
+                    instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{}, "destination_service_name",
+                    "$1","service", "(.+)")))
+                  seriesNameFormat: P90 {{destination_service_name}}
+      p99:
+        kind: Panel
+        spec:
+          display:
+            name: request breakdown by cluster and code (req/s)
+            description: Requests per second, broken down by response code e.g. 200, 302, 403, 500
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+                  decimalPlaces: 2
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{destination_service_name=~"$api"}[5m])) by (cluster_id, destination_service_name)
+                    * on(cluster_id, destination_service_name) group_right() (group without(instance, app_kubernetes_io_instance)
+                    (label_replace(gatewayapi_httproute_labels{deployment=~"$api"}, "destination_service_name", "$1","service",
+                    "(.+)")))
+                  seriesNameFormat: '"{{cluster_id}}" total'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{destination_service_name=~"$api"}[5m])) by (cluster_id, destination_service_name,
+                    response_code) * on(cluster_id, destination_service_name) group_left(name) (group without(instance, app_kubernetes_io_instance)
+                    (label_replace(gatewayapi_httproute_labels{deployment=~"$api"}, "destination_service_name", "$1","service",
+                    "(.+)")))
+                  seriesNameFormat: '"{{cluster_id}}" {{response_code}}'
+      p157:
+        kind: Panel
+        spec:
+          display:
+            name: request latency by cluster (percentiles)
+            description: Time it takes to process a request
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: milliseconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name, cluster_id)) * on(destination_service_name, cluster_id) group_right()
+                    (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '"{{cluster_id}}" P95'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.90, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name, cluster_id)) * on(destination_service_name, cluster_id) group_right()
+                    (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '"{{cluster_id}}" P90'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum(irate(istio_request_duration_milliseconds_bucket{destination_service_name=~"$api"}[5m]))
+                    by (le, destination_service_name, cluster_id)) * on(destination_service_name, cluster_id) group_right()
+                    (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{deployment=~"$api"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '"{{cluster_id}}" P99'
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 6
+          y: 0
+          width: 18
+          height: 7
+          content:
+            $ref: '#/spec/panels/p153'
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 24
+          height: 3
+          content:
+            $ref: '#/spec/panels/p97'
+        - x: 0
+          y: 3
+          width: 9
+          height: 6
+          content:
+            $ref: '#/spec/panels/p156'
+        - x: 9
+          y: 3
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p137'
+        - x: 11
+          y: 3
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p149'
+        - x: 13
+          y: 3
+          width: 9
+          height: 6
+          content:
+            $ref: '#/spec/panels/p129'
+        - x: 22
+          y: 3
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p139'
+        - x: 9
+          y: 5
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p147'
+        - x: 11
+          y: 5
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p150'
+        - x: 22
+          y: 5
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p146'
+        - x: 9
+          y: 7
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p148'
+        - x: 11
+          y: 7
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p151'
+        - x: 22
+          y: 7
+          width: 2
+          height: 2
+          content:
+            $ref: '#/spec/panels/p138'
+        - x: 0
+          y: 9
+          width: 9
+          height: 9
+          content:
+            $ref: '#/spec/panels/p99'
+        - x: 13
+          y: 9
+          width: 9
+          height: 9
+          content:
+            $ref: '#/spec/panels/p157'
+        display:
+          title: '"$api" API - Requests, latency and errors'
+          collapse:
+            open: true

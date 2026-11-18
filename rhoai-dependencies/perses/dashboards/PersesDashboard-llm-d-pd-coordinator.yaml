@@ -1,0 +1,669 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: llm-d-pd-coordinator
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: P/D Coordinator Metrics
+    duration: 1h
+    variables: []
+    panels:
+      p20:
+        kind: Panel
+        spec:
+          display:
+            name: NIXL Descriptors per Transfer
+            description: Number of NIXL descriptors used per transfer
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:nixl_num_descriptors_bucket[$__rate_interval])))
+                  seriesNameFormat: p50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by (le) (rate(vllm:nixl_num_descriptors_bucket[$__rate_interval])))
+                  seriesNameFormat: p95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by (le) (rate(vllm:nixl_num_descriptors_bucket[$__rate_interval])))
+                  seriesNameFormat: p99
+      p24:
+        kind: Panel
+        spec:
+          display:
+            name: Avg True TTFT (Prefill + Decode)
+            description: True end-to-end TTFT from user perspective (vLLM Prefill TTFT + vLLM Decode TTFT)
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: milliseconds
+              thresholds:
+                steps: []
+                defaultColor: '#3274D9'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: (sum(rate(vllm:time_to_first_token_seconds_sum{pod=~".*prefill.*"}[5m])) / sum(rate(vllm:time_to_first_token_seconds_count{pod=~".*prefill.*"}[5m]))
+                    + sum(rate(vllm:time_to_first_token_seconds_sum{pod=~".*decode.*"}[5m])) / sum(rate(vllm:time_to_first_token_seconds_count{pod=~".*decode.*"}[5m])))
+                    * 1000
+                  seriesNameFormat: True End-to-End TTFT
+      p21:
+        kind: Panel
+        spec:
+          display:
+            name: Avg vLLM TTFT (Decode)
+            description: Average TTFT reported by vLLM decode instance (from Prometheus metrics)
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: milliseconds
+              thresholds:
+                steps: []
+                defaultColor: '#3274D9'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(vllm:time_to_first_token_seconds_sum{pod=~".*decode.*"}[5m])) / sum(rate(vllm:time_to_first_token_seconds_count{pod=~".*decode.*"}[5m]))
+                    * 1000
+                  seriesNameFormat: Avg vLLM TTFT
+      p2:
+        kind: Panel
+        spec:
+          display:
+            name: P/D E2E Latency (Prefill + Decode)
+            description: 'End-to-end request latency from vLLM including prefill and decode phases. Note: Does not include
+              pd-proxy sidecar coordination overhead (~0-1ms).'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:e2e_request_latency_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: p50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by (le) (rate(vllm:e2e_request_latency_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: p95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by (le) (rate(vllm:e2e_request_latency_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: p99
+      p3:
+        kind: Panel
+        spec:
+          display:
+            name: Total Request Duration (vLLM E2E)
+            description: 'End-to-end request latency from vLLM. Note: Does not include pd-proxy sidecar overhead (~0-1ms).'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:e2e_request_latency_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: p50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by (le) (rate(vllm:e2e_request_latency_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: p95
+      p4:
+        kind: Panel
+        spec:
+          display:
+            name: vLLM Prefill Duration
+            description: 'Prefill phase duration from vLLM. Note: Does not include pd-proxy sidecar overhead (~0-1ms).'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:request_prefill_time_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: p50
+      p8:
+        kind: Panel
+        spec:
+          display:
+            name: vLLM Decode Duration
+            description: 'Decode phase duration from vLLM. Note: Does not include pd-proxy sidecar overhead (~0-1ms).'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:request_decode_time_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: p50
+      p6:
+        kind: Panel
+        spec:
+          display:
+            name: P/D Phase Breakdown (vLLM View)
+            description: 'Prefill and decode phase durations from vLLM. Note: pd-proxy sidecar coordination overhead (~0-0.5ms)
+              not shown as it requires pd-coordinator-metrics branch.'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:request_prefill_time_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: vLLM Prefill (p50)
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:request_decode_time_seconds_bucket{}[$__rate_interval])))
+                  seriesNameFormat: vLLM Decode (p50)
+      p7:
+        kind: Panel
+        spec:
+          display:
+            name: vLLM TTFT (Decode Instance)
+            description: TTFT percentiles from vLLM decode instance (from Prometheus histogram)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: milliseconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:time_to_first_token_seconds_bucket{pod=~".*decode.*"}[5m])))
+                    * 1000
+                  seriesNameFormat: p50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by (le) (rate(vllm:time_to_first_token_seconds_bucket{pod=~".*decode.*"}[5m])))
+                    * 1000
+                  seriesNameFormat: p95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by (le) (rate(vllm:time_to_first_token_seconds_bucket{pod=~".*decode.*"}[5m])))
+                    * 1000
+                  seriesNameFormat: p99
+      p23:
+        kind: Panel
+        spec:
+          display:
+            name: Total Requests
+            description: Total number of P/D requests processed
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps: []
+                defaultColor: '#3274D9'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(vllm:e2e_request_latency_seconds_count{})
+                  seriesNameFormat: Total Requests
+      p13:
+        kind: Panel
+        spec:
+          display:
+            name: Avg KV Transfer Time
+            description: Average KV cache transfer time (vLLM NIXL connector)
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: mean
+              format:
+                unit: milliseconds
+              thresholds:
+                steps:
+                - value: 50
+                  color: '#F2CC0C'
+                - value: 100
+                  color: '#E02F44'
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(vllm:nixl_xfer_time_seconds_sum[$__rate_interval])) / sum(rate(vllm:nixl_xfer_time_seconds_count[$__rate_interval]))
+                    * 1000
+                  seriesNameFormat: Avg Transfer Time
+      p14:
+        kind: Panel
+        spec:
+          display:
+            name: Avg MB per Transfer
+            description: Average bytes transferred per KV cache transfer
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: mean
+              format:
+                unit: decimal
+              thresholds:
+                steps: []
+                defaultColor: '#3274D9'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(vllm:nixl_bytes_transferred_sum[$__rate_interval])) / sum(rate(vllm:nixl_bytes_transferred_count[$__rate_interval]))
+                    / 1048576
+                  seriesNameFormat: Avg MB Transferred
+      p15:
+        kind: Panel
+        spec:
+          display:
+            name: Total KV Transfers
+            description: Total number of successful KV cache transfers
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(increase(vllm:nixl_xfer_time_seconds_count[$__range]))
+                  seriesNameFormat: Total Transfers
+      p16:
+        kind: Panel
+        spec:
+          display:
+            name: Failed KV Transfers
+            description: Total number of failed KV cache transfers
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps:
+                - value: 1
+                  color: '#F2CC0C'
+                - value: 10
+                  color: '#E02F44'
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(vllm:nixl_num_failed_transfers) or vector(0)
+                  seriesNameFormat: Failed Transfers
+      p17:
+        kind: Panel
+        spec:
+          display:
+            name: KV Transfer Time Percentiles
+            description: KV cache transfer time percentiles (p50, p95, p99)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: milliseconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:nixl_xfer_time_seconds_bucket[$__rate_interval])))
+                    * 1000
+                  seriesNameFormat: p50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by (le) (rate(vllm:nixl_xfer_time_seconds_bucket[$__rate_interval])))
+                    * 1000
+                  seriesNameFormat: p95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by (le) (rate(vllm:nixl_xfer_time_seconds_bucket[$__rate_interval])))
+                    * 1000
+                  seriesNameFormat: p99
+      p18:
+        kind: Panel
+        spec:
+          display:
+            name: KV Transfer Post Time Percentiles
+            description: KV cache transfer post time percentiles (time to complete post-transfer operations)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: milliseconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:nixl_post_time_seconds_bucket[$__rate_interval])))
+                    * 1000
+                  seriesNameFormat: p50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by (le) (rate(vllm:nixl_post_time_seconds_bucket[$__rate_interval])))
+                    * 1000
+                  seriesNameFormat: p95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by (le) (rate(vllm:nixl_post_time_seconds_bucket[$__rate_interval])))
+                    * 1000
+                  seriesNameFormat: p99
+      p19:
+        kind: Panel
+        spec:
+          display:
+            name: Bytes Transferred per Transfer
+            description: Bytes transferred over time for KV cache transfers
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by (le) (rate(vllm:nixl_bytes_transferred_bucket[$__rate_interval])))
+                    / 1048576
+                  seriesNameFormat: p50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by (le) (rate(vllm:nixl_bytes_transferred_bucket[$__rate_interval])))
+                    / 1048576
+                  seriesNameFormat: p95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by (le) (rate(vllm:nixl_bytes_transferred_bucket[$__rate_interval])))
+                    / 1048576
+                  seriesNameFormat: p99
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 8
+          height: 4
+          content:
+            $ref: '#/spec/panels/p20'
+        - x: 8
+          y: 0
+          width: 8
+          height: 4
+          content:
+            $ref: '#/spec/panels/p24'
+        - x: 16
+          y: 0
+          width: 8
+          height: 4
+          content:
+            $ref: '#/spec/panels/p21'
+        - x: 0
+          y: 4
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p2'
+        - x: 12
+          y: 4
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p3'
+        display:
+          title: P/D Coordinator Overview
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p4'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p8'
+        display:
+          title: P/D Component Breakdown
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p6'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p7'
+        - x: 0
+          y: 8
+          width: 6
+          height: 4
+          content:
+            $ref: '#/spec/panels/p23'
+        display:
+          title: Coordinator vs vLLM Metrics Comparison
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 6
+          height: 4
+          content:
+            $ref: '#/spec/panels/p13'
+        - x: 6
+          y: 0
+          width: 6
+          height: 4
+          content:
+            $ref: '#/spec/panels/p14'
+        - x: 12
+          y: 0
+          width: 6
+          height: 4
+          content:
+            $ref: '#/spec/panels/p15'
+        - x: 18
+          y: 0
+          width: 6
+          height: 4
+          content:
+            $ref: '#/spec/panels/p16'
+        - x: 0
+          y: 4
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p17'
+        - x: 12
+          y: 4
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p18'
+        - x: 0
+          y: 12
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p19'
+        - x: 12
+          y: 12
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p20'
+        display:
+          title: KV Cache Transfer Metrics (NIXL Connector)
+          collapse:
+            open: true

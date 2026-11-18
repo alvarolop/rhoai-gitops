@@ -1,0 +1,416 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: llm-d-kv-cache
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: llm-d Performance Dashboard
+      description: llm-d Inference Performance Dashboard
+    duration: 15m
+    variables:
+    - kind: ListVariable
+      spec:
+        name: model
+        display:
+          name: Model
+          hidden: false
+        allowMultiple: false
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: model_name
+            matchers:
+            - vllm:num_requests_running
+        defaultValue: $__all
+    - kind: ListVariable
+      spec:
+        name: namespace
+        display:
+          name: Namespace
+          hidden: false
+        allowMultiple: false
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: namespace
+            matchers:
+            - vllm:num_requests_running
+        defaultValue: $__all
+    panels:
+      p1:
+        kind: Panel
+        spec:
+          display:
+            name: Time to First Token (TTFT)
+            description: |-
+              **Time to First Token (TTFT)** measures the critical latency from when a request is received until the first token is generated. Lower values indicate better user experience.
+
+              • **P50**: 50% of requests complete faster
+              • **P95**: 95% of requests complete faster (SLA threshold)
+              • **P99**: 99% of requests complete faster (tail latency)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.50, rate(vllm:time_to_first_token_seconds_bucket{model_name=~"$model", namespace=~"$namespace"}[5m]))
+                  seriesNameFormat: P50 TTFT
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, rate(vllm:time_to_first_token_seconds_bucket{model_name=~"$model", namespace=~"$namespace"}[5m]))
+                  seriesNameFormat: P95 TTFT
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, rate(vllm:time_to_first_token_seconds_bucket{model_name=~"$model", namespace=~"$namespace"}[5m]))
+                  seriesNameFormat: P99 TTFT
+      p2:
+        kind: Panel
+        spec:
+          display:
+            name: Inter-Token Latency
+            description: |-
+              **Inter-Token Latency** measures the time between generating successive tokens during decode. Lower latencies mean faster text generation.
+
+              • **P50**: Median token generation speed
+              • **P95**: 95th percentile generation speed
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.50, sum by(le) (rate(vllm:inter_token_latency_seconds_bucket{model_name=~"$model",
+                    namespace=~"$namespace"}[5m])))
+                  seriesNameFormat: P50 Inter-Token
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by(le) (rate(vllm:inter_token_latency_seconds_bucket{model_name=~"$model",
+                    namespace=~"$namespace"}[5m])))
+                  seriesNameFormat: P95 Inter-Token
+      p4:
+        kind: Panel
+        spec:
+          display:
+            name: KV Cache Hit Rate
+            description: |-
+              **KV Cache Hit Rate** measures prefix cache effectiveness. Higher hit rates (>60%) indicate better cache efficiency and reduced computation.
+
+              • **Red (0-30%)**: Poor cache efficiency
+              • **Yellow (30-60%)**: Moderate efficiency
+              • **Green (60%+)**: Good cache efficiency
+          plugin:
+            kind: GaugeChart
+            spec:
+              calculation: last
+              format:
+                unit: percent-decimal
+              max: 1
+              thresholds:
+                steps:
+                - value: 0.3
+                  color: '#F2CC0C'
+                - value: 0.6
+                  color: '#56A64B'
+                defaultColor: '#E02F44'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(vllm:prefix_cache_hits_total{model_name=~"$model", namespace=~"$namespace"}) / sum(vllm:prefix_cache_queries_total{model_name=~"$model",
+                    namespace=~"$namespace"})
+                  seriesNameFormat: Cache Hit Rate
+      p9:
+        kind: Panel
+        spec:
+          display:
+            name: Per-Pod Cache Hit Rates
+            description: '**Per-Pod Cache Hit Rates** - Shows cache performance for each decode pod. Useful for troubleshooting
+              cache-aware routing.'
+          plugin:
+            kind: BarChart
+            spec:
+              calculation: last
+              format:
+                unit: percent-decimal
+              sort: desc
+              mode: value
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: vllm:prefix_cache_hits_total{model_name=~"$model", namespace=~"$namespace"} / vllm:prefix_cache_queries_total{model_name=~"$model",
+                    namespace=~"$namespace"}
+                  seriesNameFormat: Pod {{pod}}
+      p10:
+        kind: Panel
+        spec:
+          display:
+            name: KV Cache Usage %
+            description: '**KV Cache Usage %** - KV cache memory utilization'
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: percent
+                decimalPlaces: 1
+              thresholds:
+                steps:
+                - value: 50
+                  color: '#F2CC0C'
+                - value: 80
+                  color: '#E02F44'
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: avg(vllm:kv_cache_usage_perc{namespace=~"$namespace"}) * 100
+                  seriesNameFormat: Cache Usage %
+      p11:
+        kind: Panel
+        spec:
+          display:
+            name: Per-Pod KV Cache Usage
+            description: '**Per-Pod Cache Usage** - Shows cache utilization for each decode pod'
+          plugin:
+            kind: BarChart
+            spec:
+              calculation: last
+              format:
+                unit: percent
+                decimalPlaces: 1
+              sort: desc
+              mode: value
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: vllm:kv_cache_usage_perc{namespace=~"$namespace"} * 100
+                  seriesNameFormat: Pod {{pod}}
+      p6:
+        kind: Panel
+        spec:
+          display:
+            name: Request Throughput
+            description: '**Request Throughput** - Rate of successful request completion'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:request_success_total{model_name=~"$model", namespace=~"$namespace"}[5m])
+                  seriesNameFormat: Success Rate
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:e2e_request_latency_seconds_count{model_name=~"$model", namespace=~"$namespace"}[5m])
+                  seriesNameFormat: Total Rate
+      p5:
+        kind: Panel
+        spec:
+          display:
+            name: Request Queue Status
+            description: '**Request Queue Status** - Shows current system load'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: vllm:num_requests_running{model_name=~"$model", namespace=~"$namespace"}
+                  seriesNameFormat: Requests Running
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: vllm:num_requests_waiting{model_name=~"$model", namespace=~"$namespace"}
+                  seriesNameFormat: Requests Waiting
+      p13:
+        kind: Panel
+        spec:
+          display:
+            name: EPP Pool Health & Load
+            description: '**EPP Pool Health** - Shows inference pool status managed by External Processing Pod'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: inference_pool_ready_pods{namespace=~"$namespace"}
+                  seriesNameFormat: '{{name}} Ready Pods'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: inference_pool_average_queue_size{namespace=~"$namespace"}
+                  seriesNameFormat: '{{name}} Average Queue Size'
+      p14:
+        kind: Panel
+        spec:
+          display:
+            name: EPP KV Cache Pool Utilization
+            description: '**EPP KV Cache Pool Utilization** - Cache efficiency managed by EPP across the inference pool'
+          plugin:
+            kind: GaugeChart
+            spec:
+              calculation: last
+              format:
+                unit: percent-decimal
+              max: 1
+              thresholds:
+                steps:
+                - value: 0.1
+                  color: '#F2CC0C'
+                - value: 0.6
+                  color: '#56A64B'
+                defaultColor: '#E02F44'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: inference_pool_average_kv_cache_utilization{namespace=~"$namespace"}
+                  seriesNameFormat: '{{name}} Pool KV Cache Utilization'
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p1'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p2'
+        - x: 0
+          y: 8
+          width: 6
+          height: 8
+          content:
+            $ref: '#/spec/panels/p4'
+        - x: 6
+          y: 8
+          width: 6
+          height: 8
+          content:
+            $ref: '#/spec/panels/p9'
+        - x: 12
+          y: 8
+          width: 6
+          height: 8
+          content:
+            $ref: '#/spec/panels/p10'
+        - x: 18
+          y: 8
+          width: 6
+          height: 8
+          content:
+            $ref: '#/spec/panels/p11'
+        - x: 0
+          y: 16
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p6'
+        - x: 12
+          y: 16
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p5'
+        - x: 0
+          y: 24
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p13'
+        - x: 12
+          y: 24
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p14'

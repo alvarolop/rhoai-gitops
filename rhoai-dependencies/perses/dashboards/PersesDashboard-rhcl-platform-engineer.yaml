@@ -1,0 +1,1114 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: rhcl-platform-engineer
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: Platform Engineer Dashboard
+      description: APIs
+    duration: 30m
+    variables:
+    - kind: ListVariable
+      spec:
+        name: gateway_namespace
+        display:
+          name: Gateway Namespace
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: exported_namespace
+            matchers:
+            - gatewayapi_gateway_info
+        defaultValue: $__all
+    - kind: ListVariable
+      spec:
+        name: api_policy_namespace
+        display:
+          name: API/Route & Policy Namespace
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: exported_namespace
+            matchers:
+            - kube_namespace_created
+        defaultValue: $__all
+    - kind: ListVariable
+      spec:
+        name: route_name
+        display:
+          name: API/Route Name
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: name
+            matchers:
+            - gatewayapi_httproute_labels
+        defaultValue: $__all
+    panels:
+      p150:
+        kind: Panel
+        spec:
+          display:
+            name: Platform Engineer Dashboard
+          plugin:
+            kind: Markdown
+            spec:
+              text: |-
+                #### Overview of Gateways, Policies and APIs
+
+                The panels below are grouped by Gateways and APIs. A Gateway is a [Gateway API defined gateway](https://gateway-api.sigs.k8s.io/concepts/api-overview/#gateway) resource. An API is realised by a [Gateway API HTTPRoute](https://gateway-api.sigs.k8s.io/concepts/api-overview/#httproute).
+                Any policies [attached to the Gateways and APIs](https://gateway-api.sigs.k8s.io/geps/gep-713/) will be shown, as well as summary request and error metrics for APIs.
+
+                *Important: HTTPRoutes must include a "service" and "deployment" label with a value that matches the name of the service & deployment being routed to. eg. "service=myapp, deployment=myapp"*
+      p115:
+        kind: Panel
+        spec:
+          display:
+            name: Gateways
+            description: List of all Gateways, their class and status.
+          plugin:
+            kind: Table
+            spec:
+              density: compact
+              pagination: true
+              columnSettings:
+              - name: timestamp
+                hide: true
+              - name: gatewayclass_name
+                header: Gateway Class
+                enableSorting: true
+              - name: Time
+                header: ''
+                enableSorting: true
+              - name: __name__ 1
+                header: __name__ 1
+                enableSorting: true
+              - name: container 1
+                header: container 1
+                enableSorting: true
+              - name: customresource_group 1
+                header: customresource_group 1
+                enableSorting: true
+              - name: customresource_kind 1
+                header: customresource_kind 1
+                enableSorting: true
+              - name: customresource_version 1
+                header: customresource_version 1
+                enableSorting: true
+              - name: name 1
+                header: Name
+                enableSorting: true
+              - name: exported_namespace 1
+                header: Namespace
+                enableSorting: true
+              - name: instance 1
+                header: instance 1
+                enableSorting: true
+              - name: job 1
+                header: ''
+                enableSorting: true
+              - name: namespace 1
+                header: namespace 1
+                enableSorting: true
+              - name: prometheus 1
+                header: prometheus 1
+                enableSorting: true
+              - name: 'Value #A'
+                header: 'Value #A'
+                enableSorting: true
+              - name: __name__ 2
+                header: __name__ 2
+                enableSorting: true
+              - name: container 2
+                header: container 2
+                enableSorting: true
+              - name: customresource_group 2
+                header: customresource_group 2
+                enableSorting: true
+              - name: customresource_kind 2
+                header: customresource_kind 2
+                enableSorting: true
+              - name: customresource_version 2
+                header: customresource_version 2
+                enableSorting: true
+              - name: exported_namespace 2
+                header: exported_namespace 2
+                enableSorting: true
+              - name: instance 2
+                header: instance 2
+                enableSorting: true
+              - name: job 2
+                header: job 2
+                enableSorting: true
+              - name: name 2
+                header: name 2
+                enableSorting: true
+              - name: namespace 2
+                header: namespace 2
+                enableSorting: true
+              - name: prometheus 2
+                header: prometheus 2
+                enableSorting: true
+              - name: type 1
+                header: type 1
+                enableSorting: true
+              - name: 'Value #B'
+                header: Programmed
+                enableSorting: true
+              - name: __name__ 3
+                header: ''
+                enableSorting: true
+              - name: container 3
+                header: container 3
+                enableSorting: true
+              - name: customresource_group 3
+                header: customresource_group 3
+                enableSorting: true
+              - name: customresource_kind 3
+                header: customresource_kind 3
+                enableSorting: true
+              - name: customresource_version 3
+                header: customresource_version 3
+                enableSorting: true
+              - name: exported_namespace 3
+                header: exported_namespace 3
+                enableSorting: true
+              - name: instance 3
+                header: instance 3
+                enableSorting: true
+              - name: job 3
+                header: job 3
+                enableSorting: true
+              - name: name 3
+                header: name 3
+                enableSorting: true
+              - name: namespace 3
+                header: namespace 3
+                enableSorting: true
+              - name: prometheus 3
+                header: prometheus 3
+                enableSorting: true
+              - name: type 2
+                header: type 2
+                enableSorting: true
+              - name: 'Value #C'
+                header: Accepted
+                enableSorting: true
+              - name: 'Value #A'
+                hide: true
+              - name: __name__ 1
+                hide: true
+              - name: __name__ 2
+                hide: true
+              - name: __name__ 3
+                hide: true
+              - name: container 1
+                hide: true
+              - name: container 2
+                hide: true
+              - name: container 3
+                hide: true
+              - name: customresource_group 1
+                hide: true
+              - name: customresource_group 2
+                hide: true
+              - name: customresource_group 3
+                hide: true
+              - name: customresource_kind 1
+                hide: true
+              - name: customresource_kind 2
+                hide: true
+              - name: customresource_kind 3
+                hide: true
+              - name: customresource_version 1
+                hide: true
+              - name: customresource_version 2
+                hide: true
+              - name: customresource_version 3
+                hide: true
+              - name: exported_namespace 2
+                hide: true
+              - name: exported_namespace 3
+                hide: true
+              - name: instance 1
+                hide: true
+              - name: instance 2
+                hide: true
+              - name: instance 3
+                hide: true
+              - name: job 1
+                hide: true
+              - name: job 2
+                hide: true
+              - name: job 3
+                hide: true
+              - name: name 2
+                hide: true
+              - name: name 3
+                hide: true
+              - name: namespace 1
+                hide: true
+              - name: namespace 2
+                hide: true
+              - name: namespace 3
+                hide: true
+              - name: prometheus 1
+                hide: true
+              - name: prometheus 2
+                hide: true
+              - name: prometheus 3
+                hide: true
+              - name: receive 1
+                hide: true
+              - name: receive 2
+                hide: true
+              - name: receive 3
+                hide: true
+              - name: replica 1
+                hide: true
+              - name: replica 2
+                hide: true
+              - name: replica 3
+                hide: true
+              - name: tenant_id 1
+                hide: true
+              - name: tenant_id 2
+                hide: true
+              - name: tenant_id 3
+                hide: true
+              - name: type 1
+                hide: true
+              - name: type 2
+                hide: true
+              transforms:
+              - kind: MergeSeries
+                spec: {}
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_gateway_info{exported_namespace=~"${gateway_namespace}"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_gateway_status{exported_namespace=~"${gateway_namespace}",type="Programmed"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_gateway_status{exported_namespace=~"${gateway_namespace}",type="Accepted"}
+      p146:
+        kind: Panel
+        spec:
+          display:
+            name: Total
+            description: Total number of Gateway API gateways
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: count(gatewayapi_gateway_info{exported_namespace=~"${gateway_namespace}"})
+      p117:
+        kind: Panel
+        spec:
+          display:
+            name: Gateway Policies
+            description: List of all Policies targeting a Gateway
+          plugin:
+            kind: Table
+            spec:
+              density: compact
+              pagination: true
+              columnSettings:
+              - name: timestamp
+                hide: true
+              - name: Time
+                header: Time
+                enableSorting: true
+              - name: __name__
+                header: __name__
+                enableSorting: true
+              - name: container
+                header: container
+                enableSorting: true
+              - name: customresource_group
+                header: customresource_group
+                enableSorting: true
+              - name: customresource_kind
+                header: Kind
+                enableSorting: true
+              - name: customresource_version
+                header: customresource_version
+                enableSorting: true
+              - name: name
+                header: Name
+                enableSorting: true
+              - name: exported_namespace
+                header: Namespace
+                enableSorting: true
+              - name: instance
+                header: instance
+                enableSorting: true
+              - name: job
+                header: job
+                enableSorting: true
+              - name: namespace
+                header: Namespace
+                enableSorting: true
+              - name: prometheus
+                header: prometheus
+                enableSorting: true
+              - name: target_group
+                header: target_group
+                enableSorting: true
+              - name: target_kind
+                header: Target Kind
+                enableSorting: true
+              - name: target_name
+                header: Target Name
+                enableSorting: true
+              - name: 'Value #A'
+                header: ''
+                enableSorting: true
+              - name: 'Value #B'
+                header: 'Value #B'
+                enableSorting: true
+              - name: 'Value #A'
+                hide: true
+              - name: 'Value #B'
+                hide: true
+              - name: 'Value #C'
+                hide: true
+              - name: 'Value #D'
+                hide: true
+              - name: __name__
+                hide: true
+              - name: container
+                hide: true
+              - name: customresource_group
+                hide: true
+              - name: customresource_version
+                hide: true
+              - name: instance
+                hide: true
+              - name: job
+                hide: true
+              - name: namespace
+                hide: true
+              - name: prometheus
+                hide: true
+              - name: receive
+                hide: true
+              - name: replica
+                hide: true
+              - name: target_group
+                hide: true
+              - name: tenant_id
+                hide: true
+              transforms:
+              - kind: MergeSeries
+                spec: {}
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_tlspolicy_target_info{exported_namespace=~"${gateway_namespace}",target_kind="Gateway"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_ratelimitpolicy_target_info{exported_namespace=~"${gateway_namespace}",target_kind="Gateway"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_authpolicy_target_info{exported_namespace=~"${gateway_namespace}",target_kind="Gateway"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_dnspolicy_target_info{exported_namespace=~"${gateway_namespace}",target_kind="Gateway"}
+      p147:
+        kind: Panel
+        spec:
+          display:
+            name: Healthy
+            description: Total Gateways with an [Accepted and Programmed](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1.GatewayConditionType)
+              state of True
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: count(gatewayapi_gateway_status{exported_namespace=~"${gateway_namespace}",type="Accepted"} > 0 and
+                    ignoring(type) gatewayapi_gateway_status{exported_namespace=~"${gateway_namespace}",type="Programmed"}
+                    > 0)
+      p148:
+        kind: Panel
+        spec:
+          display:
+            name: Unhealthy
+            description: Total Gateways with a False or missing [Accepted or Programmed](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1.GatewayConditionType)
+              state.
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps: []
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: |-
+                    count(gatewayapi_gateway_info unless (gatewayapi_gateway_info{exported_namespace=~"${gateway_namespace}"} * on(name, exported_namespace, instance) group_left gatewayapi_gateway_status{exported_namespace=~"${gateway_namespace}",type="Programmed"})
+                    or ignoring(type)
+                    gatewayapi_gateway_info unless (gatewayapi_gateway_info{exported_namespace=~"${gateway_namespace}"} * on(name, exported_namespace, instance) group_left gatewayapi_gateway_status{exported_namespace=~"${gateway_namespace}",type="Accepted"}))
+      p97:
+        kind: Panel
+        spec:
+          display:
+            name: APIs/HTTPRoutes
+            description: List of all APIs (HTTPRoutes) and their hostnames & corresponding Deployment names.
+          plugin:
+            kind: Table
+            spec:
+              density: compact
+              pagination: true
+              columnSettings:
+              - name: timestamp
+                hide: true
+              - name: name
+                header: Name
+                enableSorting: true
+              - name: Time 1
+                header: ''
+                enableSorting: true
+              - name: __name__ 1
+                header: __name__ 1
+                enableSorting: true
+              - name: container 1
+                header: container 1
+                enableSorting: true
+              - name: customresource_group 1
+                header: customresource_group 1
+                enableSorting: true
+              - name: customresource_kind 1
+                header: customresource_kind 1
+                enableSorting: true
+              - name: customresource_version 1
+                header: customresource_version 1
+                enableSorting: true
+              - name: hostname
+                header: Hostname
+                enableSorting: true
+              - name: exported_namespace 1
+                header: Namespace
+                enableSorting: true
+              - name: instance 1
+                header: instance 1
+                enableSorting: true
+              - name: job 1
+                header: ''
+                enableSorting: true
+              - name: namespace 1
+                header: namespace 1
+                enableSorting: true
+              - name: prometheus 1
+                header: prometheus 1
+                enableSorting: true
+              - name: 'Value #A'
+                header: 'Value #A'
+                enableSorting: true
+              - name: Time 2
+                header: Time 2
+                enableSorting: true
+              - name: __name__ 2
+                header: __name__ 2
+                enableSorting: true
+              - name: container 2
+                header: container 2
+                enableSorting: true
+              - name: customresource_group 2
+                header: customresource_group 2
+                enableSorting: true
+              - name: customresource_kind 2
+                header: customresource_kind 2
+                enableSorting: true
+              - name: customresource_version 2
+                header: customresource_version 2
+                enableSorting: true
+              - name: deployment
+                header: Deployment Name
+                enableSorting: true
+              - name: exported_namespace 2
+                header: ''
+                enableSorting: true
+              - name: instance 2
+                header: instance 2
+                enableSorting: true
+              - name: job 2
+                header: job 2
+                enableSorting: true
+              - name: namespace 2
+                header: namespace 2
+                enableSorting: true
+              - name: prometheus 2
+                header: prometheus 2
+                enableSorting: true
+              - name: 'Value #B'
+                header: 'Value #B'
+                enableSorting: true
+              - name: Time 1
+                hide: true
+              - name: Time 2
+                hide: true
+              - name: 'Value #A'
+                hide: true
+              - name: 'Value #B'
+                hide: true
+              - name: __name__ 1
+                hide: true
+              - name: __name__ 2
+                hide: true
+              - name: container 1
+                hide: true
+              - name: container 2
+                hide: true
+              - name: customresource_group 1
+                hide: true
+              - name: customresource_group 2
+                hide: true
+              - name: customresource_kind 1
+                hide: true
+              - name: customresource_kind 2
+                hide: true
+              - name: customresource_version 1
+                hide: true
+              - name: customresource_version 2
+                hide: true
+              - name: exported_namespace 2
+                hide: true
+              - name: instance 1
+                hide: true
+              - name: instance 2
+                hide: true
+              - name: job 1
+                hide: true
+              - name: job 2
+                hide: true
+              - name: namespace 2
+                hide: true
+              - name: prometheus 1
+                hide: true
+              - name: prometheus 2
+                hide: true
+              transforms:
+              - kind: MergeSeries
+                spec: {}
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_httproute_hostname_info{name=~"${route_name}",exported_namespace=~"${api_policy_namespace}"}
+                  seriesNameFormat: __auto
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_httproute_labels{name=~"${route_name}",exported_namespace=~"${api_policy_namespace}"}
+      p118:
+        kind: Panel
+        spec:
+          display:
+            name: HTTPRoute Policies
+            description: List of all Policies targeting HTTPRoutes
+          plugin:
+            kind: Table
+            spec:
+              density: compact
+              pagination: true
+              columnSettings:
+              - name: timestamp
+                hide: true
+              - name: Time
+                header: Time
+                enableSorting: true
+              - name: __name__
+                header: __name__
+                enableSorting: true
+              - name: container
+                header: container
+                enableSorting: true
+              - name: customresource_group
+                header: customresource_group
+                enableSorting: true
+              - name: customresource_kind
+                header: Kind
+                enableSorting: true
+              - name: customresource_version
+                header: customresource_version
+                enableSorting: true
+              - name: name
+                header: Name
+                enableSorting: true
+              - name: exported_namespace
+                header: Namespace
+                enableSorting: true
+              - name: instance
+                header: instance
+                enableSorting: true
+              - name: job
+                header: job
+                enableSorting: true
+              - name: namespace
+                header: Namespace
+                enableSorting: true
+              - name: prometheus
+                header: prometheus
+                enableSorting: true
+              - name: target_group
+                header: target_group
+                enableSorting: true
+              - name: target_kind
+                header: Target Kind
+                enableSorting: true
+              - name: target_name
+                header: Target Name
+                enableSorting: true
+              - name: 'Value #A'
+                header: ''
+                enableSorting: true
+              - name: 'Value #B'
+                header: 'Value #B'
+                enableSorting: true
+              - name: 'Value #A'
+                hide: true
+              - name: 'Value #B'
+                hide: true
+              - name: 'Value #C'
+                hide: true
+              - name: __name__
+                hide: true
+              - name: container
+                hide: true
+              - name: customresource_group
+                hide: true
+              - name: customresource_version
+                hide: true
+              - name: instance
+                hide: true
+              - name: job
+                hide: true
+              - name: prometheus
+                hide: true
+              - name: receive
+                hide: true
+              - name: replica
+                hide: true
+              - name: target_group
+                hide: true
+              - name: tenant_id
+                hide: true
+              transforms:
+              - kind: MergeSeries
+                spec: {}
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_tlspolicy_target_info{exported_namespace=~"${api_policy_namespace}",target_kind!="Gateway",target_name=~"${route_name}"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_ratelimitpolicy_target_info{exported_namespace=~"${api_policy_namespace}",target_kind!="Gateway",target_name=~"${route_name}"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_authpolicy_target_info{exported_namespace=~"${api_policy_namespace}",target_kind!="Gateway",target_name=~"${route_name}"}
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: gatewayapi_dnspolicy_target_info{exported_namespace=~"${api_policy_namespace}",target_kind!="Gateway",target_name=~"${route_name}"}
+      p120:
+        kind: Panel
+        spec:
+          display:
+            name: Total requests (req/sec)
+            description: |-
+              Aggregated rate of requests per API (HTTPRoute). The API name can be cross referenced with the API list to see additional details.
+
+              Note: HTTPRoutes require a label `deployment` with the name of the corresponding Deployment so that istio request metrics can be paired with HTTPRoute metrics.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+                  decimalPlaces: 2
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"${route_name}",exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: 'API: {{name}}'
+      p137:
+        kind: Panel
+        spec:
+          display:
+            name: Total requests (bytes/sec)
+            description: |-
+              Aggregated rate of bytes per API (HTTPRoute). The API name can be cross referenced with the API list to see additional details.
+
+              Note: HTTPRoutes require a label `deployment` with the name of the corresponding Deployment so that istio request metrics can be paired with HTTPRoute metrics.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: bytes/sec
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: |-
+                    (sum(irate(container_network_receive_bytes_total{exported_namespace=~"$api_policy_namespace"}[1h:5m])
+                    * on (namespace, exported_namespace,pod)
+                    group_left(workload,workload_type) namespace_workload_pod:kube_pod_owner:relabel{exported_namespace=~"$api_policy_namespace", workload=~".+"}) by (workload)) * on(workload) (group by(workload) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"$api_policy_namespace",name=~"$route_name"}, "workload", "$1","service", "(.+)")))
+                  seriesNameFormat: 'API: {{workload}}'
+      p139:
+        kind: Panel
+        spec:
+          display:
+            name: Errors (req/s)
+            description: Rate of 4xx, 5xx and total HTTP response code errors by API/HTTPRoute
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+                  decimalPlaces: 2
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"4.*|5.*"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: 'Total Errors: {{name}} '
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"4.*"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '4xx: {{name}} '
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"5.*"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '5xx: {{name}} '
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"404"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '404: {{name}}'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"401"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '401: {{name}}'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"429"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '429: {{name}}'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"500"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '500: {{name}}'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"501"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '501: {{name}}'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{response_code=~"503"}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"${api_policy_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '503: {{name}}'
+      p141:
+        kind: Panel
+        spec:
+          display:
+            name: CPU Usage
+            description: CPU Usage of all workloads (Deployments) linked to a HTTPRoute. That is, they have a corresponding
+              HTTPRoute with a deployment label.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+                min: 0
+              visual:
+                stack: all
+                areaOpacity: 0.5
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: |-
+                    sum(
+                      node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{exported_namespace=~"$api_policy_namespace"}
+                    * on(namespace, exported_namespace,pod)
+                      group_left(workload, workload_type) namespace_workload_pod:kube_pod_owner:relabel{exported_namespace=~"$api_policy_namespace", workload_type="deployment"}
+                    ) by (workload, workload_type)
+                    * on(workload) (group by(workload) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"$api_policy_namespace",name=~"$route_name"}, "workload", "$1","deployment", "(.+)")))
+                  seriesNameFormat: 'API: {{workload}}'
+      p143:
+        kind: Panel
+        spec:
+          display:
+            name: Memory Usage
+            description: Memory Usage of all workloads (Deployments) linked to a HTTPRoute. That is, they have a corresponding
+              HTTPRoute with a deployment label.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: bytes
+                min: 0
+              visual:
+                stack: all
+                areaOpacity: 0.5
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: |-
+                    sum(
+                        container_memory_working_set_bytes{metrics_path="/metrics/cadvisor", exported_namespace=~"$api_policy_namespace", container!="", image!=""}
+                      * on(namespace, exported_namespace,pod)
+                        group_left(workload, workload_type) namespace_workload_pod:kube_pod_owner:relabel{exported_namespace=~"$api_policy_namespace", workload_type="deployment"}
+                    ) by (workload, workload_type)
+                    * on(workload) (group by(workload) (label_replace(gatewayapi_httproute_labels{exported_namespace=~"$api_policy_namespace",name=~"$route_name"}, "workload", "$1","deployment", "(.+)")))
+                  seriesNameFormat: 'API: {{workload}}'
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 6
+          y: 0
+          width: 18
+          height: 7
+          content:
+            $ref: '#/spec/panels/p150'
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 11
+          height: 9
+          content:
+            $ref: '#/spec/panels/p115'
+        - x: 11
+          y: 0
+          width: 2
+          height: 3
+          content:
+            $ref: '#/spec/panels/p146'
+        - x: 13
+          y: 0
+          width: 11
+          height: 9
+          content:
+            $ref: '#/spec/panels/p117'
+        - x: 11
+          y: 3
+          width: 2
+          height: 3
+          content:
+            $ref: '#/spec/panels/p147'
+        - x: 11
+          y: 6
+          width: 2
+          height: 3
+          content:
+            $ref: '#/spec/panels/p148'
+        display:
+          title: Gateways
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 6
+          content:
+            $ref: '#/spec/panels/p97'
+        - x: 12
+          y: 0
+          width: 12
+          height: 6
+          content:
+            $ref: '#/spec/panels/p118'
+        - x: 0
+          y: 6
+          width: 8
+          height: 7
+          content:
+            $ref: '#/spec/panels/p120'
+        - x: 8
+          y: 6
+          width: 8
+          height: 7
+          content:
+            $ref: '#/spec/panels/p137'
+        - x: 16
+          y: 6
+          width: 8
+          height: 7
+          content:
+            $ref: '#/spec/panels/p139'
+        - x: 0
+          y: 13
+          width: 8
+          height: 7
+          content:
+            $ref: '#/spec/panels/p141'
+        - x: 8
+          y: 13
+          width: 8
+          height: 7
+          content:
+            $ref: '#/spec/panels/p143'
+        display:
+          title: APIs/HTTPRoutes
+          collapse:
+            open: true

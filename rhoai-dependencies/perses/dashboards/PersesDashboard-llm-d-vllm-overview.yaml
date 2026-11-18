@@ -1,0 +1,509 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: llm-d-vllm-overview
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: llm-d vLLM Overview
+      description: monitoring llm-d inference server
+    duration: 12h
+    variables:
+    - kind: ListVariable
+      spec:
+        name: model_name
+        display:
+          name: model_name
+          hidden: false
+        allowMultiple: false
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: model_name
+            matchers:
+            - vllm:generation_tokens_total
+        defaultValue: $__all
+    - kind: ListVariable
+      spec:
+        name: namespace
+        display:
+          name: namespace
+          hidden: false
+        allowMultiple: false
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: namespace
+        defaultValue: $__all
+    panels:
+      p9:
+        kind: Panel
+        spec:
+          display:
+            name: E2E Request Latency
+            description: End to end request latency measured in seconds.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P99
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.9, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P90
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: |-
+                    rate(vllm:e2e_request_latency_seconds_sum{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                    /
+                    rate(vllm:e2e_request_latency_seconds_count{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                  seriesNameFormat: Average
+      p8:
+        kind: Panel
+        spec:
+          display:
+            name: Token Throughput
+            description: Number of tokens processed per second
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:prompt_tokens_total{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                  seriesNameFormat: Prompt Tokens/Sec
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:generation_tokens_total{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                  seriesNameFormat: Generation Tokens/Sec
+      p10:
+        kind: Panel
+        spec:
+          display:
+            name: Inter-Token Latency
+            description: Inter token latency in seconds.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le) (rate(vllm:inter_token_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P99
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by(le) (rate(vllm:inter_token_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.9, sum by(le) (rate(vllm:inter_token_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P90
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by(le) (rate(vllm:inter_token_latency_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: |-
+                    rate(vllm:inter_token_latency_seconds_sum{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                    /
+                    rate(vllm:inter_token_latency_seconds_count{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                  seriesNameFormat: Mean
+      p3:
+        kind: Panel
+        spec:
+          display:
+            name: Scheduler State
+            description: Number of requests in RUNNING and WAITING state
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: vllm:num_requests_running{model_name=~"$model_name",namespace=~"$namespace"}
+                  seriesNameFormat: Num Running
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: vllm:num_requests_waiting{model_name=~"$model_name",namespace=~"$namespace"}
+                  seriesNameFormat: Num Waiting
+      p5:
+        kind: Panel
+        spec:
+          display:
+            name: Time To First Token Latency
+            description: P50, P90, P95, and P99 TTFT latency in seconds.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le) (rate(vllm:time_to_first_token_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P99
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by(le) (rate(vllm:time_to_first_token_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P95
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.9, sum by(le) (rate(vllm:time_to_first_token_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P90
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.5, sum by(le) (rate(vllm:time_to_first_token_seconds_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])))
+                  seriesNameFormat: P50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: |-
+                    rate(vllm:time_to_first_token_seconds_sum{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                    /
+                    rate(vllm:time_to_first_token_seconds_count{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                  seriesNameFormat: Average
+      p4:
+        kind: Panel
+        spec:
+          display:
+            name: Cache Utilization
+            description: Percentage of used cache blocks by vLLM.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: percent-decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: vllm:kv_cache_usage_perc{model_name=~"$model_name",namespace=~"$namespace"}
+                  seriesNameFormat: KV Cache Usage
+      p12:
+        kind: Panel
+        spec:
+          display:
+            name: Request Prompt Length
+            description: Heatmap of request prompt length (Heatmap in Grafana; shown as one series per bucket.)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(le) (increase(vllm:request_prompt_tokens_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval]))
+                  seriesNameFormat: '{{le}}'
+      p13:
+        kind: Panel
+        spec:
+          display:
+            name: Request Generation Length
+            description: Heatmap of request generation length (Heatmap in Grafana; shown as one series per bucket.)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(le) (increase(vllm:request_generation_tokens_bucket{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval]))
+                  seriesNameFormat: '{{le}}'
+      p11:
+        kind: Panel
+        spec:
+          display:
+            name: Finish Reason
+            description: 'Number of finished requests by their finish reason: either an EOS token was generated or the max
+              sequence length was reached.'
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(finished_reason) (increase(vllm:request_success_total{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval]))
+                  seriesNameFormat: __auto
+      p14:
+        kind: Panel
+        spec:
+          display:
+            name: Queue Time
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:request_queue_time_seconds_sum{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                  seriesNameFormat: __auto
+      p15:
+        kind: Panel
+        spec:
+          display:
+            name: Requests Prefill and Decode Time
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:request_prefill_time_seconds_sum{model_name=~"$model_name",namespace=~"$namespace"}[30m])
+                  seriesNameFormat: Prefill
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:request_decode_time_seconds_sum{model_name=~"$model_name",namespace=~"$namespace"}[30m])
+                  seriesNameFormat: Decode
+      p16:
+        kind: Panel
+        spec:
+          display:
+            name: Max Generation Token in Sequence Group
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: rate(vllm:request_max_num_generation_tokens_sum{model_name=~"$model_name",namespace=~"$namespace"}[$__rate_interval])
+                  seriesNameFormat: Tokens
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p9'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p8'
+        - x: 0
+          y: 8
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p10'
+        - x: 12
+          y: 8
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p3'
+        - x: 0
+          y: 16
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p5'
+        - x: 12
+          y: 16
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p4'
+        - x: 0
+          y: 24
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p12'
+        - x: 12
+          y: 24
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p13'
+        - x: 0
+          y: 32
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p11'
+        - x: 12
+          y: 32
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p14'
+        - x: 0
+          y: 40
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p15'
+        - x: 12
+          y: 40
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p16'

@@ -1,0 +1,24 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Perses dashboards in the OpenShift console (Observe > Dashboards (Perses)). Requires operator-coo (COO >= 1.5).
+resources:
+  - ns-perses-dashboards.yaml
+  - sa-perses-thanos-querier.yaml
+  - crb-perses-thanos-querier.yaml
+  - Secret-thanos-querier-datasource-secret.yaml
+  - UIPlugin.yaml
+  - PersesGlobalDatasource-thanos-querier.yaml
+  - rb-dashboards-viewer.yaml
+  - dashboards/PersesDashboard-llm-d-diagnostic-drilldown.yaml
+  - dashboards/PersesDashboard-llm-d-failure-saturation.yaml
+  - dashboards/PersesDashboard-llm-d-kv-cache.yaml
+  - dashboards/PersesDashboard-llm-d-pd-coordinator.yaml
+  - dashboards/PersesDashboard-llm-d-vllm-overview.yaml
+  - dashboards/PersesDashboard-maas-ai-engineer.yaml
+  - dashboards/PersesDashboard-maas-platform-admin.yaml
+  - dashboards/PersesDashboard-rhcl-app-developer.yaml
+  - dashboards/PersesDashboard-rhcl-business-user.yaml
+  - dashboards/PersesDashboard-rhcl-dns-operator.yaml
+  - dashboards/PersesDashboard-rhcl-platform-engineer.yaml

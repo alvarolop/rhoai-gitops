@@ -1,0 +1,474 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: rhcl-business-user
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: Business User Dashboard
+    duration: 30m
+    variables:
+    - kind: ListVariable
+      spec:
+        name: api_namespace
+        display:
+          name: API/HTTPRoute Namespace
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: exported_namespace
+            matchers:
+            - kube_namespace_created
+        defaultValue: $__all
+    - kind: ListVariable
+      spec:
+        name: route_name
+        display:
+          name: API/Route Name
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: name
+            matchers:
+            - gatewayapi_httproute_labels
+        defaultValue: $__all
+    panels:
+      p150:
+        kind: Panel
+        spec:
+          display:
+            name: Business User Dashboard
+          plugin:
+            kind: Markdown
+            spec:
+              text: |
+                #### Business Overview of APIs
+
+                The panels below are grouped by APIs, realized by a [Gateway API HTTPRoute](https://gateway-api.sigs.k8s.io/concepts/api-overview/#httproute). Each panel provides a comprehensive overview of request and error metrics associated with each API. Additionally, these panels include a heatmap that visualizes requests per second, offering real-time insights into the traffic patterns and operational status of your services.
+
+                *Important: HTTPRoutes must include a "service" and "deployment" label with a value that matches the name of the service & deployment being routed to. eg. "service=myapp, deployment=myapp"*
+      p4:
+        kind: Panel
+        spec:
+          display:
+            name: Traffic summary (req/sec)
+            description: |-
+              Aggregated rate of requests per API (HTTPRoute). The API name can be cross referenced with the API list to see additional details.
+
+              Note: HTTPRoutes require a label `deployment` with the name of the corresponding Deployment so that istio request metrics can be paired with HTTPRoute metrics.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+                  decimalPlaces: 2
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"${route_name}",exported_namespace=~"${api_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: 'API: {{name}}'
+      p22:
+        kind: Panel
+        spec:
+          display:
+            name: Historical request comparison (req/sec)
+            description: req/s Heatmap
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{}[5m])) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"${route_name}",exported_namespace=~"${api_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: most recent
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{}[5m] offset $__range)) by (destination_service_name) * on(destination_service_name)
+                    group_right() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"${route_name}",exported_namespace=~"${api_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: previous
+      p7:
+        kind: Panel
+        spec:
+          display:
+            name: Breakdown by path (req/sec)
+            description: Aggregated rate of requests per endpoint/path.
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+                  decimalPlaces: 2
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(istio_requests_total{}[5m])) by (destination_service_name, request_url_path) * on(destination_service_name)
+                    group_left() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"${route_name}",exported_namespace=~"${api_namespace}"},
+                    "destination_service_name", "$1","service", "(.+)")))
+                  seriesNameFormat: '{{request_url_path}}'
+      p155:
+        kind: Panel
+        spec:
+          display:
+            name: Total requests for selected range
+          plugin:
+            kind: Table
+            spec:
+              density: compact
+              pagination: true
+              columnSettings:
+              - name: timestamp
+                hide: true
+              - name: Time 1
+                hide: true
+              - name: Time 2
+                hide: true
+              - name: Time 3
+                hide: true
+              - name: connection_security_policy 1
+                hide: true
+              - name: connection_security_policy 2
+                hide: true
+              - name: connection_security_policy 3
+                hide: true
+              - name: destination_app 1
+                hide: true
+              - name: destination_app 2
+                hide: true
+              - name: destination_app 3
+                hide: true
+              - name: destination_canonical_revision 1
+                hide: true
+              - name: destination_canonical_revision 2
+                hide: true
+              - name: destination_canonical_revision 3
+                hide: true
+              - name: destination_canonical_service 1
+                hide: true
+              - name: destination_canonical_service 2
+                hide: true
+              - name: destination_canonical_service 3
+                hide: true
+              - name: destination_cluster 1
+                hide: true
+              - name: destination_cluster 2
+                hide: true
+              - name: destination_cluster 3
+                hide: true
+              - name: destination_port 1
+                hide: true
+              - name: destination_port 2
+                hide: true
+              - name: destination_port 3
+                hide: true
+              - name: destination_principal 1
+                hide: true
+              - name: destination_principal 2
+                hide: true
+              - name: destination_principal 3
+                hide: true
+              - name: destination_service 1
+                hide: true
+              - name: destination_service 2
+                hide: true
+              - name: destination_service 3
+                hide: true
+              - name: destination_service_name 1
+                hide: true
+              - name: destination_service_name 2
+                hide: true
+              - name: destination_service_name 3
+                hide: true
+              - name: destination_service_namespace 1
+                hide: true
+              - name: destination_service_namespace 2
+                hide: true
+              - name: destination_service_namespace 3
+                hide: true
+              - name: destination_version 1
+                hide: true
+              - name: destination_version 2
+                hide: true
+              - name: destination_version 3
+                hide: true
+              - name: destination_workload 1
+                hide: true
+              - name: destination_workload 2
+                hide: true
+              - name: destination_workload 3
+                hide: true
+              - name: destination_workload_namespace 1
+                hide: true
+              - name: destination_workload_namespace 2
+                hide: true
+              - name: destination_workload_namespace 3
+                hide: true
+              - name: endpoint 1
+                hide: true
+              - name: endpoint 2
+                hide: true
+              - name: endpoint 3
+                hide: true
+              - name: instance 1
+                hide: true
+              - name: instance 2
+                hide: true
+              - name: instance 3
+                hide: true
+              - name: istio_io_gateway_name 1
+                hide: true
+              - name: istio_io_gateway_name 2
+                hide: true
+              - name: istio_io_gateway_name 3
+                hide: true
+              - name: job 1
+                hide: true
+              - name: job 2
+                hide: true
+              - name: job 3
+                hide: true
+              - name: namespace 1
+                hide: true
+              - name: namespace 2
+                hide: true
+              - name: namespace 3
+                hide: true
+              - name: pod 1
+                hide: true
+              - name: pod 2
+                hide: true
+              - name: pod 3
+                hide: true
+              - name: pod_template_hash 1
+                hide: true
+              - name: pod_template_hash 2
+                hide: true
+              - name: pod_template_hash 3
+                hide: true
+              - name: prometheus 1
+                hide: true
+              - name: prometheus 2
+                hide: true
+              - name: prometheus 3
+                hide: true
+              - name: receive 1
+                hide: true
+              - name: receive 2
+                hide: true
+              - name: receive 3
+                hide: true
+              - name: replica 1
+                hide: true
+              - name: replica 2
+                hide: true
+              - name: replica 3
+                hide: true
+              - name: reporter 1
+                hide: true
+              - name: reporter 2
+                hide: true
+              - name: reporter 3
+                hide: true
+              - name: request_host 1
+                hide: true
+              - name: request_host 2
+                hide: true
+              - name: request_host 3
+                hide: true
+              - name: request_protocol 1
+                hide: true
+              - name: request_protocol 2
+                hide: true
+              - name: request_protocol 3
+                hide: true
+              - name: response_code 1
+                hide: true
+              - name: response_code 2
+                hide: true
+              - name: response_code 3
+                hide: true
+              - name: response_flags 1
+                hide: true
+              - name: response_flags 2
+                hide: true
+              - name: response_flags 3
+                hide: true
+              - name: service 1
+                hide: true
+              - name: service 2
+                hide: true
+              - name: service 3
+                hide: true
+              - name: service_istio_io_canonical_name 1
+                hide: true
+              - name: service_istio_io_canonical_name 2
+                hide: true
+              - name: service_istio_io_canonical_name 3
+                hide: true
+              - name: service_istio_io_canonical_revision 1
+                hide: true
+              - name: service_istio_io_canonical_revision 2
+                hide: true
+              - name: service_istio_io_canonical_revision 3
+                hide: true
+              - name: sidecar_istio_io_inject 1
+                hide: true
+              - name: sidecar_istio_io_inject 2
+                hide: true
+              - name: sidecar_istio_io_inject 3
+                hide: true
+              - name: source_canonical_revision 1
+                hide: true
+              - name: source_canonical_revision 2
+                hide: true
+              - name: source_canonical_revision 3
+                hide: true
+              - name: source_canonical_service 1
+                hide: true
+              - name: source_canonical_service 2
+                hide: true
+              - name: source_canonical_service 3
+                hide: true
+              - name: source_cluster 1
+                hide: true
+              - name: source_cluster 2
+                hide: true
+              - name: source_cluster 3
+                hide: true
+              - name: source_principal 1
+                hide: true
+              - name: source_principal 2
+                hide: true
+              - name: source_principal 3
+                hide: true
+              - name: source_workload 1
+                hide: true
+              - name: source_workload 2
+                hide: true
+              - name: source_workload 3
+                hide: true
+              - name: source_workload_namespace 1
+                hide: true
+              - name: source_workload_namespace 2
+                hide: true
+              - name: source_workload_namespace 3
+                hide: true
+              - name: tenant_id 1
+                hide: true
+              - name: tenant_id 2
+                hide: true
+              - name: tenant_id 3
+                hide: true
+              transforms:
+              - kind: MergeSeries
+                spec: {}
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(request_url_path) (increase(istio_requests_total{}[$__range]) * on(destination_service_name)
+                    group_left() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"$route_name",exported_namespace=~"$api_namespace"},
+                    "destination_service_name", "$1","service", "(.+)"))))
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(request_url_path) (increase(istio_requests_total{}[$__range] offset $__range) * on(destination_service_name)
+                    group_left() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"$route_name",exported_namespace=~"$api_namespace"},
+                    "destination_service_name", "$1","service", "(.+)"))))
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(request_url_path) (increase(istio_requests_total{}[$__range]) * on(destination_service_name)
+                    group_left() (group without(instance, app_kubernetes_io_instance) (label_replace(gatewayapi_httproute_labels{name=~"$route_name",exported_namespace=~"$api_namespace"},
+                    "destination_service_name", "$1","service", "(.+)")))) - sum by(request_url_path) (increase(istio_requests_total{}[$__range]
+                    offset $__range) * on(destination_service_name) group_left() (group without(instance, app_kubernetes_io_instance)
+                    (label_replace(gatewayapi_httproute_labels{name=~"$route_name",exported_namespace=~"$api_namespace"},
+                    "destination_service_name", "$1","service", "(.+)"))))
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 6
+          y: 0
+          width: 18
+          height: 7
+          content:
+            $ref: '#/spec/panels/p150'
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 7
+          content:
+            $ref: '#/spec/panels/p4'
+        - x: 12
+          y: 0
+          width: 12
+          height: 7
+          content:
+            $ref: '#/spec/panels/p22'
+        - x: 0
+          y: 7
+          width: 12
+          height: 7
+          content:
+            $ref: '#/spec/panels/p7'
+        - x: 12
+          y: 7
+          width: 12
+          height: 7
+          content:
+            $ref: '#/spec/panels/p155'
+        display:
+          title: '"$route_name" API'
+          collapse:
+            open: true

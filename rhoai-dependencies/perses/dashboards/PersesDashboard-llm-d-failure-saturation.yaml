@@ -1,0 +1,362 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: llm-d-failure-saturation
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: llm-d Failure & Saturation Indicators
+      description: Key failure and saturation indicators for llm-d inference server (Tier 1 metrics)
+    duration: 6h
+    variables:
+    - kind: ListVariable
+      spec:
+        name: namespace
+        display:
+          name: namespace
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: namespace
+        defaultValue: $__all
+    - kind: ListVariable
+      spec:
+        name: model_name
+        display:
+          name: model_name
+          hidden: false
+        allowMultiple: true
+        allowAllValue: true
+        plugin:
+          kind: PrometheusLabelValuesVariable
+          spec:
+            labelName: model_name
+            matchers:
+            - vllm:generation_tokens_total
+        defaultValue: $__all
+    panels:
+      p101:
+        kind: Panel
+        spec:
+          display:
+            name: Overall Error Rate
+            description: Overall platform-wide error rate across all models
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: percent-decimal
+              thresholds:
+                steps:
+                - value: 0.01
+                  color: '#F2CC0C'
+                - value: 0.05
+                  color: '#E02F44'
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum(rate(inference_objective_request_error_total{namespace=~"$namespace"}[5m])) / sum(rate(inference_objective_request_total{namespace=~"$namespace"}[5m]))
+                  seriesNameFormat: Error Rate
+      p102:
+        kind: Panel
+        spec:
+          display:
+            name: Per-Model Error Rate
+            description: Error rate broken down by model name
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: percent-decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(model_name) (rate(inference_objective_request_error_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                    / sum by(model_name) (rate(inference_objective_request_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{model_name}}'
+      p103:
+        kind: Panel
+        spec:
+          display:
+            name: Request Preemptions
+            description: Number of request preemptions per vLLM instance (indicates resource contention)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(pod) (rate(vllm:num_preemptions{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{pod}}'
+      p104:
+        kind: Panel
+        spec:
+          display:
+            name: Overall Latency P50/P90/P99
+            description: P50, P90, and P99 overall request latency across all models
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.50, sum by(le) (rate(inference_objective_request_duration_seconds_bucket{namespace=~"$namespace",model_name=~"$model_name"}[5m])))
+                  seriesNameFormat: P50
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.90, sum by(le) (rate(inference_objective_request_duration_seconds_bucket{namespace=~"$namespace",model_name=~"$model_name"}[5m])))
+                  seriesNameFormat: P90
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le) (rate(inference_objective_request_duration_seconds_bucket{namespace=~"$namespace",model_name=~"$model_name"}[5m])))
+                  seriesNameFormat: P99
+      p105:
+        kind: Panel
+        spec:
+          display:
+            name: Model-Specific TTFT P99
+            description: P99 Time to First Token latency by model (measures how long until response starts)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le, model_name) (rate(vllm:time_to_first_token_seconds_bucket{namespace=~"$namespace",model_name=~"$model_name"}[5m])))
+                  seriesNameFormat: '{{model_name}}'
+      p106:
+        kind: Panel
+        spec:
+          display:
+            name: Model-Specific Inter-Token Latency P99
+            description: P99 Inter-Token Latency by model (measures generation speed)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le, model_name) (rate(vllm:inter_token_latency_seconds_bucket{namespace=~"$namespace",model_name=~"$model_name"}[5m])))
+                  seriesNameFormat: '{{model_name}}'
+      p107:
+        kind: Panel
+        spec:
+          display:
+            name: Scheduler Health
+            description: Scheduler uptime and health indicator
+          plugin:
+            kind: StatChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps:
+                - value: 0
+                  color: '#E02F44'
+                - value: 1
+                  color: '#56A64B'
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: avg_over_time(up{job="gaie-optimized-baseline-epp",namespace=~"$namespace"}[5m])
+                  seriesNameFormat: Scheduler
+      p109:
+        kind: Panel
+        spec:
+          display:
+            name: Request Rate
+            description: Request rate (QPS) by model
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: requests/sec
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by(model_name, target_model_name) (rate(inference_objective_request_total{namespace=~"$namespace",model_name=~"$model_name"}[5m]))
+                  seriesNameFormat: '{{model_name}}'
+      p110:
+        kind: Panel
+        spec:
+          display:
+            name: EPP E2E Latency P99
+            description: P99 end-to-end latency through the EPP scheduler
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le) (rate(inference_extension_scheduler_e2e_duration_seconds_bucket{namespace=~"$namespace"}[5m])))
+                  seriesNameFormat: P99
+      p111:
+        kind: Panel
+        spec:
+          display:
+            name: Plugin Processing Latency
+            description: P99 plugin processing latency by plugin type
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: seconds
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le, plugin_type) (rate(inference_extension_plugin_duration_seconds_bucket{namespace=~"$namespace"}[5m])))
+                  seriesNameFormat: '{{plugin_type}}'
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 6
+          height: 6
+          content:
+            $ref: '#/spec/panels/p101'
+        - x: 6
+          y: 0
+          width: 9
+          height: 6
+          content:
+            $ref: '#/spec/panels/p102'
+        - x: 15
+          y: 0
+          width: 9
+          height: 6
+          content:
+            $ref: '#/spec/panels/p103'
+        - x: 0
+          y: 6
+          width: 8
+          height: 8
+          content:
+            $ref: '#/spec/panels/p104'
+        - x: 8
+          y: 6
+          width: 8
+          height: 8
+          content:
+            $ref: '#/spec/panels/p105'
+        - x: 16
+          y: 6
+          width: 8
+          height: 8
+          content:
+            $ref: '#/spec/panels/p106'
+        - x: 0
+          y: 14
+          width: 4
+          height: 4
+          content:
+            $ref: '#/spec/panels/p107'
+        - x: 14
+          y: 14
+          width: 10
+          height: 8
+          content:
+            $ref: '#/spec/panels/p109'
+        - x: 0
+          y: 22
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p110'
+        - x: 12
+          y: 22
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p111'

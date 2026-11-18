@@ -1,0 +1,14 @@
+---
+# Adds Observe > Dashboards (Perses) to the console and creates a Perses server. GA since COO 1.5 (OCP 4.22).
+apiVersion: observability.openshift.io/v1alpha1
+kind: UIPlugin
+metadata:
+  name: monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  type: Monitoring
+  monitoring:
+    perses:
+      enabled: true

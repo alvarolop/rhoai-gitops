@@ -1,0 +1,28 @@
+---
+# Default datasource for all dashboards: platform + user-workload metrics through the OpenShift Thanos Querier.
+apiVersion: perses.dev/v1alpha2
+kind: PersesGlobalDatasource
+metadata:
+  name: thanos-querier
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    default: true
+    display:
+      name: OpenShift Thanos Querier
+    plugin:
+      kind: PrometheusDatasource
+      spec:
+        proxy:
+          kind: HTTPProxy
+          spec:
+            url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+            secret: thanos-querier-datasource-secret
+  client:
+    tls:
+      enable: true
+      caCert:
+        type: file
+        certPath: /ca/service-ca.crt

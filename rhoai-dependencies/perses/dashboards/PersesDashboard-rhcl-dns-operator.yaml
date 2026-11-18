@@ -1,0 +1,202 @@
+---
+apiVersion: perses.dev/v1alpha2
+kind: PersesDashboard
+metadata:
+  name: rhcl-dns-operator
+  namespace: perses-dashboards
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  config:
+    display:
+      name: DNS Operator
+      description: 'Dashboard for use with the DNS Operator in the kuadrant project: https://github.com/Kuadrant/dns-operator'
+    duration: 30m
+    variables: []
+    panels:
+      p7:
+        kind: Panel
+        spec:
+          display:
+            name: Number of active probes
+          plugin:
+            kind: GaugeChart
+            spec:
+              calculation: last
+              format:
+                unit: decimal
+              thresholds:
+                steps:
+                - value: 80
+                  color: '#E02F44'
+                defaultColor: '#56A64B'
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: count(kuadrant_dnshealthcheckprobe_healthy_status == 1)
+                  seriesNameFormat: healthy
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: count(kuadrant_dnshealthcheckprobe_healthy_status != 1) or vector(0)
+                  seriesNameFormat: unhealthy
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: count(kuadrant_dnshealthcheckprobe_healthy_status)
+                  seriesNameFormat: __auto
+      p3:
+        kind: Panel
+        spec:
+          display:
+            name: Probe request rate by response code (req/s)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by (client, code) (rate(http_client_requests_total{client="probe"}[15m]))
+                  seriesNameFormat: '{{code}}'
+      p6:
+        kind: Panel
+        spec:
+          display:
+            name: Probe latency (seconds)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le) (rate(http_client_request_latency_seconds_bucket{client="probe",code="200"}[15m])))
+                  seriesNameFormat: 99%ile
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by(le) (rate(http_client_request_latency_seconds_bucket{client="probe",code="200"}[15m])))
+                  seriesNameFormat: 95%ile
+      p5:
+        kind: Panel
+        spec:
+          display:
+            name: Provider latency (seconds)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.99, sum by(le, client) (rate(http_client_request_latency_seconds_bucket{client=~"aws|gcp|azure",code="200"}[15m])))
+                  seriesNameFormat: '{{client}}:99%ile'
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: histogram_quantile(0.95, sum by(le, client) (rate(http_client_request_latency_seconds_bucket{client=~"aws|gcp|azure",code="200"}[15m])))
+                  seriesNameFormat: '{{client}}:95%ile'
+      p2:
+        kind: Panel
+        spec:
+          display:
+            name: Provider request rate by response code (req/s)
+          plugin:
+            kind: TimeSeriesChart
+            spec:
+              legend:
+                position: bottom
+                mode: list
+              yAxis:
+                format:
+                  unit: decimal
+          queries:
+          - kind: TimeSeriesQuery
+            spec:
+              plugin:
+                kind: PrometheusTimeSeriesQuery
+                spec:
+                  query: sum by (client, code) (rate(http_client_requests_total{client=~"aws|gcp|azure"}[15m]))
+                  seriesNameFormat: '{{client}}:{{code}}'
+    layouts:
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 3
+          height: 16
+          content:
+            $ref: '#/spec/panels/p7'
+        - x: 3
+          y: 0
+          width: 21
+          height: 7
+          content:
+            $ref: '#/spec/panels/p3'
+        - x: 3
+          y: 7
+          width: 21
+          height: 9
+          content:
+            $ref: '#/spec/panels/p6'
+        display:
+          title: Health Check Probes
+          collapse:
+            open: true
+    - kind: Grid
+      spec:
+        items:
+        - x: 0
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p5'
+        - x: 12
+          y: 0
+          width: 12
+          height: 8
+          content:
+            $ref: '#/spec/panels/p2'
+        display:
+          title: DNS Provider
+          collapse:
+            open: true
