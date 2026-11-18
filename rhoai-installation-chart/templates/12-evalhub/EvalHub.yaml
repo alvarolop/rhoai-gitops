@@ -30,5 +30,5 @@ spec:
   #   exporterInsecure: true
   env:
     - name: MLFLOW_TRACKING_URI
-      value: "https://mlflow.redhat-ods-applications.svc:8443"
+      value: "https://mlflow.redhat-ods-applications.svc:8443/mlflow"
 {{- end }}
