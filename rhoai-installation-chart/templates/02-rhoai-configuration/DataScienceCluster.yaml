@@ -23,6 +23,7 @@ spec:
       managementState: {{ if .Values.featureStore.enabled }}Managed{{ else }}Removed{{ end }}
     # Models-as-a-Service (MaaS) lives in the AI Gateway component since RHOAI 3.5. It no longer needs KServe.
     aigateway:
+      managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
       modelsAsAService:
         managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
       # Batch gateway operator (new in 3.5). Not used by this repo.
