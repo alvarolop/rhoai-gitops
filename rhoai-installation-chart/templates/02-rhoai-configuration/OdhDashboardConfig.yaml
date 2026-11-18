@@ -69,7 +69,7 @@ spec:
     genAiTracing: true
     guardrails: {{ .Values.trustyai.enabled }}
     llmdTemplates: {{ .Values.llm_d.enabled }}
-    mcpCatalog: true
+    mcpCatalog: {{ .Values.mcp.enabled }}
     promptManagement: {{ .Values.mlflow.enabled }}  # Loads prompts from the MLflow prompt registry
     toolCalling: true
     # New in 3.5, disabled until needed
@@ -79,7 +79,7 @@ spec:
     aiAssetCustomEndpoints: false  # Custom endpoints for AI assets
     externalVectorStores: false  # External vector stores for RAG
     globalProjectPrompts: false  # Global project setting for prompts in cluster settings
-    mcpRegistry: false  # MCP Registry tab in the MCP Servers page
+    mcpRegistry: {{ .Values.mcp.enabled }}  # MCP Registry tab in the MCP Servers page
   # Other spec fields (3.5), unset by default:
   # modelServing:
   #   deploymentStrategy: rolling  # rolling | recreate

@@ -39,6 +39,10 @@ distributedWorkloads:
 llamaStack:
   enabled: true
 
+# MCP: the lifecycle operator plus the MCP Catalog and MCP Registry of the dashboard
+mcp:
+  enabled: true
+
 # Models-as-a-Service: aigateway.modelsAsAService plus the maas-default-gateway GatewayClass
 modelsAsService:
   enabled: true

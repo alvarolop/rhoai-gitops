@@ -65,6 +65,7 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 | feastoperator | Feast feature store | Managed if `featureStore.enabled` |
 | mlflowoperator | MLflow tracking | Managed if `mlflow.enabled` |
 | ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `llamaStack.enabled` |
+| mcplifecycleoperator | Deploys the MCP servers of the dashboard's MCP Catalog and Registry | Managed if `mcp.enabled` |
 
 ## Installation
 
