@@ -276,6 +276,60 @@ else
     echo "⏭️  Skip installation of Silo..."
 fi
 
+# --- S4 (Super Simple Storage Service) ---
+S4_NAMESPACE="s4"
+S4_S3_ACCESS_KEY="s4admin"
+S4_S3_SECRET_KEY="s4secret"
+S4_S3_REGION="us-east-1"
+S4_S3_ENDPOINT="http://localhost:7480"
+# UI auth (required when auth.enabled=true; defaults aligned with S3 credentials)
+S4_AUTH_USERNAME="${S4_AUTH_USERNAME:-s4admin}"
+S4_AUTH_PASSWORD="${S4_AUTH_PASSWORD:-s4secret}"
+S4_STORAGE_SIZE="10Gi"
+
+if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+
+    echo -e "\n--- S4 ---"
+    echo -e "1️⃣ Trigger the ArgoCD application to install S4 instance"
+    cat application-s4.yaml | \
+    S4_NAMESPACE=$S4_NAMESPACE S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+    S4_S3_REGION=$S4_S3_REGION S4_AUTH_USERNAME=$S4_AUTH_USERNAME S4_AUTH_PASSWORD=$S4_AUTH_PASSWORD \
+    S4_STORAGE_SIZE=$S4_STORAGE_SIZE \
+    envsubst | oc apply -f -
+
+    echo -e "\n2️⃣ Wait 10 seconds for resources to be created"
+    countdown_with_skip 10
+
+    echo -e "\n3️⃣ Waiting for S4 pod to be ready..."
+    until oc get pods -n "$S4_NAMESPACE" --no-headers 2>/dev/null | grep -q Running; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
+    echo -e "\t✅ S4 is deployed in namespace $S4_NAMESPACE."
+
+    echo -e "\n4️⃣ Creating ConsoleLink for S4 (Application Menu → OpenShift Self Managed Services)"
+    S4_ROUTE_HOST=$(oc get route -n "$S4_NAMESPACE" s4 -o jsonpath='{.spec.host}' 2>/dev/null || true)
+    if [[ -n "$S4_ROUTE_HOST" ]]; then
+        S4_HREF="https://${S4_ROUTE_HOST}"
+        cat addons/s4/ConsoleLink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
+        echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
+    else
+        echo -e "\t⚠️  S4 route not found; skipping ConsoleLink. Create it later with: oc get route -n $S4_NAMESPACE s4 -o jsonpath='{.spec.host}'"
+    fi
+
+    echo -e "\n5️⃣ Create the RHOAI Playground pipelines bucket and data connection in S4"
+    if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+        S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+        ./addons/s3-bucket/create-s4-s3-bucket.sh "$S4_NAMESPACE" "s4" "$S4_S3_REGION"
+    else
+        echo "⏭️  Skip creation of RHOAI Playground environment S4 Bucket..."
+    fi
+
+    echo -e "\n6️⃣ Create the MLflow artifacts bucket in S4"
+    S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+    ./addons/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "mlflow" "$S4_S3_REGION"
+
+else
+    echo "⏭️  Skip installation of S4..."
+fi
+
 echo -e "\n💾 ======================"
 echo -e "💾 =  ODF Installation  ="
 echo -e "💾 ======================\n"
