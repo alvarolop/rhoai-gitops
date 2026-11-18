@@ -8,7 +8,7 @@ set -e
 
 CREATE_GPU_MACHINESETS=true
 GPU_NODE_COUNT=0  # Total GPU nodes to distribute across AZs (a, b, c)
-INSTALL_MINIO=false  # Deprecated in favor of S4. Still deployable, but S4 is the default S3 backend
+INSTALL_SILO=false  # Optional S3 server (MinIO fork). S4 is the default S3 backend
 INSTALL_ODF=false
 INSTALL_MONITORING=true
 INSTALL_GRAFANA=true
@@ -61,7 +61,7 @@ echo -e " * CREATE_GPU_MACHINESETS: $CREATE_GPU_MACHINESETS"
 echo -e " * GPU_NODE_COUNT: $GPU_NODE_COUNT"
 echo -e " * AWS_GPU_INSTANCE: $AWS_GPU_INSTANCE"
 echo -e " * AWS_GPU_AMI_ID: ${AMI_ID:-not set}"
-echo -e " * INSTALL_MINIO: $INSTALL_MINIO"
+echo -e " * INSTALL_SILO: $INSTALL_SILO"
 echo -e " * INSTALL_ODF: $INSTALL_ODF"
 echo -e " * INSTALL_MONITORING: $INSTALL_MONITORING"
 echo -e " * INSTALL_GRAFANA: $INSTALL_GRAFANA"
@@ -244,90 +244,36 @@ echo -e "\n🗂️ ======================"
 echo -e "🗂️ = S3 Storage Backends ="
 echo -e "🗂️ ======================\n"
 
-if [[ "$INSTALL_MINIO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+if [[ "$INSTALL_SILO" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 
-    MINIO_NAMESPACE="minio"
-    MINIO_SERVICE_NAME="minio"
-    MINIO_ADMIN_USERNAME="minio"
-    MINIO_ADMIN_PASSWORD="minio123"
+    SILO_NAMESPACE="silo"
+    SILO_SERVICE_NAME="silo"
+    SILO_ADMIN_USERNAME="silo"
+    SILO_ADMIN_PASSWORD="silo12345"
 
-    echo -e "--- MinIO ---"
-    echo -e "1️⃣ Trigger the ArgoCD application to install MinIO instance"
-    cat application-minio.yaml | \
+    echo -e "--- Silo ---"
+    echo -e "1️⃣ Trigger the ArgoCD application to install Silo instance"
+    cat application-silo.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    MINIO_NAMESPACE=$MINIO_NAMESPACE MINIO_SERVICE_NAME=$MINIO_SERVICE_NAME \
-    MINIO_ADMIN_USERNAME=$MINIO_ADMIN_USERNAME MINIO_ADMIN_PASSWORD=$MINIO_ADMIN_PASSWORD \
+    SILO_NAMESPACE=$SILO_NAMESPACE \
+    SILO_ADMIN_USERNAME=$SILO_ADMIN_USERNAME SILO_ADMIN_PASSWORD=$SILO_ADMIN_PASSWORD \
     envsubst | oc apply -f -
 
     echo -e "\n2️⃣ Wait 10 seconds for resources to be created"
     countdown_with_skip 10
 
     echo -e "\n3️⃣ Let's wait until all the pods are up and running"
-    while oc get pods -n $MINIO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
+    while oc get pods -n $SILO_NAMESPACE | grep -v "Running\|Completed\|NAME"; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
 
-    # Buckets live in S4 when it is installed; MinIO only gets one as a fallback.
+    # Buckets live in S4 when it is installed; Silo only gets one as a fallback.
     if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ ! "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-        ./addons/s3-bucket/create-minio-s3-bucket.sh "$MINIO_NAMESPACE" "$MINIO_SERVICE_NAME" # TODO: remove the AWS dependency
+        ./addons/s3-bucket/create-silo-s3-bucket.sh "$SILO_NAMESPACE" "$SILO_SERVICE_NAME"
     else
-        echo "⏭️  Skip creation of RHOAI Playground environment MinIO Bucket (S4 is the bucket backend)..."
+        echo "⏭️  Skip creation of RHOAI Playground environment Silo Bucket (S4 is the bucket backend)..."
     fi
 
 else
-    echo "⏭️  Skip installation of MinIO..."
-fi
-
-# --- S4 (Super Simple Storage Service) ---
-S4_NAMESPACE="s4"
-S4_S3_ACCESS_KEY="s4admin"
-S4_S3_SECRET_KEY="s4secret"
-S4_S3_REGION="us-east-1"
-S4_S3_ENDPOINT="http://localhost:7480"
-# UI auth (required when auth.enabled=true; defaults aligned with S3 credentials)
-S4_AUTH_USERNAME="${S4_AUTH_USERNAME:-s4admin}"
-S4_AUTH_PASSWORD="${S4_AUTH_PASSWORD:-s4secret}"
-S4_STORAGE_SIZE="10Gi"
-
-if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-
-    echo -e "\n--- S4 ---"
-    echo -e "1️⃣ Trigger the ArgoCD application to install S4 instance"
-    cat application-s4.yaml | \
-    S4_NAMESPACE=$S4_NAMESPACE S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
-    S4_S3_REGION=$S4_S3_REGION S4_AUTH_USERNAME=$S4_AUTH_USERNAME S4_AUTH_PASSWORD=$S4_AUTH_PASSWORD \
-    S4_STORAGE_SIZE=$S4_STORAGE_SIZE \
-    envsubst | oc apply -f -
-
-    echo -e "\n2️⃣ Wait 10 seconds for resources to be created"
-    countdown_with_skip 10
-
-    echo -e "\n3️⃣ Waiting for S4 pod to be ready..."
-    until oc get pods -n "$S4_NAMESPACE" --no-headers 2>/dev/null | grep -q Running; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
-    echo -e "\t✅ S4 is deployed in namespace $S4_NAMESPACE."
-
-    echo -e "\n4️⃣ Creating ConsoleLink for S4 (Application Menu → OpenShift Self Managed Services)"
-    S4_ROUTE_HOST=$(oc get route -n "$S4_NAMESPACE" s4 -o jsonpath='{.spec.host}' 2>/dev/null || true)
-    if [[ -n "$S4_ROUTE_HOST" ]]; then
-        S4_HREF="https://${S4_ROUTE_HOST}"
-        cat addons/s4/ConsoleLink-s4.yaml | S4_HREF=$S4_HREF envsubst | oc apply -f -
-        echo -e "\t✅ ConsoleLink 's4' created (href: $S4_HREF)."
-    else
-        echo -e "\t⚠️  S4 route not found; skipping ConsoleLink. Create it later with: oc get route -n $S4_NAMESPACE s4 -o jsonpath='{.spec.host}'"
-    fi
-
-    echo -e "\n5️⃣ Create the RHOAI Playground pipelines bucket and data connection in S4"
-    if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
-        S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
-        ./addons/s3-bucket/create-s4-s3-bucket.sh "$S4_NAMESPACE" "s4" "$S4_S3_REGION"
-    else
-        echo "⏭️  Skip creation of RHOAI Playground environment S4 Bucket..."
-    fi
-
-    echo -e "\n6️⃣ Create the MLflow artifacts bucket in S4"
-    S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
-    ./addons/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "mlflow" "$S4_S3_REGION"
-
-else
-    echo "⏭️  Skip installation of S4..."
+    echo "⏭️  Skip installation of Silo..."
 fi
 
 echo -e "\n💾 ======================"

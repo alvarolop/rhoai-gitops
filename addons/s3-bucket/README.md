@@ -76,7 +76,7 @@ The `opendatahub.io/connection-path` annotation is **optional but highly recomme
 
 | Protocol | Annotation Value | Use Case |
 |----------|-----------------|----------|
-| S3-compatible | `s3` | Object storage (AWS S3, MinIO, ODF) |
+| S3-compatible | `s3` | Object storage (AWS S3, S4, Silo, ODF) |
 | URI-based | `uri` | Generic URI connections |
 | OCI Registry | `oci` | Container registries |
 

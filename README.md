@@ -25,7 +25,7 @@ Red Hat OpenShift AI (RHOAI) is OpenShift’s enterprise AI/MLOps platform for t
    6. [Monitoring, Safety and Evaluation](#monitoring-safety-and-evaluation)
    7. [Deploying models (inference serving)](#deploying-models-inference-serving)
    8. [Extra Components](#extra-components)
-      1. [MinIO](#minio)
+      1. [Silo](#silo)
       2. [Open WebUI](#open-webui)
       3. [Milvus](#milvus)
       4. [Langfuse](#langfuse)
@@ -78,7 +78,7 @@ Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. 
 
 1. *(Optional)* Provisions AWS GPU worker MachineSets when `GPU_NODE_COUNT` > 0 (`AWS_GPU_INSTANCE`, default `g6.2xlarge`; nodes are GPU-tainted).
 2. Deploys dependencies via `application-rhoai-dependencies.yaml` (NVIDIA GPU stack, Kueue, Leader Worker Set, JobSet, RHCL, KEDA) and enables the NVIDIA GPU console plugin.
-3. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`) and S3 storage: S4 (`INSTALL_S4`, default) and MinIO (`INSTALL_MINIO`, deprecated and off by default). Buckets are created in S4, including a playground bucket when `CREATE_RHOAI_ENV=true`.
+3. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`) and S3 storage: S4 (`INSTALL_S4`, default) and Silo (`INSTALL_SILO`, off by default). Buckets are created in S4, including a playground bucket when `CREATE_RHOAI_ENV=true`.
 4. *(Optional)* Installs ODF in MCG mode (`INSTALL_ODF`, off by default) or OpenShift user-workload monitoring (`INSTALL_MONITORING`, on by default, see [Metrics and user-workload monitoring](#metrics-and-user-workload-monitoring)).
 5. Waits for GPU nodes when `GPU_NODE_COUNT` > 0, then installs RHOAI via `application-rhoai-installation.yaml` (operator + Helm chart defaults: model registry, distributed workloads, TrustyAI, Feast, MLflow, Llama Stack, llm-d, and related settings).
 6. *(Optional)* Deploys the RHOAI Playground project (`CREATE_RHOAI_ENV`, with its pipelines storage pointing to S4) and Langfuse when `INSTALL_LANGFUSE` is enabled.
@@ -362,34 +362,24 @@ Model serving (predictive and generative workloads, Argo CD applications, Helm c
 
 ## Extra Components
 
-### MinIO
+### Silo
 
-> [!WARNING]
-> **Deprecated in favor of [S4](https://github.com/rh-aiservices-bu/s4).** MinIO is disabled by default (`INSTALL_MINIO=false` in `auto-install.sh`) and any bucket needed by this repo is created in S4. Set `INSTALL_MINIO=true` to deploy it anyway; if S4 is disabled too, the playground pipelines bucket falls back to MinIO (`create-minio-s3-bucket.sh`), but the playground DSPA will still point at S4 unless you override `pipelines.awsS3Endpoint`/`awsS3Port` in `application-rhoai-playground-env.yaml`.
+> [!NOTE]
+> **Migrated from MinIO.** The MinIO images this repo pointed to no longer exist (MinIO archived its community edition and stopped publishing images), which broke the existing deployments. Silo is the maintained community fork of MinIO: same S3 protocol, same data, and the web console is back. It is pinned to the release in `application-silo.yaml` and, like MinIO before, it is optional: [S4](https://github.com/rh-aiservices-bu/s4) is the default S3 backend and any bucket this repo needs is created there.
 
-This demo is fully oriented to use the default and production ready capabilities provided by OpenShift. However, if your current deployment already uses minio and you cannot change it, you can optionally deploy a MinIO application in a side namespace using the following ArgoCD application. **This application is included in the `auto-install.sh` automation (when `INSTALL_MINIO=true`)**:
+[Silo](https://silo.pgsty.com) (`pgsty/silo`, AGPLv3) is deployed in standalone mode with the chart that lives in its repository, plus `addons/silo` for the OpenShift Routes and the ConsoleLink. Set `INSTALL_SILO=true` in `auto-install.sh`, or apply it by hand. If S4 is disabled too, the playground pipelines bucket falls back to Silo (`create-silo-s3-bucket.sh`), but the playground DSPA will still point at S4 unless you override `pipelines.awsS3Endpoint`/`awsS3Port` in `application-rhoai-playground-env.yaml`.
 
 ```bash
-cat application-minio.yaml | \
+cat application-silo.yaml | \
     CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    MINIO_NAMESPACE="minio" MINIO_SERVICE_NAME="minio" \
-    MINIO_ADMIN_USERNAME="minio" MINIO_ADMIN_PASSWORD="minio123" \
+    SILO_NAMESPACE="silo" SILO_ADMIN_USERNAME="silo" SILO_ADMIN_PASSWORD="silo12345" \
     envsubst | oc apply -f -
 ```
 
-or you can deploy it manually with the following command:
+The default user and password are `silo` / `silo12345`. The S3 API is at `https://silo-api-silo.apps.<cluster domain>` and the console at `https://silo-ui-silo.apps.<cluster domain>`.
 
-```bash
-helm template addons/minio \
-    --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
-    --set namespace="minio" --set service.name="minio" \
-    --set adminUser.username="minio" --set adminUser.password="minio123" | oc apply -f -
-```
-
-User and password is `minio` / `minio123`.
-
-- [Configure MinIO buckets (GitOps collection)](https://blog.stderr.at/gitopscollection/2024-05-17-configure-minio-buckets/)
-- [Red Hat AI Services MinIO Helm chart](https://github.com/redhat-ai-services/helm-charts/tree/main/charts/minio)
+- [Silo documentation](https://silo.pgsty.com/docs/)
+- [MinIO community edition is archived](https://github.com/minio/minio#readme)
 
 ### Open WebUI
 

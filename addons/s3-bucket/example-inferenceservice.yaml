@@ -55,8 +55,8 @@ metadata:
     openshift.io/display-name: "Model Storage - S3"
 type: Opaque
 stringData:
-  AWS_ACCESS_KEY_ID: "minio"
-  AWS_SECRET_ACCESS_KEY: "minio123"
+  AWS_ACCESS_KEY_ID: "s3user"
+  AWS_SECRET_ACCESS_KEY: "s3password"
   AWS_S3_ENDPOINT: "https://s3.example.com"
   AWS_S3_BUCKET: "models"
   AWS_DEFAULT_REGION: "us-east-1"

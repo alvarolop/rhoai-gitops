@@ -1,17 +1,15 @@
 ---
-kind: Route
 apiVersion: route.openshift.io/v1
+kind: Route
 metadata:
-  name: minio-api
-  namespace: {{ .Values.namespace }}
+  name: silo-api
+  namespace: {{ .Release.Namespace }}
 spec:
   to:
     kind: Service
-    name: minio
-    weight: 100
+    name: {{ .Values.serviceName }}
   port:
-    targetPort: api
-  wildcardPolicy: None
+    targetPort: http
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: silo
+description: OpenShift Routes and ConsoleLink for the Silo S3 server (the chart itself comes from pgsty/silo, see application-silo.yaml)
+type: application
+version: 0.1.0
+appVersion: "RELEASE.2026-11-12T00-00-00Z"

@@ -3,12 +3,12 @@
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
 metadata:
-  name: {{ .Values.namespace }}-attu
+  name: {{ .Release.Namespace }}-silo
 spec:
-  href: "https://minio-ui-{{ .Values.namespace }}.apps.{{ .Values.clusterDomain }}"
+  href: "https://silo-ui-{{ .Release.Namespace }}.apps.{{ .Values.clusterDomain }}"
   location: ApplicationMenu
-  text: Minio UI
+  text: "Silo | S3 console"
   applicationMenu:
     section: OpenShift Self Managed Services
-    imageURL: https://elest.io/images/softwares/63/logo.png
+    imageURL: "https://silo.pgsty.com/img/silo.svg"
 {{- end }}
