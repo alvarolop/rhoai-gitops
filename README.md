@@ -79,7 +79,7 @@ Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. 
 1. *(Optional)* Provisions AWS GPU worker MachineSets when `GPU_NODE_COUNT` > 0 (`AWS_GPU_INSTANCE`, default `g6.2xlarge`; nodes are GPU-tainted).
 2. Deploys dependencies via `application-rhoai-dependencies.yaml` (NVIDIA GPU stack, Kueue, Leader Worker Set, JobSet, RHCL, KEDA) and enables the NVIDIA GPU console plugin.
 3. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`) and S3 storage: S4 (`INSTALL_S4`, default) and MinIO (`INSTALL_MINIO`, deprecated and off by default). Buckets are created in S4, including a playground bucket when `CREATE_RHOAI_ENV=true`.
-4. *(Optional)* Installs ODF in MCG mode (`INSTALL_ODF`, off by default) or user-workload monitoring (`INSTALL_MONITORING`, off by default).
+4. *(Optional)* Installs ODF in MCG mode (`INSTALL_ODF`, off by default) or OpenShift user-workload monitoring (`INSTALL_MONITORING`, on by default, see [Metrics and user-workload monitoring](#metrics-and-user-workload-monitoring)).
 5. Waits for GPU nodes when `GPU_NODE_COUNT` > 0, then installs RHOAI via `application-rhoai-installation.yaml` (operator + Helm chart defaults: model registry, distributed workloads, TrustyAI, Feast, MLflow, Llama Stack, llm-d, and related settings).
 6. *(Optional)* Deploys the RHOAI Playground project (`CREATE_RHOAI_ENV`, with its pipelines storage pointing to S4) and Langfuse when `INSTALL_LANGFUSE` is enabled.
 
@@ -304,7 +304,21 @@ If you want to try this feature, I recommend you to follow the RH documentation:
 
 ## Monitoring, Safety and Evaluation
 
-- **[Monitoring](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/monitoring_your_ai_systems/index)**: To ensure the transparency, fairness, and reliability of your data science models in OpenShift AI for *Bias* and *Data Drift*. Configure and set up TrustyAI for your project, and then perform the following checks:
+### Metrics and user-workload monitoring
+
+Several independent pieces collect metrics, and not all of them need OpenShift user-workload monitoring (UWM):
+
+| Source | Needs UWM? | Notes |
+|---|---|---|
+| RHOAI observability stack (`DSCInitialization.spec.monitoring`, `templates/10-maas/2-observability/`) | No | Own Prometheus, Alertmanager, Thanos querier, OTel collector and Tempo in `redhat-ods-monitoring`. Needs the COO, Tempo and OpenTelemetry operators. It feeds the *Observe & monitor* dashboards. To include a user workload, label its pod template with `monitoring.opendatahub.io/scrape=true`. |
+| NVIDIA GPU Operator (DCGM exporter) | No, if the namespace is labelled | The `ClusterPolicy` creates the `ServiceMonitor` in `nvidia-gpu-operator`, which carries `openshift.io/cluster-monitoring: 'true'`, so the cluster Prometheus scrapes it. Without that label it would need UWM. The *Cluster* dashboard GPU charts depend on it. |
+| Operator namespaces (Kueue, RHCL, KEDA, LWS, JobSet, NFD, COO, Tempo, OTel) | No | Same `openshift.io/cluster-monitoring` label. |
+| llm-d (`LLMInferenceService`) | Yes (per the RHOAI 3.5 docs) | The controller creates a `PodMonitor` (vLLM) and a `ServiceMonitor` (scheduler) in the model namespace, and the docs list UWM as a prerequisite. |
+| TrustyAI bias/drift metrics (`TrustyAIService`) | Probably | Exposed through a `ServiceMonitor` in the user project and historically documented with UWM. Not verified for 3.5. This repo only enables the TrustyAI component (EvalHub, LM-Eval, guardrails) and deploys no `TrustyAIService`. |
+
+`INSTALL_MONITORING=true` in `auto-install.sh` enables UWM, so llm-d and any `ServiceMonitor` in a user namespace work out of the box. Set it to `false` if you only need the platform dashboards and the GPU metrics.
+
+- **[Monitoring](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/monitoring_your_ai_systems/index)**: To ensure the transparency, fairness, and reliability of your data science models in OpenShift AI for *Bias* and *Data Drift*. Configure and set up TrustyAI for your project, and then perform the following checks:
   - **Bias**: Check for unfair patterns or biases in data and model predictions to ensure your model's decisions are unbiased.
   - **Data drift**: Detect changes in input data distributions over time by comparing the latest real-world data to the original training data. Comparing the data identifies shifts or deviations that could impact model performance, ensuring that the model remains accurate and reliable.
 
@@ -441,7 +455,7 @@ helm install langfuse langfuse/langfuse -n langfuse --create-namespace
 - [os-mlops manifests](https://github.com/mamurak/os-mlops/tree/main/manifests/odh)
 - [RHOAI supported configs](https://access.redhat.com/articles/rhoai-supported-configs)
 - Getting started: [Getting started with Red Hat OpenShift AI](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/getting_started_with_red_hat_openshift_ai_self-managed)
-- Monitoring: [Monitoring your AI systems](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/monitoring_your_ai_systems/index)
+- Monitoring: [Monitoring your AI systems](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/monitoring_your_ai_systems/index)
 - DS Pipelines: [Working with AI pipelines](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_ai_pipelines)
 
 ### Study sources
