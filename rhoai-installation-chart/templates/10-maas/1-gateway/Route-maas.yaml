@@ -8,8 +8,11 @@ metadata:
   labels:
     app.kubernetes.io/name: maas-gateway
     app.kubernetes.io/part-of: models-as-a-service
+    gateway.networking.k8s.io/gateway-name: maas-default-gateway
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    # Same as the Route that OpenShift AI creates for its own gateway: the router trusts the service CA of the backend
+    router.openshift.io/service-ca-certificate: "true"
 spec:
   host: maas.apps.{{ .Values.global.clusterDomain }}
   to:
@@ -19,6 +22,6 @@ spec:
   port:
     targetPort: 443
   tls:
-    termination: passthrough
+    termination: reencrypt
     insecureEdgeTerminationPolicy: Redirect
 {{- end }}

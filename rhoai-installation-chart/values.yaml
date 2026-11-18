@@ -90,18 +90,10 @@ modelsAsService:
 
 llm_d:
   enabled: true
-  # Second inference stack: GatewayClass + ConfigMap service override + Gateway (ClusterIP via
-  # infrastructure.parametersRef) + Route. Pattern matches llm-d-guide gateway templates.
+  # Direct llm-d gateway: GatewayClass + ConfigMap service override + Gateway (ClusterIP via
+  # infrastructure.parametersRef) + Route (reencrypt, as the gateway of OpenShift AI itself).
   ocpRouteGateway:
     enabled: true
-  # Internal-only inference stack: GatewayClass + ConfigMap service override + Gateway (ClusterIP)
-  # without Route for internal Service-only access.
-  internalOnly:
-    enabled: false
-  # Custom TLS certificate for external listeners (base64-encoded). Used by 08-llm-d Gateway when set.
-  # MaaS (11-maas-rhcl) uses service-ca + Route reencrypt instead.
-  tlsCrtB64: ""
-  tlsKeyB64: ""
   # Grafana dashboards for llm-d monitoring
   grafana:
     enabled: true

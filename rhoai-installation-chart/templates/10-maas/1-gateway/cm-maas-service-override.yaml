@@ -1,14 +1,19 @@
-# {{- if and .Values.modelsAsService.enabled }}
-# ---
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: maas-service-override
-#   namespace: openshift-ingress
-#   annotations:
-#     argocd.argoproj.io/sync-wave: "0"
-# data:
-#   service: |
-#     spec:
-#       type: ClusterIP
-# {{- end }}
+{{- if .Values.modelsAsService.enabled }}
+---
+# Injects the service CA annotation into the Service that the Gateway creates, so that the service CA issues the
+# certificate of the listener. The router re-encrypts to it and presents its own certificate to the clients.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maas-service-override
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+data:
+  service: |
+    metadata:
+      annotations:
+        service.beta.openshift.io/serving-cert-secret-name: "maas-default-gateway-internal-certs"
+    spec:
+      type: ClusterIP
+{{- end }}

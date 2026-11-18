@@ -5,8 +5,12 @@ kind: Route
 metadata:
   name: openshift-ai-inference
   namespace: openshift-ingress
+  labels:
+    gateway.networking.k8s.io/gateway-name: openshift-ai-inference
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    # Same as the Route that OpenShift AI creates for its own gateway: the router trusts the service CA of the backend
+    router.openshift.io/service-ca-certificate: "true"
 spec:
   host: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
   port:
@@ -16,7 +20,7 @@ spec:
     name: openshift-ai-inference-openshift-ai-inference
     weight: 100
   tls:
-    termination: passthrough
+    termination: reencrypt
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 {{ end }}

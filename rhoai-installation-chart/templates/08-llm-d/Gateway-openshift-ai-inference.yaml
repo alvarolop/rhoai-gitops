@@ -18,7 +18,8 @@ spec:
       kind: ConfigMap
       name: openshift-ai-inference-service-override
   listeners:
-    # External listener - HTTPS for Route traffic (public hostname)
+    # External listener - HTTPS for the Route (public hostname). The certificate comes from the service CA; the router
+    # presents its own certificate to the clients.
     - allowedRoutes:
         namespaces:
           from: Selector
@@ -34,7 +35,7 @@ spec:
         certificateRefs:
           - group: ""
             kind: Secret
-            name: {{ if and .Values.llm_d.tlsCrtB64 .Values.llm_d.tlsKeyB64 }}openshift-ai-inference-external-certs{{ else }}openshift-ai-inference-internal-certs{{ end }}
+            name: openshift-ai-inference-internal-certs
         mode: Terminate
     # Internal listener - HTTPS for Service traffic (Nemo Guardrails, etc.)
     - allowedRoutes:
