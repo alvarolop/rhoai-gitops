@@ -17,6 +17,14 @@ spec:
   backendStoreUri: "sqlite:////mlflow/mlflow.db"
   artifactsDestination: "file:///mlflow/artifacts"
   serveArtifacts: true
-  image:
-    imagePullPolicy: Always
+  # Permanently deletes runs, experiments and models that were already deleted from the UI or API
+  # garbageCollection:
+  #   schedule: "0 3 * * *"
+  #   olderThan: 7d
+  # Moves old trace payloads to an artifact location (S3, or file:// only with RWX storage)
+  # traceArchival:
+  #   enabled: true
+  #   schedule: "0 */6 * * *"
+  #   location: s3://mlflow-trace-archive
+  #   retention: 30d
 {{- end }}
