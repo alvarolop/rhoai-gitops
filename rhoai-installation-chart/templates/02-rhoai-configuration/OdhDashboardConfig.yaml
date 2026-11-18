@@ -8,10 +8,9 @@ metadata:
     app.opendatahub.io/rhods-dashboard: 'true'
     platform.opendatahub.io/part-of: dashboard
   name: odh-dashboard-config
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
   namespace: redhat-ods-applications
   annotations:
+    argocd.argoproj.io/sync-wave: "0"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   dashboardConfig:
@@ -20,6 +19,8 @@ spec:
     disableBYONImageStream: false
     disableClusterManager: false
     disableCustomServingRuntimes: false
+    disableFeatureStore: {{ not .Values.featureStore.enabled }}
+    disableLLMd: {{ not .Values.llm_d.enabled }}
     disableDistributedWorkloads: {{ not .Values.distributedWorkloads.enabled }}
     disableHome: false
     disableInfo: false
@@ -31,7 +32,6 @@ spec:
     disableKueue: false  # Technology Preview - Kueue-enabled hardware profiles
     disableLMEval: false  # Technology Preview - Model evaluation runs
     disableModelCatalog: false  # Technology Preview - Model catalog menu
-    disableModelMesh: false
     disableModelRegistry: {{ not .Values.modelRegistry.enabled }}  # Technology Preview - Model registry menu
     disableModelRegistrySecureDB: false  # Technology Preview - CA certificate section
     disableModelServing: false
@@ -72,6 +72,22 @@ spec:
     mcpCatalog: true
     promptManagement: {{ .Values.mlflow.enabled }}  # Loads prompts from the MLflow prompt registry
     toolCalling: true
+    # New in 3.5, disabled until needed
+    agentConfigManagement: false  # Agent configuration management in Gen AI Studio
+    agentOps: false  # Agent Ops in Gen AI Studio
+    agentsCatalog: false  # Agents Catalog page
+    aiAssetCustomEndpoints: false  # Custom endpoints for AI assets
+    externalVectorStores: false  # External vector stores for RAG
+    globalProjectPrompts: false  # Global project setting for prompts in cluster settings
+    mcpRegistry: false  # MCP Registry tab in the MCP Servers page
+  # Other spec fields (3.5), unset by default:
+  # modelServing:
+  #   deploymentStrategy: rolling  # rolling | recreate
+  #   isLLMdDefault: false  # pre-select llm-d in the deployment wizard
+  # genAiStudioConfig:
+  #   aiAssetCustomEndpoints: false
+  # hardwareProfileOrder: [cpu-profile, gpu-profile, gpu-batch-profile]
+  # globalMLflowNamespaces: []  # a single namespace
   groupsConfig:
     adminGroups: rhods-admins
     allowedGroups: system:authenticated

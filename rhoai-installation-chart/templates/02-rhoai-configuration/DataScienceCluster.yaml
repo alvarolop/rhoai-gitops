@@ -23,38 +23,70 @@ spec:
       managementState: {{ if .Values.featureStore.enabled }}Managed{{ else }}Removed{{ end }}
     # Models-as-a-Service (MaaS) lives in the AI Gateway component since RHOAI 3.5. It no longer needs KServe.
     aigateway:
-      managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
       modelsAsAService:
         managementState: {{ if .Values.modelsAsService.enabled }}Managed{{ else }}Removed{{ end }}
+      # Batch gateway operator (new in 3.5). Not used by this repo.
+      batchGateway:
+        managementState: Removed
     kserve:
       managementState: Managed
+      # Developer Console dashboards for LLMInferenceService (default true).
+      enableLLMInferenceServiceConsoleDashboards: true
+      # TLS for LLMInferenceService. Unset keeps the KServe default (enabled); the simulator relies on it.
+      # enableLLMInferenceServiceTLS: true
+      # Resources of the OAuth proxy sidecar in the inferenceservice-config ConfigMap (unset = operator defaults).
+      # oauthProxy:
+      #   resources:
+      #     requests: {cpu: 100m, memory: 64Mi}
+      #     limits: {cpu: 200m, memory: 128Mi}
+      modelCache:
+        managementState: Removed
       # Deprecated since 3.5 (kept through 3.6) in favor of aigateway.modelsAsAService. Removed -> Managed is blocked.
       modelsAsService:
         managementState: Removed
       nim:
         managementState: Managed
       rawDeploymentServiceConfig: Headless
+      wva:
+        managementState: Removed
     kueue:
+      # false (default): the operator creates no queues; they are defined in templates/06-kueue/. The two default
+      # names below are only used when this is true.
+      autoCreateQueues: false
       defaultClusterQueueName: {{ .Values.distributedWorkloads.clusterQueueName }}
       defaultLocalQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName }}
       managementState: {{ if .Values.distributedWorkloads.enabled }}Unmanaged{{ else }}Removed{{ end }}
     # Llama Stack was renamed to OGX in RHOAI 3.5. llamastackoperator is deprecated and kept Removed so only OGX runs.
-    ogx:
-      managementState: {{ if .Values.llamaStack.enabled }}Managed{{ else }}Removed{{ end }}
     llamastackoperator:
+      managementState: Removed
+    # MCP lifecycle operator (new in 3.5). Disabled.
+    mcplifecycleoperator:
       managementState: Removed
     modelregistry:
       managementState: {{ if .Values.modelRegistry.enabled }}Managed{{ else }}Removed{{ end }}
       registriesNamespace: rhoai-model-registries
     mlflowoperator:
       managementState: {{ if .Values.mlflow.enabled }}Managed{{ else }}Removed{{ end }}
+    ogx:
+      managementState: {{ if .Values.llamaStack.enabled }}Managed{{ else }}Removed{{ end }}
     ray:
       managementState: Managed
+    sparkoperator:
+      managementState: Removed
     workbenches:
       workbenchNamespace: rhods-notebooks
       managementState: Managed
+    trainer:
+      managementState: Removed
     # Kubeflow Training Operator to tune models
     trainingoperator:
       managementState: Managed
     trustyai:
       managementState: {{ if .Values.trustyai.enabled }}Managed{{ else }}Removed{{ end }}
+      # Enables the mcp-guardrails overlay (new in 3.5).
+      mcpGuardrailsMode: false
+      # LMEvalJob access to the internet / remote code execution. Both are deny by default; set allow only if you trust the sources.
+      eval:
+        lmeval:
+          permitOnline: deny
+          permitCodeExecution: deny
