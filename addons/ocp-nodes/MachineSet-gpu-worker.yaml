@@ -35,12 +35,11 @@ objects:
           taints:
             - key: nvidia.com/gpu
               effect: NoSchedule
-              operator: Exists
           providerSpec:
             value:
               ami:
                 id: ${AMI_ID}
-              apiVersion: awsproviderconfig.openshift.io/v1beta1
+              apiVersion: machine.openshift.io/v1beta1
               blockDevices:
                 - ebs:
                     iops: 0
