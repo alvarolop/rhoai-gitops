@@ -14,24 +14,60 @@ metadata:
     feature-store-ui: enabled
 spec:
   feastProject: {{ .name }}
+  # Where the feature repository comes from: `init.template` (feast init, nothing to clone) or `git`.
   feastProjectDir:
-    git:
-{{ .feastProjectDir.git | toYaml | indent 6 }}
-{{- if .authz.enabled }}
+{{ .feastProjectDir | toYaml | indent 4 }}
+{{- if dig "authz" "enabled" false . }}
+  # Kubernetes RBAC for the Feast services (feast.dev/v1). Without it the operator default applies.
   authz:
-    type: Kubernetes
+    kubernetes: {}
+{{- end }}
+{{- if .materializeSchedule }}
+  # Operator-managed CronJob. It is created suspended with a yearly schedule, hence the explicit suspend: false. Its
+  # default commands are `feast apply` and `feast materialize-incremental`, which fill the online store from the
+  # offline data and keep it fresh.
+  cronJob:
+    suspend: false
+    schedule: {{ .materializeSchedule | quote }}
 {{- end }}
   services:
+    # The feature server runs `feast apply` when its pod starts (default true) to populate the registry.
+    runFeastApplyOnInit: true
     offlineStore:
-      server:
-        logLevel: debug
+      server: {}  # for debug logs: server: {logLevel: debug}
+      # persistence:  # keep the offline store in a PVC created by the operator
+      #   file:
+      #     type: dask
+      #     pvc:
+      #       create:
+      #         resources:
+      #           requests:
+      #             storage: 5Gi
+      #       mountPath: /feast-data
     onlineStore:
-      server:
-        logLevel: debug
+      server: {}  # for debug logs: server: {logLevel: debug}
+      # persistence:
+      #   file:
+      #     path: online_store.db
+      #     pvc:
+      #       create:
+      #         resources:
+      #           requests:
+      #             storage: 5Gi
+      #       mountPath: /feast-data
     registry:
       local:
         server:
-          restAPI: false
+          restAPI: true
+        # persistence:
+        #   file:
+        #     path: registry.db
+        #     pvc:
+        #       create:
+        #         resources:
+        #           requests:
+        #             storage: 5Gi
+        #       mountPath: /feast-data
     ui: {}
 {{- end }}
 {{- end }}

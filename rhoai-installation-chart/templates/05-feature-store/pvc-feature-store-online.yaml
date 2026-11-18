@@ -1,21 +1,23 @@
-{{- if $.Values.featureStore.enabled }}
-{{- range $.Values.featureStore.examples }}
-{{- if and .enabled (dig "persistence" "online" "size" "" .) }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: feast-{{ .name }}-online
-  namespace: {{ $.Values.featureStore.namespace }}
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
-    argocd.argoproj.io/sync-options: Replace=true
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .persistence.online.size }}
-{{- end }}
-{{- end }}
-{{- end }}
+# Disabled: the stores are ephemeral. Alternative to persistence.file.pvc.create in FeatureStore.yaml: a PVC created by the
+# chart, which would also have to be referenced there (pvc.ref). Uncomment and set persistence.online.size in the example.
+# {{- if $.Values.featureStore.enabled }}
+# {{- range $.Values.featureStore.examples }}
+# {{- if and .enabled (dig "persistence" "online" "size" "" .) }}
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: feast-{{ .name }}-online
+#   namespace: {{ $.Values.featureStore.namespace }}
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "0"
+#     argocd.argoproj.io/sync-options: Replace=true
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: {{ .persistence.online.size }}
+# {{- end }}
+# {{- end }}
+# {{- end }}

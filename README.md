@@ -302,6 +302,23 @@ If you want to try this feature, I recommend you to follow the RH documentation:
 - Documentation step 2: [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/managing_model_registries).
 - Documentation step 3: [Working with model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_model_registries).
 
+### Feature Store
+
+`featureStore.enabled` turns on the Feast operator and creates a `FeatureStore` for each enabled entry of `featureStore.examples` in `rhoai-feature-store` (see `templates/05-feature-store/`). Two examples are defined in `values.yaml`:
+
+- `sample` (enabled): the project that `feast init` generates (`feastProjectDir.init.template: local`, driver statistics). Nothing to clone, so it works on any cluster. Other templates are `milvus`, `ray_rag`, `pytorch_nlp`, `postgres`, `spark`, and so on.
+- `banking` (disabled): a feature repository cloned from Git (`feastProjectDir.git`), with `authz.enabled` to turn on Kubernetes RBAC.
+
+The feature server runs `feast apply` by itself when its pod starts (`runFeastApplyOnInit`), so the registry is populated without any job. If an example sets `materializeSchedule`, the CronJob that the operator manages runs `feast apply` and `feast materialize-incremental` on that schedule. To fill the online store right away:
+
+```bash
+oc create job feast-sample-now --from=cronjob/feast-sample -n rhoai-feature-store
+```
+
+The stores are ephemeral, which is fine for short-lived clusters. To keep them in PVCs, uncomment the `persistence` blocks in `FeatureStore.yaml` (or the `pvc-feature-store-*.yaml` templates). The Feature Store UI is available in the dashboard (label `feature-store-ui: enabled` and `featureStoreAdmin` in the `OdhDashboardConfig`).
+
+- Documentation: [Configuring Feature Store](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_machine_learning_features/configuring_feature_store).
+
 ## Monitoring, Safety and Evaluation
 
 ### Metrics and user-workload monitoring
