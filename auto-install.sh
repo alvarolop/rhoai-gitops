@@ -18,7 +18,7 @@ INSTALL_S4=true
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g6.2xlarge
 AWS_DEFAULT_REGION=eu-central-1
-AMI_ID=ami-006a33223c87af648
+AMI_ID=ami-014a03ff724b65ca6
 
 # Define the required memory
 REQUIRED_MEMORY_Gi="70"
