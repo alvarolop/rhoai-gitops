@@ -38,7 +38,7 @@ spec:
 #
 # ---------------------------------------------------------------------------
 # Reference: NVIDIA H100 with MIG (mixed strategy). Replacement resourceGroups. Not rendered: remove the leading "# " to use it.
-# Replace the resourceGroups block above with this one and add the MIG ResourceFlavors (resourceflavor-gpu-flavor.yaml).
+# Replace the resourceGroups block above with this one and add the MIG ResourceFlavors (ResourceFlavor-gpu-flavor.yaml).
 # A resource name can only be covered by ONE resourceGroup, so keep a single group, add the MIG resources to
 # coveredResources and one flavor per MIG profile. Every flavor lists ALL covered resources in the same order,
 # with 0 for the ones it does not provide. Quotas are examples for 2 H100 GPUs: adjust them to your cluster.

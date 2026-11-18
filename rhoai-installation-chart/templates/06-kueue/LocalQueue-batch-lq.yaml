@@ -1,0 +1,17 @@
+{{- if .Values.distributedWorkloads.enabled }}
+{{- range .Values.distributedWorkloads.localQueueNamespaces }}
+---
+# LocalQueues are the namespaced handle that HardwareProfiles (and the kueue.x-k8s.io/queue-name label) point to.
+# LocalQueue of batch-cq (borrows idle GPU). HardwareProfile gpu-batch-profile points to it.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: LocalQueue
+metadata:
+  name: batch-lq
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterQueue: batch-cq
+{{- end }}
+{{- end }}

@@ -1,0 +1,12 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: WorkloadPriorityClass
+metadata:
+  name: batch-interactive
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+value: 1000
+description: Someone is waiting at a notebook. Jumps ahead of nightly batch work.
+{{- end }}

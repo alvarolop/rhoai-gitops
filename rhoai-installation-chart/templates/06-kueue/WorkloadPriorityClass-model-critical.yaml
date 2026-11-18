@@ -1,0 +1,15 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+# WorkloadPriorityClass orders workloads inside a queue and, with withinClusterQueue: LowerPriority, decides who gets
+# preempted there. It is independent of the Kubernetes PriorityClass. Referenced from a HardwareProfile
+# (spec.scheduling.kueue.priorityClass) or with the label kueue.x-k8s.io/priority-class on the workload.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: WorkloadPriorityClass
+metadata:
+  name: model-critical
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+value: 1000000
+description: Production model servers. Admitted ahead of everything else.
+{{- end }}

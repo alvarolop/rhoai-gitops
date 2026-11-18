@@ -96,9 +96,9 @@ Uncomment (remove the leading `# `) the block marked `Reference: NVIDIA H100 wit
 
 | File (in `templates/`) | What to uncomment |
 |---|---|
-| `06-kueue/resourceflavor-gpu-flavor.yaml` | the three MIG ResourceFlavors |
-| `06-kueue/clusterqueue-serving.yaml` | the replacement `resourceGroups` (replace the active one) |
-| `06-kueue/clusterqueue-batch.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `06-kueue/ResourceFlavor-gpu-flavor.yaml` | the three MIG ResourceFlavors |
+| `06-kueue/ClusterQueue-serving.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `06-kueue/ClusterQueue-batch.yaml` | the replacement `resourceGroups` (replace the active one) |
 | `07-hardware-profiles/HardwareProfile-gpu-profile.yaml` | the three MIG HardwareProfiles |
 
 A resource name can only be covered by **one** `resourceGroup` per ClusterQueue, so do not add one group per MIG profile
@@ -192,7 +192,7 @@ spec:
 
 ### Pods stuck in Pending
 
-1. **Check ResourceFlavor tolerations** in `06-kueue/resourceflavor-gpu-flavor.yaml`
+1. **Check ResourceFlavor tolerations** in `06-kueue/ResourceFlavor-gpu-flavor.yaml`
 2. **Verify ClusterQueue quotas** are not exhausted
 3. **Check node taints** match the ResourceFlavor tolerations
 
