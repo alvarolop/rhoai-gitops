@@ -4,10 +4,10 @@ kind: Kustomization
 
 resources:
   - ../../base
-  - manifests/grafanadashboard-platform-engineer.yaml
-  - manifests/grafanadashboard-app-developer.yaml
-  - manifests/grafanadashboard-business-user.yaml
-  - manifests/grafanadashboard-dns-operator.yaml
+  - manifests/GrafanaDashboard-platform-engineer.yaml
+  - manifests/GrafanaDashboard-app-developer.yaml
+  - manifests/GrafanaDashboard-business-user.yaml
+  - manifests/GrafanaDashboard-dns-operator.yaml
 
 configMapGenerator:
   - name: rhcl-platform-engineer-dashboard

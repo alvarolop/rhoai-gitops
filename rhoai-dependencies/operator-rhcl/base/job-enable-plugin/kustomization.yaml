@@ -4,6 +4,6 @@ kind: Kustomization
 namespace: kuadrant-system
 resources:
   - sa-enable-plugin.yaml
-  - cr-enable-plugin.yaml
+  - ClusterRole-enable-plugin.yaml
   - crb-enable-plugin.yaml
-  - job-enable-plugin.yaml
+  - Job-enable-plugin.yaml

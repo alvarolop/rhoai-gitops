@@ -4,7 +4,7 @@ kind: Kustomization
 
 resources:
   - operator/
-  - clusterpolicy-gpu-cluster-policy.yaml
+  - ClusterPolicy-gpu-cluster-policy.yaml
 
 configMapGenerator:
   - name: nvidia-dcgm-exporter-dashboard

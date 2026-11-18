@@ -4,5 +4,5 @@ kind: Kustomization
 
 resources:
   - operator
-  - Kuadrant-kuadrant.yaml
+  - Kuadrant.yaml
   - job-enable-plugin
