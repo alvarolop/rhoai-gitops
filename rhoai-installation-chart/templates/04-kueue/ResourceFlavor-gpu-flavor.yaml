@@ -21,7 +21,7 @@ spec:
 # ---------------------------------------------------------------------------
 # Reference: NVIDIA H100 with MIG (mixed strategy). One ResourceFlavor per MIG profile. Not rendered: remove the leading "# " to use it.
 # Also add the MIG resources to serving-cq and batch-cq (see the commented blocks at the end of those files).
-# See README-MIG.md.
+# See docs/README-MIG.md.
 # ---------------------------------------------------------------------------
 # ---
 # # MIG 1g.12gb nodes: tolerate MIG taints for small GPU slices

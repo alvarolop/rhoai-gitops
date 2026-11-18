@@ -21,7 +21,7 @@ distributedWorkloads:
   localQueueNamespaces:
     - models-as-a-service
   # Quotas per flavor, sized for a test cluster with at most one GPU (g6.2xlarge) and three 15.5 CPU / 58 GiB workers.
-  # Keep them at or below what is free after the platform pods. For MIG/H100 see README-MIG.md.
+  # Keep them at or below what is free after the platform pods. For MIG/H100 see docs/README-MIG.md.
   quotas:
     # Untainted workers (cluster-queue)
     cpuFlavor:

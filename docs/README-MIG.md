@@ -28,7 +28,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-4 cores
 - **Memory Range**: 1-16 GiB
 
-**Defined (commented) in**: `templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-1g-12gb-profile`)
+**Defined (commented) in**: `rhoai-installation-chart/templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-1g-12gb-profile`)
 
 ### 2. MIG 3g.47gb (Medium Instance)
 - **Resource**: `nvidia.com/mig-3g.47gb`
@@ -38,7 +38,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-8 cores
 - **Memory Range**: 1-32 GiB
 
-**Defined (commented) in**: `templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-3g-47gb-profile`)
+**Defined (commented) in**: `rhoai-installation-chart/templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-3g-47gb-profile`)
 
 ### 3. MIG 7g.94gb (Full GPU)
 - **Resource**: `nvidia.com/mig-7g.94gb`
@@ -48,7 +48,7 @@ This configuration uses the **"mixed" strategy**, which exposes each MIG profile
 - **CPU Range**: 1-16 cores
 - **Memory Range**: 1-64 GiB
 
-**Defined (commented) in**: `templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-7g-94gb-profile`)
+**Defined (commented) in**: `rhoai-installation-chart/templates/05-hardware-profiles/HardwareProfile-gpu-profile.yaml` (`mig-7g-94gb-profile`)
 
 ## Prerequisites
 
@@ -94,7 +94,7 @@ oc describe node <node-name> | grep -A 5 "Capacity:"
 
 Uncomment (remove the leading `# `) the block marked `Reference: NVIDIA H100 with MIG` at the end of each of these files:
 
-| File (in `templates/`) | What to uncomment |
+| File (in `rhoai-installation-chart/templates/`) | What to uncomment |
 |---|---|
 | `04-kueue/ResourceFlavor-gpu-flavor.yaml` | the three MIG ResourceFlavors |
 | `04-kueue/ClusterQueue-serving.yaml` | the replacement `resourceGroups` (replace the active one) |

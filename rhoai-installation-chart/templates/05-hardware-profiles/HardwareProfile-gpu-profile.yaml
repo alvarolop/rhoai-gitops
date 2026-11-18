@@ -41,7 +41,7 @@ spec:
 # ---------------------------------------------------------------------------
 # Reference: NVIDIA H100 with MIG (mixed strategy). One HardwareProfile per MIG profile. Not rendered: remove the leading "# " to use it.
 # They point at serving-lq; use batch-lq for spot capacity. Do not use them for workbenches (they need a non-preemptive queue).
-# See README-MIG.md.
+# See docs/README-MIG.md.
 # ---------------------------------------------------------------------------
 # ---
 # apiVersion: infrastructure.opendatahub.io/v1
