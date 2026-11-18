@@ -322,6 +322,10 @@ if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
         echo "⏭️  Skip creation of RHOAI Playground environment S4 Bucket..."
     fi
 
+    echo -e "\n6️⃣ Create the MLflow artifacts bucket in S4"
+    S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+    ./prerequisites/s3-bucket/create-s4-bucket.sh "$S4_NAMESPACE" "s4" "mlflow" "$S4_S3_REGION"
+
 else
     echo "⏭️  Skip installation of S4..."
 fi
@@ -386,8 +390,12 @@ echo -e "🤖 = RHOAI Installation ="
 echo -e "🤖 ======================\n"
 
 echo -e "\n🚀 Trigger the ArgoCD application to install RHOAI instance"
+# MLflow stores its artifacts in the S4 bucket created above, or on its PVC when S4 is not installed
+if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then MLFLOW_S3_ENABLED=true; else MLFLOW_S3_ENABLED=false; fi
 cat application-rhoai-installation.yaml | \
 CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+MLFLOW_S3_ENABLED=$MLFLOW_S3_ENABLED S4_NAMESPACE=$S4_NAMESPACE S4_S3_REGION=$S4_S3_REGION \
+S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
 envsubst | oc apply -f -
 
 echo -e "\n⏰ Wait 15 seconds for resources to be created"

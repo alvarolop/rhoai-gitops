@@ -32,6 +32,13 @@ spec:
         
         mlflow:
           enabled: true
+          artifacts:
+            s3:
+              enabled: $MLFLOW_S3_ENABLED
+              endpoint: "http://s4.$S4_NAMESPACE.svc.cluster.local:7480"
+              region: "$S4_S3_REGION"
+              accessKey: "$S4_S3_ACCESS_KEY"
+              secretKey: "$S4_S3_SECRET_KEY"
         
         trustyai:
           enabled: true

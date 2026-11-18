@@ -15,7 +15,14 @@ spec:
       requests:
         storage: 10Gi
   backendStoreUri: "sqlite:////mlflow/mlflow.db"
+{{- if .Values.mlflow.artifacts.s3.enabled }}
+  artifactsDestination: "s3://{{ .Values.mlflow.artifacts.s3.bucket }}/artifacts"
+  envFrom:
+    - secretRef:
+        name: mlflow-s3-credentials
+{{- else }}
   artifactsDestination: "file:///mlflow/artifacts"
+{{- end }}
   serveArtifacts: true
   # Permanently deletes runs, experiments and models that were already deleted from the UI or API
   # garbageCollection:

@@ -319,6 +319,14 @@ The stores are ephemeral, which is fine for short-lived clusters. To keep them i
 
 - Documentation: [Configuring Feature Store](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_machine_learning_features/configuring_feature_store).
 
+### MLflow
+
+`mlflow.enabled` creates the cluster-wide `MLflow` (`templates/13-mlflow/`). Its metadata lives in SQLite on a PVC and its artifacts in the `mlflow` bucket of S4, which `auto-install.sh` creates (`INSTALL_S4`). The credentials come from `mlflow.artifacts.s3` and end up in the Secret `mlflow-s3-credentials`. Without S4, `auto-install.sh` sets `mlflow.artifacts.s3.enabled=false` and the artifacts stay on the PVC.
+
+Each project is an MLflow workspace. From a workbench, `pip install "mlflow[kubernetes]>=3.11"` and `MLFLOW_TRACKING_AUTH=kubernetes-namespaced` are enough. The chart only grants access in `models-as-a-service`; other projects need the `mlflow-operator-mlflow-edit` ClusterRole bound to their users.
+
+- Documentation: [Working with MLflow](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_mlflow/installing-mlflow_mlflow).
+
 ## Monitoring, Safety and Evaluation
 
 ### Metrics and user-workload monitoring

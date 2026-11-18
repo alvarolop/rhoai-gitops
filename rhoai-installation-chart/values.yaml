@@ -104,6 +104,15 @@ llm_d:
 # https://access.redhat.com/articles/7136121
 mlflow:
   enabled: true
+  # Artifacts go to an S3 bucket (the one S4 serves, created by auto-install.sh); false keeps them on the PVC
+  artifacts:
+    s3:
+      enabled: true
+      bucket: mlflow
+      endpoint: http://s4.s4.svc.cluster.local:7480
+      region: us-east-1
+      accessKey: s4admin
+      secretKey: s4secret
 
 trustyai:
   enabled: true
