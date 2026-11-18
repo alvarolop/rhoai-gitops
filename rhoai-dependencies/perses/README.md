@@ -8,7 +8,7 @@ Native dashboards under **Observe → Dashboards (Perses)**. Part of the `rhoai-
 |---|---|
 | `UIPlugin.yaml` | Enables the monitoring plugin with Perses (creates a Perses server and the console menu) |
 | `sa-/crb-/Secret-…` | ServiceAccount with `cluster-monitoring-view` and its token, used by Perses to query Thanos |
-| `PersesGlobalDatasource-thanos-querier.yaml` | Default datasource for every dashboard: OpenShift Thanos Querier (platform + user-workload metrics) |
+| `PersesGlobalDatasource-thanos-querier-datasource.yaml` | Default datasource for every dashboard: OpenShift Thanos Querier (platform + user-workload metrics) |
 | `rb-dashboards-viewer.yaml` | Lets authenticated users view the dashboards namespace (`perses-dashboards`) |
 | `dashboards/` | 11 dashboards converted from Grafana: llm-d (5), MaaS (2), RHCL (4) |
 

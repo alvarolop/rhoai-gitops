@@ -9,7 +9,7 @@ resources:
   - crb-perses-thanos-querier.yaml
   - Secret-thanos-querier-datasource-secret.yaml
   - UIPlugin.yaml
-  - PersesGlobalDatasource-thanos-querier.yaml
+  - PersesGlobalDatasource-thanos-querier-datasource.yaml
   - rb-dashboards-viewer.yaml
   - dashboards/PersesDashboard-llm-d-diagnostic-drilldown.yaml
   - dashboards/PersesDashboard-llm-d-failure-saturation.yaml

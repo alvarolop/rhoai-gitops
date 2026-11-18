@@ -1,9 +1,10 @@
 ---
 # Default datasource for all dashboards: platform + user-workload metrics through the OpenShift Thanos Querier.
+# The name must be "<x>" with the Secret "<x>-secret": the operator derives the Perses-side secret from it.
 apiVersion: perses.dev/v1alpha2
 kind: PersesGlobalDatasource
 metadata:
-  name: thanos-querier
+  name: thanos-querier-datasource
   annotations:
     argocd.argoproj.io/sync-wave: "5"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
