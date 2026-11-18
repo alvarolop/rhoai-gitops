@@ -42,6 +42,10 @@ spec:
               enabled: false
           minio:
             mode: standalone
+            # Chart 5.0.25 points to minio/minio, which was removed from Docker Hub; 5.0.34 uses this mirror
+            image:
+              repository: milvusdb/minio
+              tag: RELEASE.2024-12-18T13-15-44Z
             securityContext:
               enabled: false
             resources:
