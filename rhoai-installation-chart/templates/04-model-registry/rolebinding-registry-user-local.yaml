@@ -1,0 +1,28 @@
+{{- if .Values.modelRegistry.enabled }}
+---
+# Who can use the registry `local` through its kube-rbac-proxy route. The operator also creates an empty group
+# `local-users` bound to this same Role, but that default group is deprecated since RHOAI 3.4 and will go away,
+# so the access is declared here. The Role is created by the operator together with the registry.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: registry-user-local
+  namespace: rhoai-model-registries
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: registry-user-local
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: rhods-admins
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: cluster-admins
+  # Every authenticated user (uncomment if you want to open the registry to everyone)
+  # - apiGroup: rbac.authorization.k8s.io
+  #   kind: Group
+  #   name: system:authenticated
+{{- end }}
