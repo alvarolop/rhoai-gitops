@@ -1,4 +1,5 @@
 ---
+# Official Milvus chart: https://milvus.io/docs/install_cluster-helm.md (standalone mode)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -11,14 +12,56 @@ spec:
     server: 'https://kubernetes.default.svc'
     namespace: milvus
   project: default
-  source:
-    path: components/milvus
-    repoURL: https://github.com/alvarolop/rhoai-gitops.git
-    targetRevision: main
-    helm:
-      values: |
-        clusterDomain: $CLUSTER_DOMAIN
+  sources:
+    - repoURL: https://zilliztech.github.io/milvus-helm/
+      chart: milvus
+      targetRevision: 5.0.34
+      helm:
+        releaseName: vectordb
+        values: |
+          cluster:
+            enabled: false
+          # The chart enables Pulsar by default; standalone uses the embedded Woodpecker message queue
+          pulsarv3:
+            enabled: false
+
+          standalone:
+            persistence:
+              persistentVolumeClaim:
+                size: 20Gi
+
+          # OpenShift: etcd and MinIO hardcode a UID and fsGroup that the restricted-v2 SCC rejects
+          etcd:
+            replicaCount: 1
+            podSecurityContext:
+              enabled: false
+            containerSecurityContext:
+              enabled: false
+          minio:
+            mode: standalone
+            securityContext:
+              enabled: false
+            resources:
+              requests:
+                memory: 512Mi
+            persistence:
+              size: 20Gi
+
+          attu:
+            enabled: true
+            route:
+              enabled: true
+              host: attu-milvus.apps.$CLUSTER_DOMAIN
+    # ConsoleLink to Attu in the OpenShift application menu
+    - repoURL: https://github.com/alvarolop/rhoai-gitops.git
+      targetRevision: main
+      path: components/milvus
+      helm:
+        values: |
+          clusterDomain: $CLUSTER_DOMAIN
   syncPolicy:
     automated:
       prune: false
       selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

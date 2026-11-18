@@ -424,7 +424,7 @@ cat application-open-webui.yaml | \
 
 **Attu** is an efficient open-source management tool for Milvus. It features an intuitive graphical user interface (GUI), allowing you to easily interact with your databases.
 
-[Source](https://github.com/rh-aiservices-bu/llm-on-openshift/blob/main/vector-databases/milvus/milvus_manifest_standalone.yaml)
+It is deployed from the [official Milvus chart](https://milvus.io/docs/install_cluster-helm.md) (`zilliztech/milvus-helm`, pinned in `application-milvus.yaml`) in standalone mode: one Milvus pod, one etcd and one MinIO, with the Woodpecker message queue embedded in Milvus. The chart ships Attu (`attu.enabled`) and its OpenShift Route, so there is no custom manifest anymore. The release is called `vectordb`, so Milvus answers at `vectordb-milvus.milvus.svc.cluster.local:19530`. `components/milvus` only holds the ConsoleLink to Attu.
 
 ```bash
 cat application-milvus.yaml | \
@@ -432,14 +432,7 @@ cat application-milvus.yaml | \
     envsubst | oc apply -f -
 ```
 
-or you can deploy it manually with the following command:
-
-```bash
-helm template components/milvus --namespace="milvus" \
-    --set clusterDomain=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') | oc apply -f -
-```
-
-The password for the Attu GUI is `root` / `Milvus`.
+Attu is at `https://attu-milvus.apps.<cluster domain>`. Authentication is disabled in Milvus by default, so Attu does not ask for credentials unless you enable it (the default user is `root` / `Milvus`).
 
 ### Langfuse
 

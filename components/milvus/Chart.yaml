@@ -1,6 +1,6 @@
 apiVersion: v2
 name: milvus
-description: A Helm chart for Kubernetes to deploy Milvus and Attu UI
+description: ConsoleLink to Attu, the UI of the Milvus deployed from the official chart (see application-milvus.yaml)
 
 # A chart can be either an 'application' or a 'library' chart.
 #
