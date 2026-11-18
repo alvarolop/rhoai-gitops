@@ -217,14 +217,14 @@ if [[ "$INSTALL_GRAFANA" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 else
     echo "⏭️  Skip Grafana installation..."
 fi
-    echo -e "\n4️⃣ Creating ConsoleLink for S4 (Application Menu → OpenShift Self Managed Services)"
+    echo -e "\n2️⃣ Creating ConsoleLink for Grafana (Application Menu → Observability)"
     GRAFANA_ROUTE_HOST=$(oc get route -n "grafana" grafana-route -o jsonpath='{.spec.host}' 2>/dev/null || true)
     if [[ -n "$GRAFANA_ROUTE_HOST" ]]; then
         GRAFANA_HREF="https://${GRAFANA_ROUTE_HOST}"
         cat addons/grafana/ConsoleLink.yaml | GRAFANA_HREF=$GRAFANA_HREF envsubst | oc apply -f -
         echo -e "\t✅ ConsoleLink 'grafana' created (href: $GRAFANA_HREF)."
     else
-        echo -e "\t⚠️  Grafana route not found; skipping ConsoleLink. Create it later with: oc get route -n grafana grafana -o jsonpath='{.spec.host}'"
+        echo -e "\t⚠️  Grafana route not found; skipping ConsoleLink. Create it later with: oc get route -n grafana grafana-route -o jsonpath='{.spec.host}'"
     fi
 
 
