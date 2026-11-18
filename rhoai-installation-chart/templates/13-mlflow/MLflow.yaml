@@ -20,6 +20,11 @@ spec:
   envFrom:
     - secretRef:
         name: mlflow-s3-credentials
+  # The operator's NetworkPolicy only lets MLflow reach S3 on 9000, 8333 and 8334; S4 listens on another port
+  networkPolicyAdditionalEgressRules:
+    - ports:
+        - protocol: TCP
+          port: {{ index (splitList ":" (urlParse .Values.mlflow.artifacts.s3.endpoint).host) 1 }}
 {{- else }}
   artifactsDestination: "file:///mlflow/artifacts"
 {{- end }}
