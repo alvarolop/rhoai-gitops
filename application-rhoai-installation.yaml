@@ -27,7 +27,7 @@ spec:
         distributedWorkloads:
           enabled: true
 
-        llamaStack:
+        ogx:
           enabled: true
         
         mlflow:

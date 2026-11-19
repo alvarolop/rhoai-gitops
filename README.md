@@ -64,7 +64,7 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 | trustyai | Bias, drift, guardrails, LM-Eval | Managed if `trustyai.enabled` |
 | feastoperator | Feast feature store | Managed if `featureStore.enabled` |
 | mlflowoperator | MLflow tracking | Managed if `mlflow.enabled` |
-| ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `llamaStack.enabled` |
+| ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `ogx.enabled` |
 | mcplifecycleoperator | Deploys the MCP servers of the dashboard's MCP Catalog and Registry | Managed if `mcp.enabled` |
 
 ### Chart layout
@@ -101,7 +101,7 @@ Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. 
 2. Deploys dependencies via `application-rhoai-dependencies.yaml` (NVIDIA GPU stack, Kueue, Leader Worker Set, JobSet, RHCL, KEDA) and enables the NVIDIA GPU console plugin.
 3. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`), the Cost Management Metrics Operator (`INSTALL_COST_MANAGEMENT`, off by default: it uploads usage to [console.redhat.com](https://console.redhat.com) Cost Management, which needs internet and a Red Hat account, and creates an OpenShift integration named after the cluster ID; see `addons/ocp-cost-management`) and S3 storage: S4 (`INSTALL_S4`, default) and Silo (`INSTALL_SILO`, off by default). Buckets are created in S4, including a playground bucket when `CREATE_RHOAI_ENV=true`.
 4. *(Optional)* Installs ODF in MCG mode (`INSTALL_ODF`, off by default) or OpenShift user-workload monitoring (`INSTALL_MONITORING`, on by default, see [Metrics and user-workload monitoring](#metrics-and-user-workload-monitoring)).
-5. Waits for GPU nodes when `GPU_NODE_COUNT` > 0, then installs RHOAI via `application-rhoai-installation.yaml` (operator + Helm chart defaults: model registry, distributed workloads, TrustyAI, Feast, MLflow, Llama Stack, llm-d, and related settings).
+5. Waits for GPU nodes when `GPU_NODE_COUNT` > 0, then installs RHOAI via `application-rhoai-installation.yaml` (operator + Helm chart defaults: model registry, distributed workloads, TrustyAI, Feast, MLflow, OGX, llm-d, and related settings).
 6. *(Optional)* Deploys the RHOAI Playground project (`CREATE_RHOAI_ENV`, with its pipelines storage pointing to S4) and Langfuse when `INSTALL_LANGFUSE` is enabled.
 
 If you plan to use GPU nodes on AWS, the script also prints the Service Quotas commands to request and check the Running On-Demand G and VT instances limit.
@@ -384,7 +384,7 @@ Several independent pieces collect metrics, and not all of them need OpenShift u
 - **[Evaluation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/evaluating_ai_systems/index)**: To ensure your OpenShift AI models for accuracy, relevance, and consistency. Evaluate your AI systems to generate an analysis of your model's ability by using the following TrustyAI tools:
   - **LM-Eval**: Use TrustyAI to monitor your LLM against a range of different evaluation tasks and to ensure the accuracy and quality of its output. Features such as summarization, language toxicity, and question-answering accuracy are assessed to inform and improve your model parameters.
   - **RAGAS**: Use Retrieval-Augmented Generation Assessment (RAGAS) with TrustyAI to measure and improve the quality of your RAG systems in OpenShift AI. RAGAS provides objective metrics that assess retrieval quality, answer relevance, and factual consistency.
-  - **Llama Stack**: Use Llama Stack components and providers with TrustyAI to evaluate and work with LLMs.
+  - **OGX (formerly Llama Stack)**: Use OGX components and providers with TrustyAI to evaluate and work with LLMs.
 
 - **[GuideLLM](https://github.com/vllm-project/guidellm)**: A platform for evaluating how language models perform under real workloads and configurations. It is part of the vLLM project and is a tool for evaluating the performance of language models.
 

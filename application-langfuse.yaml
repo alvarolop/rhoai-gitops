@@ -28,7 +28,7 @@ spec:
             value: "dev-salt-change-in-production-openssl-rand-base64-32"
           encryptionKey:
             value: "0000000000000000000000000000000000000000000000000000000000000000"
-          # Headless init: org + project for AI agents / LlamaStack telemetry (https://langfuse.com/self-hosting/administration/headless-initialization)
+          # Headless init: org + project for AI agents / OGX (formerly Llama Stack) telemetry (https://langfuse.com/self-hosting/administration/headless-initialization)
           additionalEnv:
             - name: LANGFUSE_INIT_ORG_ID
               value: "telemetry"

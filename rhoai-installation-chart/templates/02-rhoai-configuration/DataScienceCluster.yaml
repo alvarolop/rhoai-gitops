@@ -69,7 +69,7 @@ spec:
     mlflowoperator:
       managementState: {{ if .Values.mlflow.enabled }}Managed{{ else }}Removed{{ end }}
     ogx:
-      managementState: {{ if .Values.llamaStack.enabled }}Managed{{ else }}Removed{{ end }}
+      managementState: {{ if .Values.ogx.enabled }}Managed{{ else }}Removed{{ end }}
     ray:
       managementState: Managed
     sparkoperator:

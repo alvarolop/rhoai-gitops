@@ -20,8 +20,8 @@ distributedWorkloads:
   localQueueNamespaces:
     - models-as-a-service
 
-# OGX is the new name of Llama Stack
-llamaStack:
+# OGX (formerly Llama Stack): RAG and agent APIs
+ogx:
   enabled: true
 
 # MCP: the lifecycle operator plus the MCP Catalog and MCP Registry of the dashboard
