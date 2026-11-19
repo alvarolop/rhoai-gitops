@@ -1,6 +1,6 @@
 ---
-# Collects usage metrics from the OpenShift monitoring stack and uploads them to Red Hat Hybrid Cloud Console
-# (Cost Management), where the costs are viewed. It needs internet access and the cluster pull secret.
+# Collects usage metrics from the OpenShift monitoring stack into CSV reports (kept in a PVC). Uploading them to
+# Red Hat Hybrid Cloud Console (Cost Management) is off: that service is shared per Red Hat account.
 apiVersion: costmanagement-metrics-cfg.openshift.io/v1beta1
 kind: CostManagementMetricsConfig
 metadata:
@@ -22,8 +22,8 @@ spec:
     disable_metrics_collection_resource_optimization: false
   source:
     check_cycle: 1440
-    create_source: true  # creates the OpenShift integration; the name defaults to the cluster ID
+    create_source: false  # true would create an OpenShift integration named after the cluster ID
     name: ''
   upload:
     upload_cycle: 360
-    upload_toggle: true
+    upload_toggle: false  # reports stay in the operator PVC; true uploads them to console.redhat.com
