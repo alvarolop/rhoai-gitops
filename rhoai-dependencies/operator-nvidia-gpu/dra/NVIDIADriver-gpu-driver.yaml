@@ -1,0 +1,12 @@
+---
+# Containerized GPU driver (580 or newer is required by the DRA driver)
+apiVersion: nvidia.com/v1alpha1
+kind: NVIDIADriver
+metadata:
+  name: gpu-driver
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  driverType: gpu
+  nodeSelector: {}

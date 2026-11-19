@@ -10,7 +10,8 @@ resources:
 
   # Support for GPU Acceleration
   - ../../operator-nfd
-  - ../../operator-nvidia-gpu
+  # DRA flavor. Use operator-nvidia-gpu/device-plugin for the ClusterPolicy with the device plugin and the MIG manager
+  - ../../operator-nvidia-gpu/dra
 
   # Required for llm-d
   - ../../operator-lws

@@ -1,0 +1,26 @@
+---
+# DRA flavor: the DRA driver publishes the GPUs and MIG devices as ResourceSlices and the pods request them with
+# ResourceClaims. It replaces the ClusterPolicy (a cluster cannot have both) and has no device plugin or MIG manager.
+apiVersion: nvidia.com/v1
+kind: GPUCluster
+metadata:
+  name: gpu-cluster
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  draDriver:
+    # ComputeDomains are for multi-node NVLink systems (GB200/GB300 NVL72)
+    computeDomains:
+      enabled: false
+    # H100/A100 with MIG: let the driver create the MIG devices when a claim is allocated (alpha). Without it only
+    # full GPUs and preconfigured MIG devices are allocatable. It conflicts with PassthroughSupport,
+    # NVMLDeviceHealthCheck and MPSSupport.
+    # featureGates:
+    #   DynamicMIG: true
+  dcgm:
+    enabled: false
+  dcgmExporter:
+    enabled: true
+    serviceMonitor:
+      enabled: true
