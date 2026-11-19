@@ -81,9 +81,9 @@ spec:
     globalProjectPrompts: false  # Global project setting for prompts in cluster settings
     mcpRegistry: {{ .Values.mcp.enabled }}  # MCP Registry tab in the MCP Servers page
   # Other spec fields (3.5), unset by default:
-  # modelServing:
-  #   deploymentStrategy: rolling  # rolling | recreate
-  #   isLLMdDefault: false  # pre-select llm-d in the deployment wizard
+  modelServing:
+    deploymentStrategy: recreate  # rolling | recreate. Recreate avoids a second replica waiting for a GPU during updates
+    isLLMdDefault: {{ .Values.llm_d.enabled }}  # pre-select llm-d in the deployment wizard
   # genAiStudioConfig:
   #   aiAssetCustomEndpoints: false
   # hardwareProfileOrder: [cpu-profile, gpu-profile, gpu-batch-profile]
