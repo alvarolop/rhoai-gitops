@@ -173,7 +173,7 @@ histogram_quantile(0.95, sum by (le, destination_service_name) (rate(istio_reque
 - `403` with a valid key usually means a subscription without an authorization policy; `429` on the first request means the reverse. Both resources are required for each model.
 - Temporary keys last 1 hour; others can be permanent or expire. Revocations and expirations are an operational signal found in the `maas-api` logs, not a metric.
 
-**Where to see it:** RHOAI dashboard → Observe & monitor → *Usage* (Technology Preview, with CSV export for showback); the *MaaS AI Engineer* and *MaaS Platform Admin* Grafana dashboards of this repo (`10-maas/4-grafana`). **Observed:** the `authorized_*`, `limited_calls` and `auth_server_*` series do not exist yet because no request has gone through MaaS (counters appear after the first evaluation), so those dashboards stay empty until you send traffic.
+**Where to see it:** RHOAI dashboard → Observe & monitor → *Usage* (Technology Preview, with CSV export for showback); the *MaaS AI Engineer* and *MaaS Platform Admin* Grafana dashboards of this repo (`11-maas/4-grafana`). **Observed:** the `authorized_*`, `limited_calls` and `auth_server_*` series do not exist yet because no request has gone through MaaS (counters appear after the first evaluation), so those dashboards stay empty until you send traffic.
 
 **Alerts:** `limitador_up == 0` or Authorino, `maas-api` or gateway pods not running; gateway `5xx` or `kuadrant_errors` above baseline; rate-limit ratio above a threshold; authorization p95 above ~100 ms; a subscription past ~70 % of its allowance; MaaS reported `Degraded` (it needs user workload monitoring).
 
@@ -259,7 +259,7 @@ The real multi-constraint goodput (all targets at once, per request) needs per-r
 
 **Autoscaling signals.** If you autoscale (the platform ships WVA as Technology Preview, `kserve.wva`, and KEDA integration arrives in 3.6 EA), the signals are queue depth, in-flight requests and KV-cache pressure, ideally compared with the SLO, not GPU utilization.
 
-**Where to see it:** RHOAI dashboard → Observe & monitor (needs the Cluster Observability Operator and the `metrics` section of `DSCInitialization`): *Models*, *LLM Traffic*, *LLM Performance* and *LLM Utilization*, which read from the **platform Prometheus**. The Grafana dashboards of this repo (`09-llm-d`) read from the cluster one. **Observed today:** only the simulator serves, so the vLLM series are the small subset it emits (requests, KV cache, cache config); the full engine, latency and EPP picture appears when a real model such as `gpt-oss-20b` receives traffic.
+**Where to see it:** RHOAI dashboard → Observe & monitor (needs the Cluster Observability Operator and the `metrics` section of `DSCInitialization`): *Models*, *LLM Traffic*, *LLM Performance* and *LLM Utilization*, which read from the **platform Prometheus**. The Grafana dashboards of this repo (`10-llm-d`) read from the cluster one. **Observed today:** only the simulator serves, so the vLLM series are the small subset it emits (requests, KV cache, cache config); the full engine, latency and EPP picture appears when a real model such as `gpt-oss-20b` receives traffic.
 
 **Alerts:** TTFT or ITL p95 above the SLO and error ratio above baseline (page); `num_requests_waiting > 0` for 5 minutes, KV cache above ~0.9 for 10 minutes, preemption rate above 0, ready pods below desired replicas (ticket).
 
@@ -424,7 +424,7 @@ OpenShift AI and this repo
 
 - RHOAI 3.5, *Managing OpenShift AI*, chapter *Manage observability*; *Deploy models using Distributed Inference with llm-d*, chapter *Monitor llm-d deployments*; *Govern LLM access with Models-as-a-Service*; *Evaluating AI systems* (EvalHub).
 - Red Hat AI Inference 3.5, [*Monitor llm-d deployments*](https://docs.redhat.com/en/documentation/red_hat_ai_inference/3.5/html/monitor_and_troubleshoot_distributed_inference_with_llm-d_deployments/monitoring-llmd-deployments) (metric families, deprecated EPP prefixes, troubleshooting).
-- In this repo: `README.md` (section *Metrics and user-workload monitoring*), `rhoai-installation-chart/templates/10-maas/3-observability`, the dashboards under `rhoai-installation-chart/files/`.
+- In this repo: `README.md` (section *Metrics and user-workload monitoring*), `rhoai-installation-chart/templates/11-maas/3-observability`, the dashboards under `rhoai-installation-chart/files/`.
 
 Community and projects
 

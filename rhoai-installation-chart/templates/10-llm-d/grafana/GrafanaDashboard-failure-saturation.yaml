@@ -1,9 +1,9 @@
-{{ if and .Values.modelsAsService.enabled .Values.modelsAsService.grafana.enabled }}
+{{ if and .Values.llm_d.enabled .Values.llm_d.grafana.enabled }}
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: maas-ai-engineer
+  name: llm-d-failure-saturation
   namespace: grafana
   labels:
     app: grafana
@@ -14,11 +14,11 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: grafana
-  folder: RHOAI - MaaS
+  folder: RHOAI - LLM-D
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: Prometheus
-  # https://github.com/opendatahub-io/models-as-a-service/blob/main/deployment/components/observability/grafana/kustomization.yaml
+  # https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/deploy_models_using_distributed_inference_with_llm-d/monitoring-llmd-deployments#llmd-grafana-dashboards_monitoring-llmd
   json: |
-{{- .Files.Get "files/10-maas/ai-engineer-dashboard.json" | nindent 4 }}
+{{- .Files.Get "files/10-llm-d/llm-d-failure-saturation-dashboard.json" | nindent 4 }}
 {{ end }}

@@ -64,7 +64,7 @@ modelsAsService:
     service:
       port: 5432
       ssl: false
-  # Demo content (templates/12-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
+  # Demo content (templates/13-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
   demo:
     enabled: true
   # Each entry creates a MaaSSubscription and a MaaSAuthPolicy. priority picks the default subscription when a user matches

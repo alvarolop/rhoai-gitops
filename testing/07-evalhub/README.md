@@ -20,7 +20,7 @@ EvalHub is a service for evaluating LLM models using standardized benchmarks and
 ### Permissions
 Users creating evaluation jobs need MLflow RBAC permissions. The GitOps chart includes a RoleBinding:
 ```yaml
-# See: rhoai-installation-chart/templates/08-mlflow/rb-evalhub-mlflow-user-access.yaml
+# See: rhoai-installation-chart/templates/09-mlflow/rb-evalhub-mlflow-user-access.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -296,8 +296,8 @@ Evaluation results are stored in MLflow experiments:
 ## References
 
 - [RHOAI 3.4 Evaluating AI Systems Documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/evaluating_ai_systems/)
-- [EvalHub GitOps Configuration](../../rhoai-installation-chart/templates/11-evalhub/)
-- [MLflow RBAC Configuration](../../rhoai-installation-chart/templates/08-mlflow/)
+- [EvalHub GitOps Configuration](../../rhoai-installation-chart/templates/12-evalhub/)
+- [MLflow RBAC Configuration](../../rhoai-installation-chart/templates/09-mlflow/)
 - [TrustyAI Operator Documentation](https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/3.4/html/evaluating_ai_systems/configuring-trustyai-operator_evaluating-ai-systems)
 
 ## Architecture
