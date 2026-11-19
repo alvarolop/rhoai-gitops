@@ -11,7 +11,7 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: ocp-pipelines
+    path: addons/ocp-pipelines
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
   syncPolicy:
