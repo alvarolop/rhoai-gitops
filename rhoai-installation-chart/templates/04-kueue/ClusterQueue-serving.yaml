@@ -28,11 +28,11 @@ spec:
         - name: "gpu-flavor"
           resources:
             - name: "cpu"
-              nominalQuota: {{ .Values.distributedWorkloads.quotas.gpuFlavor.cpu | quote }}
+              nominalQuota: "6"
             - name: "memory"
-              nominalQuota: {{ .Values.distributedWorkloads.quotas.gpuFlavor.memory | quote }}
+              nominalQuota: "24Gi"
             - name: "nvidia.com/gpu"
-              nominalQuota: {{ .Values.distributedWorkloads.quotas.gpuFlavor.gpu | quote }}
+              nominalQuota: "1"
 #
 # ---------------------------------------------------------------------------
 # Reference: NVIDIA H100 with MIG (mixed strategy). Replacement resourceGroups. Not rendered: remove the leading "# " to use it.

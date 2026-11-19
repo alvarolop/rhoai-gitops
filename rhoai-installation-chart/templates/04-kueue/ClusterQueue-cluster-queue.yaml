@@ -17,13 +17,14 @@ spec:
   preemption:
     reclaimWithinCohort: Never
     withinClusterQueue: Never
+  # Quota sized for three 15.5 CPU / 58 GiB workers: keep it at or below what is free after the platform pods
   resourceGroups:
     - coveredResources: ["cpu", "memory"]
       flavors:
         - name: "cpu-flavor"
           resources:
             - name: "cpu"
-              nominalQuota: {{ .Values.distributedWorkloads.quotas.cpuFlavor.cpu | quote }}
+              nominalQuota: "20"
             - name: "memory"
-              nominalQuota: {{ .Values.distributedWorkloads.quotas.cpuFlavor.memory | quote }}
+              nominalQuota: "100Gi"
 {{- end }}

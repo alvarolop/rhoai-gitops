@@ -28,13 +28,13 @@ spec:
           resources:
             - name: "cpu"
               nominalQuota: "0"
-              borrowingLimit: {{ .Values.distributedWorkloads.quotas.gpuFlavor.cpu | quote }}
+              borrowingLimit: "6"
             - name: "memory"
               nominalQuota: "0"
-              borrowingLimit: {{ .Values.distributedWorkloads.quotas.gpuFlavor.memory | quote }}
+              borrowingLimit: "24Gi"
             - name: "nvidia.com/gpu"
               nominalQuota: "0"
-              borrowingLimit: {{ .Values.distributedWorkloads.quotas.gpuFlavor.gpu | quote }}
+              borrowingLimit: "1"
 #
 # ---------------------------------------------------------------------------
 # Reference: NVIDIA H100 with MIG (mixed strategy). Replacement resourceGroups. Not rendered: remove the leading "# " to use it.
