@@ -62,13 +62,12 @@ rhoai-dependencies/operator-nvidia-gpu/
 └── dra/             GPUCluster + NVIDIADriver                                 DRA flavor (default)
 
 rhoai-installation-chart/templates/
-├── 06-dra/                       ResourceClaimTemplates (full GPU; H100 MIG, off)
-└── 13-maas-demo/3-gemma/         LLMInferenceService that claims its GPU
+└── 06-dra/                       ResourceClaimTemplates (full GPU; H100 MIG, off)
 ```
 
 `variants/default` points to `operator-nvidia-gpu/dra`. To go back, change that line to `operator-nvidia-gpu/device-plugin`, delete the `GPUCluster`, and set `dra.enabled: false` in the chart values.
 
-## 4. The claim of the demo model
+## 4. How a model uses the claim
 
 `gpu-l4` asks for one full GPU of the product in `dra.gpu.productName`:
 
@@ -86,7 +85,7 @@ spec:
                   expression: device.attributes['gpu.nvidia.com'].productName == "NVIDIA L4"
 ```
 
-The model refers to it in the pod template; there is no `nvidia.com/gpu` limit:
+The models are deployed from the `rhoai-serving` repository. A model refers to the template in its pod template; there is no `nvidia.com/gpu` limit:
 
 ```yaml
 template:
