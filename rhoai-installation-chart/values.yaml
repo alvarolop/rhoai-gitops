@@ -20,13 +20,14 @@ distributedWorkloads:
   localQueueNamespaces:
     - models-as-a-service
 
-# OGX (formerly Llama Stack): RAG and agent APIs
+# OGX (formerly Llama Stack): the server behind the Gen AI Studio playground (RAG, vector stores, agents). This chart always
+# enables Gen AI Studio, so keep it on.
 ogx:
   enabled: true
 
 # Agentic AI of OpenShift AI 3.5 (Developer Preview, not supported), all in one flag: MCP (lifecycle operator, MCP Catalog
 # and Registry), Agents Catalog, saved agents and Agent Ops in Gen AI Studio, and custom AI asset endpoints.
-# It also turns on ogx, which the playground agents need.
+# The playground agents need ogx on.
 agentic:
   enabled: true
 

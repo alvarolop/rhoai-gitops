@@ -64,7 +64,7 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 | trustyai | Bias, drift, guardrails, LM-Eval | Managed if `trustyai.enabled` |
 | feastoperator | Feast feature store | Managed if `featureStore.enabled` |
 | mlflowoperator | MLflow tracking | Managed if `mlflow.enabled` |
-| ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `ogx.enabled` or `agentic.enabled` |
+| ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `ogx.enabled`; the Gen AI Studio playground needs it |
 | mcplifecycleoperator | Deploys the MCP servers of the dashboard's MCP Catalog and Registry | Managed if `agentic.enabled` |
 
 ### Chart layout
@@ -369,7 +369,7 @@ Each project is an MLflow workspace. From a workbench, `pip install "mlflow[kube
 | Save a Gen AI Studio playground as a named agent (model, parameters, MLflow prompts, RAG sources, MCP servers), stored in the project | `agentConfigManagement` | Developer Preview |
 | Agent Ops in Gen AI Studio, and the list of running agents deployed as OpenShell `Sandbox` CRs | `agentOps` | Developer Preview |
 | Custom endpoints for AI assets (Gen AI Studio → AI asset endpoints → Create endpoint) | `aiAssetCustomEndpoints` | Technology Preview |
-| OGX and the MCP lifecycle operator (the playground agents need them), MCP Catalog and Registry | `ogx` and `mcplifecycleoperator` Managed, `mcpCatalog`, `mcpRegistry` | Technology Preview (MCP) |
+| MCP lifecycle operator, MCP Catalog and Registry | `mcplifecycleoperator` Managed, `mcpCatalog`, `mcpRegistry` | Technology Preview (MCP) |
 
 The agents work with `mlflow.enabled` (prompts) and `trustyai.enabled` (guardrails). Not included on purpose:
 
