@@ -36,3 +36,6 @@ resources:
   - ../../perses
   - ../../operator-tempo
   - ../../operator-otel
+
+  # MCP gateway (Technology Preview) for the agentic AI of the chart; configured later in the chart
+  - ../../operator-mcp-gateway

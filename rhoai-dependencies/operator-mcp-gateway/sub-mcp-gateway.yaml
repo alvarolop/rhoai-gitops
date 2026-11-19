@@ -1,0 +1,16 @@
+---
+# MCP gateway (Technology Preview): federates, secures and routes MCP traffic through an Envoy gateway. It needs
+# Connectivity Link (operator-rhcl). The MCPGatewayExtension and the MCPServerRegistrations are configured later.
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: mcp-gateway
+  namespace: mcp-gateway-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  channel: preview
+  installPlanApproval: Automatic
+  name: mcp-gateway
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
