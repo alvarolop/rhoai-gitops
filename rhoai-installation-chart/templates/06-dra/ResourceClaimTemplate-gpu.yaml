@@ -16,6 +16,8 @@ spec:
       requests:
         - name: gpu
           exactly:
+            allocationMode: ExactCount
+            count: 1
             deviceClassName: gpu.nvidia.com
             selectors:
               - cel:
