@@ -26,7 +26,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              NS={{ .Values.kuadrant.namespace }}
+              NS=kuadrant-system
               OP=kuadrant-operator-controller-manager
               reason() { oc get kuadrant kuadrant -n $NS -o jsonpath='{.status.conditions[?(@.type=="Ready")].reason}' 2>/dev/null; }
 

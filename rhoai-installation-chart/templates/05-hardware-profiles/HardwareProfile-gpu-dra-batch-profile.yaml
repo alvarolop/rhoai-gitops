@@ -1,0 +1,37 @@
+{{- if and .Values.distributedWorkloads.enabled .Values.dra.enabled }}
+---
+# GPU batch and training workloads when the GPU comes from a DRA ResourceClaim (templates/06-dra). Same as
+# gpu-dra-profile but on the spot queue. No nvidia.com/gpu identifier on purpose: the RHOAI webhook would add that limit
+# on top of the claim and Kueue would count the GPU twice (see docs/dra-gpu.md).
+apiVersion: infrastructure.opendatahub.io/v1
+kind: HardwareProfile
+metadata:
+  annotations:
+    opendatahub.io/dashboard-feature-visibility: '[]'
+    opendatahub.io/disabled: 'false'
+    opendatahub.io/display-name: gpu-dra-batch-profile
+    opendatahub.io/description: GPU batch and training workloads with the GPU requested through DRA (ResourceClaim), so it has no nvidia.com/gpu resource (spot capacity). Queue batch-lq borrows idle GPUs and is evicted and requeued when model serving needs them back; keep jobs restartable. Use it only on the DRA flavor of the GPU operator.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+  name: gpu-dra-batch-profile
+  namespace: redhat-ods-applications
+spec:
+  identifiers:
+    - defaultCount: '1'
+      displayName: CPU
+      identifier: cpu
+      maxCount: '8'
+      minCount: 1
+      resourceType: CPU
+    - defaultCount: 12Gi
+      displayName: Memory
+      identifier: memory
+      maxCount: 32Gi
+      minCount: 1Gi
+      resourceType: Memory
+  scheduling:
+    type: Queue
+    kueue:
+      localQueueName: "batch-lq"
+      priorityClass: batch-nightly
+{{- end }}

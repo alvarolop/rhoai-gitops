@@ -118,7 +118,7 @@ The size is chosen by the claim template, so the `HardwareProfile` does not need
 
 ## 6. What changes for the rest of the platform
 
-- **Hardware profiles.** `gpu-profile` and `gpu-batch-profile` use the `nvidia.com/gpu` identifier and do not match DRA devices (there is no device plugin). Use `gpu-dra-profile`.
+- **Hardware profiles.** `gpu-profile` and `gpu-batch-profile` use the `nvidia.com/gpu` identifier and do not match DRA devices (there is no device plugin). Use `gpu-dra-profile` (serving, queue `serving-lq`) or `gpu-dra-batch-profile` (batch, spot queue `batch-lq`).
 - **Kueue.** Red Hat build of Kueue 1.5 evaluates the claims. It needs the DeviceClasses mapped to a resource name (`04-kueue/Kueue.yaml` maps `gpu.nvidia.com` and `mig.nvidia.com` to `nvidia.com/gpu`), so a claim counts against the same quota as a `nvidia.com/gpu` limit and a MIG partition counts as one unit. Quota in consumable capacity (GPU memory) needs OpenShift 5.0.
 - **Metrics.** The `GPUCluster` runs its own DCGM exporter (`nvidia-dcgm-exporter-dra`) with a ServiceMonitor, so GPU metrics keep flowing.
 - **Node taint.** The GPU nodes carry `nvidia.com/gpu:NoSchedule`; the `GPUCluster` tolerates it for its daemonsets, and `gpu-flavor` of Kueue adds the toleration to the pods.
