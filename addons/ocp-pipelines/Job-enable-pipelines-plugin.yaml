@@ -25,7 +25,7 @@ spec:
           - /bin/bash
           - -c
           - |
-            if ! oc get console.operator.openshift.io cluster -o yaml | grep "pipelines-console-plugin";
+            if ! oc get console.operator.openshift.io cluster -o jsonpath='{.spec.plugins}' | grep -q '"pipelines-console-plugin"';
             then
               oc patch console.operator.openshift.io cluster --type=json \
               --patch '[{"op":"add","path":"/spec/plugins/-","value":"pipelines-console-plugin"}]'
