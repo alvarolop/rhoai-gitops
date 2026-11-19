@@ -1,0 +1,20 @@
+{{- if or .Values.modelsAsService.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: restart-kuadrant
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["kuadrant-operator-controller-manager"]
+    verbs: ["patch"]
+  - apiGroups: ["kuadrant.io"]
+    resources: ["kuadrants"]
+    verbs: ["get", "list"]
+{{- end }}

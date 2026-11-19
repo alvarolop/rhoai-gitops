@@ -1,0 +1,46 @@
+{{- if or .Values.modelsAsService.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+---
+# The Kuadrant operator checks for the Gateway API provider (Istio) only when it starts. On a new cluster it starts
+# before the provider exists (the Ingress operator installs it when the first GatewayClass appears), so Kuadrant stays
+# MissingDependency and no AuthPolicy or TokenRateLimitPolicy is accepted. This hook waits for the provider and
+# restarts the operator only in that case. Without the problem it changes nothing.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restart-kuadrant
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 1200
+  template:
+    spec:
+      serviceAccountName: restart-kuadrant
+      restartPolicy: Never
+      containers:
+        - name: restart
+          image: registry.redhat.io/openshift4/ose-cli-rhel9:v4.22
+          command:
+            - /bin/bash
+            - -c
+            - |
+              NS={{ .Values.kuadrant.namespace }}
+              OP=kuadrant-operator-controller-manager
+              reason() { oc get kuadrant kuadrant -n $NS -o jsonpath='{.status.conditions[?(@.type=="Ready")].reason}' 2>/dev/null; }
+
+              echo "Waiting for the Gateway API provider (istiod-openshift-gateway)..."
+              until oc get deployment istiod-openshift-gateway -n openshift-ingress >/dev/null 2>&1; do sleep 10; done
+              echo "Waiting for the Kuadrant resource..."
+              until [ -n "$(reason)" ]; do sleep 10; done
+
+              if [ "$(reason)" = "MissingDependency" ]; then
+                echo "Kuadrant started before the provider: restarting the operator"
+                oc rollout restart deployment/$OP -n $NS
+                oc rollout status deployment/$OP -n $NS --timeout=300s
+                for i in $(seq 1 30); do [ "$(reason)" = "Ready" ] && break; sleep 10; done
+              fi
+              echo "Kuadrant: $(reason)"
+              [ "$(reason)" != "MissingDependency" ]
+{{- end }}

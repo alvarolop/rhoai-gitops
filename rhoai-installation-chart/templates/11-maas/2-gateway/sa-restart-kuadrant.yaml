@@ -1,0 +1,11 @@
+{{- if or .Values.modelsAsService.enabled .Values.llm_d.ocpRouteGateway.enabled }}
+---
+# Lives in openshift-gitops: it always exists, is not managed by Kueue and does not depend on kuadrant-system yet
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: restart-kuadrant
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+{{- end }}

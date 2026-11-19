@@ -96,6 +96,10 @@ modelsAsService:
             - limit: 100000
               window: 1h
 
+# Connectivity Link (Kuadrant), installed by rhoai-dependencies
+kuadrant:
+  namespace: kuadrant-system
+
 # Dynamic Resource Allocation (templates/06-dra). Needs the DRA flavor of rhoai-dependencies/operator-nvidia-gpu (GPUCluster).
 # The pods request a GPU through a ResourceClaimTemplate instead of the nvidia.com/gpu limit. false: the demo model uses the limit.
 dra:
