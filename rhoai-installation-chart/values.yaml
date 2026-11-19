@@ -47,23 +47,11 @@ mcp:
 modelsAsService:
   enabled: true
   namespace: models-as-a-service
-  # MaaS infrastructure namespace, where the maas-db-config secret must live
-  infraNamespace: redhat-ai-gateway-infra
-  grafana:
-    enabled: true
+  # true: its own PostgreSQL (rhoai-maas-db) for the MaaS API; false: provide the maas-db-config secret yourself
   postgresql:
     enabled: true
-    namespace: rhoai-maas-db
-    name: postgresql
-    image: registry.redhat.io/rhel9/postgresql-15:9.7
-    connection:
-      database: maas
-      user: maas
-      password: SecurePassword123  # Change for production
-      storageSize: 20Gi
-    service:
-      port: 5432
-      ssl: false
+    password: SecurePassword123  # Change for production
+    storageSize: 20Gi
   # Demo content (templates/13-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
   demo:
     enabled: true
@@ -97,14 +85,15 @@ dra:
   # Namespaces that get the templates. Default: modelsAsService.namespace, where the models run
   namespaces: []
 
+# Grafana dashboards of llm-d and MaaS (they need the Grafana addon, INSTALL_GRAFANA in auto-install.sh)
+grafana:
+  enabled: true
+
 llm_d:
   enabled: true
   # Direct llm-d gateway: GatewayClass + ConfigMap service override + Gateway (ClusterIP via
   # infrastructure.parametersRef) + Route (reencrypt, as the gateway of OpenShift AI itself).
   ocpRouteGateway:
-    enabled: true
-  # Grafana dashboards for llm-d monitoring
-  grafana:
     enabled: true
 
 # https://access.redhat.com/articles/7136121

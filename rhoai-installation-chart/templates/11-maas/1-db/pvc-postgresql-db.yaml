@@ -3,8 +3,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.modelsAsService.postgresql.name }}-data
-  namespace: {{ .Values.modelsAsService.postgresql.namespace }}
+  name: postgresql-data
+  namespace: rhoai-maas-db
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
@@ -12,5 +12,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.modelsAsService.postgresql.connection.storageSize }}
+      storage: {{ .Values.modelsAsService.postgresql.storageSize }}
 {{- end }}

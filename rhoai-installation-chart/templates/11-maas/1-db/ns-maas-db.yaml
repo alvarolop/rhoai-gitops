@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .Values.modelsAsService.postgresql.namespace }}
+  name: rhoai-maas-db
   annotations:
     argocd.argoproj.io/sync-wave: "-2"
 {{- end }}

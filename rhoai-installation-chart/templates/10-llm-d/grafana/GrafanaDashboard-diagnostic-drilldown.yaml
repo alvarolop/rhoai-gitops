@@ -1,4 +1,4 @@
-{{ if and .Values.llm_d.enabled .Values.llm_d.grafana.enabled }}
+{{ if and .Values.llm_d.enabled .Values.grafana.enabled }}
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
