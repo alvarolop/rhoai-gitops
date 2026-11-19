@@ -1,11 +1,13 @@
 ---
-# MCP gateway (Technology Preview): federates, secures and routes MCP traffic through an Envoy gateway. It needs
-# Connectivity Link (operator-rhcl). The MCPGatewayExtension and the MCPServerRegistrations are configured later.
+# MCP gateway (Technology Preview): federates, secures and routes MCP traffic through an Envoy gateway.
+# It lives in kuadrant-system, with the Connectivity Link operator it requires (olm.package.required rhcl-operator): in its
+# own namespace with an OwnNamespace OperatorGroup, OLM installs a second copy of rhcl, authorino, dns and limitador there,
+# and those fail with UnsupportedOperatorGroup. The MCPGatewayExtension and the MCPServerRegistrations are configured later.
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: mcp-gateway
-  namespace: mcp-gateway-system
+  namespace: kuadrant-system
   annotations:
     argocd.argoproj.io/sync-wave: "-5"
 spec:
