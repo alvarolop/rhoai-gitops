@@ -1,0 +1,35 @@
+{{- if and .Values.dra.enabled .Values.dra.mig.enabled }}
+{{- range (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) }}
+---
+# H100 with MIG: one partition of the preferred profile and, if no device of that profile is left, the fallback
+# profile with its own count. The scheduler tries the alternatives in order (prioritized list).
+# Caveat: one vLLM process only sees the first MIG device of its list, so a fallback with count > 1 does not
+# spread a model across partitions. Use it for several single-partition replicas or give it a bigger profile.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: {{ $.Values.dra.mig.templateName }}
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          firstAvailable:
+            - name: preferred
+              deviceClassName: mig.nvidia.com
+              count: {{ $.Values.dra.mig.preferred.count }}
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == {{ $.Values.dra.mig.preferred.profile | quote }}
+            - name: fallback
+              deviceClassName: mig.nvidia.com
+              count: {{ $.Values.dra.mig.fallback.count }}
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == {{ $.Values.dra.mig.fallback.profile | quote }}
+{{- end }}
+{{- end }}

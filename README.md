@@ -78,13 +78,14 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `03-metalLB` | IP pool for `LoadBalancer` services on bare metal |
 | `04-kueue` | Queues, flavors and priorities (reserved-spot) |
 | `05-hardware-profiles` | Hardware profiles that point to the queues |
+| `06-dra` | Dynamic Resource Allocation: `ResourceClaimTemplate`s for the GPU (full L4, and H100 MIG disabled) |
 | `07-model-registry` | Model registry |
 | `08-feature-store` | Feast feature stores |
 | `09-mlflow` | MLflow tracking server |
 | `10-llm-d` | Direct llm-d gateway and dashboards |
 | `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana` |
 | `12-evalhub` | EvalHub: `1-db`, `2-evalhub` |
-| `13-maas-demo` | MaaS demo content (simulator model, sample subscriptions): `1-simulator`, `2-configs` |
+| `13-maas-demo` | MaaS demo content (simulator model, sample subscriptions, a 12B model on a GPU): `1-simulator`, `2-configs`, `3-gemma` |
 
 ## Installation
 
@@ -202,6 +203,17 @@ oc delete cm migration-gpu-status -n redhat-ods-applications; sleep 3; oc delete
 ```
 
 Wait for a few seconds until the dashboard pods start again and you will see in the RHOAI web console that now the `NVidia GPU` Accelerator Profile is listed.
+
+### GPU flavors: device plugin or DRA
+
+`rhoai-dependencies/operator-nvidia-gpu` has two flavors, and `variants/*/kustomization.yaml` picks one (a cluster cannot have both):
+
+| Folder | What it creates | How pods ask for a GPU |
+|---|---|---|
+| `dra/` (default) | `GPUCluster` + `NVIDIADriver` (GPU Operator 26.7+, Dynamic Resource Allocation) | `resourceClaims` with a `ResourceClaimTemplate` (`templates/06-dra`), selected by CEL attributes |
+| `device-plugin/` | `ClusterPolicy` with the device plugin and the MIG manager | `resources.limits: nvidia.com/gpu` |
+
+In the DRA flavor there is no device plugin or MIG manager, so the GPU hardware profiles (`nvidia.com/gpu` identifiers) and the Kueue GPU quota do not apply to DRA claims. Set `dra.enabled=false` in the chart values if you go back to `device-plugin/`. You cannot migrate in place: delete the `ClusterPolicy` (or the `GPUCluster`) first. H100 with MIG (one partition of a profile, or another profile if none is left) is prepared in `dra.mig` and needs the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha).
 
 ### NVIDIA GPU partitioning
 

@@ -64,9 +64,17 @@ modelsAsService:
     service:
       port: 5432
       ssl: false
-  # Demo content (templates/13-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
+  # Demo content (templates/13-maas-demo): the simulator, a small real model on a GPU and the sample subscriptions below.
+  # Turn it off to put your own on top
   demo:
     enabled: true
+    # Real model for the GPU (ModelCar). One L4 has 24 GB: a 12B FP8 model fits with a short context. Needs a GPU node.
+    gemma:
+      enabled: true
+      name: gemma-4-12b
+      uri: oci://quay.io/alopezme/modelcar-gemma-4-12b-it-fp8-dynamic:latest
+      modelName: RedHatAI/gemma-4-12B-it-FP8-Dynamic
+      maxModelLen: 8192
   # Each entry creates a MaaSSubscription and a MaaSAuthPolicy. priority picks the default subscription when a user matches
   # several (production 100, staging 50, development 0, sandbox -10).
   configs:
@@ -83,10 +91,29 @@ modelsAsService:
         #     - limit: 100
         #       window: 1h
         # Limits count prompt and completion tokens; Open WebUI sends extra title/tags requests, so keep them generous
-        - name: tinyllama-1b
+        - name: gemma-4-12b
           tokenRateLimits:
             - limit: 100000
               window: 1h
+
+# Dynamic Resource Allocation (templates/06-dra). Needs the DRA flavor of rhoai-dependencies/operator-nvidia-gpu (GPUCluster).
+# The pods request a GPU through a ResourceClaimTemplate instead of the nvidia.com/gpu limit. false: the demo model uses the limit.
+dra:
+  enabled: true
+  # Namespaces that get the templates. Default: modelsAsService.namespace, where the demo model runs
+  namespaces: []
+  # One full GPU of this product (the only card of this cluster, matched by the productName attribute)
+  gpu:
+    templateName: gpu-l4
+    productName: NVIDIA L4
+  # H100 with MIG, for later: one partition of the preferred profile and, if none is left, the fallback.
+  # Needs MIG devices: DynamicMIG feature gate in rhoai-dependencies/operator-nvidia-gpu/dra/GPUCluster.yaml (alpha).
+  # When enabled, the demo model claims this template instead of the full GPU.
+  mig:
+    enabled: false
+    templateName: mig-h100
+    preferred: {profile: 2g.20gb, count: 1}
+    fallback: {profile: 1g.10gb, count: 2}
 
 llm_d:
   enabled: true

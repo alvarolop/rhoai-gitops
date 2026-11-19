@@ -1,0 +1,50 @@
+{{- $g := .Values.modelsAsService.demo.gemma }}
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.demo.enabled $g.enabled }}
+{{- $claim := ternary .Values.dra.mig.templateName .Values.dra.gpu.templateName .Values.dra.mig.enabled }}
+---
+apiVersion: serving.kserve.io/v1alpha2
+kind: LLMInferenceService
+metadata:
+  name: {{ $g.name }}
+  namespace: {{ .Values.modelsAsService.namespace | default "models-as-a-service" }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  model:
+    uri: {{ $g.uri }}
+    name: {{ $g.modelName }}
+  replicas: 1
+  router:
+    route: {}
+    gateway:
+      refs:
+        - name: maas-default-gateway
+          namespace: openshift-ingress
+  template:
+    {{- if .Values.dra.enabled }}
+    # The GPU comes from a ResourceClaimTemplate (06-dra) instead of the nvidia.com/gpu limit
+    resourceClaims:
+      - name: gpu
+        resourceClaimTemplateName: {{ $claim }}
+    {{- end }}
+    containers:
+      - name: main
+        env:
+          - name: VLLM_ADDITIONAL_ARGS
+            value: "--max-model-len={{ $g.maxModelLen }}"
+        resources:
+          requests:
+            cpu: "2"
+            memory: 16Gi
+          limits:
+            cpu: "4"
+            memory: 24Gi
+            {{- if not .Values.dra.enabled }}
+            nvidia.com/gpu: "1"
+            {{- end }}
+          {{- if .Values.dra.enabled }}
+          claims:
+            - name: gpu
+          {{- end }}
+{{- end }}
