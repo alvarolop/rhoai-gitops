@@ -1,0 +1,14 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: costmanagement-metrics-operator
+  namespace: costmanagement-metrics-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: costmanagement-metrics-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace

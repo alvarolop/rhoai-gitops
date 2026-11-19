@@ -1,0 +1,13 @@
+---
+# The operator only supports the OwnNamespace and SingleNamespace install modes
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: costmanagement-metrics-operator
+  namespace: costmanagement-metrics-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  targetNamespaces:
+    - costmanagement-metrics-operator
+  upgradeStrategy: Default

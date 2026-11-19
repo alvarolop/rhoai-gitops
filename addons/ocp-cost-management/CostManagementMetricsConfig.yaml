@@ -1,0 +1,29 @@
+---
+# Collects usage metrics from the OpenShift monitoring stack and uploads them to Red Hat Hybrid Cloud Console
+# (Cost Management), where the costs are viewed. It needs internet access and the cluster pull secret.
+apiVersion: costmanagement-metrics-cfg.openshift.io/v1beta1
+kind: CostManagementMetricsConfig
+metadata:
+  name: costmanagementmetricscfg
+  namespace: costmanagement-metrics-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  authentication:
+    type: token  # cluster pull secret; use service-account + secret_name if the integration cannot be created
+  packaging:
+    max_reports_to_store: 30
+    max_size_MB: 100
+  prometheus_config:
+    collect_previous_data: true
+    context_timeout: 120
+    disable_metrics_collection_cost_management: false
+    disable_metrics_collection_resource_optimization: false
+  source:
+    check_cycle: 1440
+    create_source: true  # creates the OpenShift integration; the name defaults to the cluster ID
+    name: ''
+  upload:
+    upload_cycle: 360
+    upload_toggle: true

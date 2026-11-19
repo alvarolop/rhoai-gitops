@@ -14,6 +14,7 @@ INSTALL_MONITORING=true
 INSTALL_GRAFANA=true
 INSTALL_LANGFUSE=false
 INSTALL_PIPELINES=true
+INSTALL_COST_MANAGEMENT=false  # Uploads usage to console.redhat.com (needs internet and a Red Hat account)
 INSTALL_S4=true
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g6.2xlarge
@@ -66,6 +67,7 @@ echo -e " * INSTALL_ODF: $INSTALL_ODF"
 echo -e " * INSTALL_MONITORING: $INSTALL_MONITORING"
 echo -e " * INSTALL_GRAFANA: $INSTALL_GRAFANA"
 echo -e " * INSTALL_PIPELINES: $INSTALL_PIPELINES"
+echo -e " * INSTALL_COST_MANAGEMENT: $INSTALL_COST_MANAGEMENT"
 echo -e " * INSTALL_LANGFUSE: $INSTALL_LANGFUSE"
 echo -e " * INSTALL_S4: $INSTALL_S4"
 echo -e " * CREATE_RHOAI_ENV: $CREATE_RHOAI_ENV"
@@ -237,6 +239,18 @@ if [[ "$INSTALL_PIPELINES" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
 else
     echo -e "\n⏭️  Skip OCP Pipelines installation..."
 fi 
+
+echo -e "\n💰 ====================="
+echo -e "💰 =  Cost Management  ="
+echo -e "💰 =====================\n"
+
+if [[ "$INSTALL_COST_MANAGEMENT" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+
+    echo -e "\n💰 Install the Cost Management Metrics Operator (costs are viewed in console.redhat.com)"
+    oc apply -f application-ocp-cost-management.yaml
+else
+    echo -e "\n⏭️  Skip Cost Management installation..."
+fi
 
 echo -e "\n🗂️ ======================"
 echo -e "🗂️ = S3 Storage Backends ="
