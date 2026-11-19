@@ -1,5 +1,5 @@
 # Topology Aware Scheduling disabled - uncomment below if needed to prevent SchedulingGated deadlocks
-# for GPU serving workloads. Requires topologyAwareScheduling: true in values.yaml and topology
+# for GPU serving workloads. Requires distributedWorkloads.topologyAwareScheduling: true (add it to values.yaml) and topology
 # configuration in ResourceFlavor specs.
 # See: https://kueue.sigs.k8s.io/docs/concepts/topology_aware_scheduling/
 #

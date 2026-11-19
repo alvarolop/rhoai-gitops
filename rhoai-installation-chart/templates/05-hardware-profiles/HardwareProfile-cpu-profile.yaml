@@ -29,5 +29,5 @@ spec:
   scheduling:
     type: Queue
     kueue:
-      localQueueName: {{ .Values.distributedWorkloads.defaultLocalQueueName | quote }}
+      localQueueName: "default"
 {{- end }}

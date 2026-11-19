@@ -8,7 +8,7 @@
 apiVersion: kueue.x-k8s.io/v1beta2
 kind: ClusterQueue
 metadata:
-  name: {{ .Values.distributedWorkloads.clusterQueueName }}
+  name: cluster-queue
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "1"

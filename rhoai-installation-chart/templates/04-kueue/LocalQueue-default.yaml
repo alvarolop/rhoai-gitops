@@ -7,12 +7,12 @@
 apiVersion: kueue.x-k8s.io/v1beta2
 kind: LocalQueue
 metadata:
-  name: {{ $.Values.distributedWorkloads.defaultLocalQueueName }}
+  name: default
   namespace: {{ . }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  clusterQueue: {{ $.Values.distributedWorkloads.clusterQueueName }}
+  clusterQueue: cluster-queue
 {{- end }}
 {{- end }}

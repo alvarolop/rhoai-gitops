@@ -8,7 +8,7 @@ metadata:
   labels:
     # CPU-only simulator: same queue as cpu-profile. Without the label Kueue only adds it implicitly through the
     # default LocalQueue, and it would not be queued if that queue did not exist.
-    kueue.x-k8s.io/queue-name: {{ .Values.distributedWorkloads.defaultLocalQueueName }}
+    kueue.x-k8s.io/queue-name: default
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"
