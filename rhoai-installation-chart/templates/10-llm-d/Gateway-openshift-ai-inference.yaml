@@ -18,37 +18,19 @@ spec:
       kind: ConfigMap
       name: openshift-ai-inference-service-override
   listeners:
-    # External listener - HTTPS for the Route (public hostname). The certificate comes from the service CA; the router
-    # presents its own certificate to the clients.
-    - allowedRoutes:
+    # One listener without hostname, like the gateway of OpenShift AI itself. The router (reencrypt Route) connects with
+    # the SNI of the Service, and a listener bound to a hostname resets any other SNI (HTTP 503 at the Route). The
+    # certificate comes from the service CA and also covers the in-cluster name (Nemo Guardrails, etc.).
+    - name: https
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
         namespaces:
           from: Selector
           selector:
             matchExpressions:
               - key: rhoai-serving/model
                 operator: Exists
-      hostname: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
-      name: external
-      port: 443
-      protocol: HTTPS
-      tls:
-        certificateRefs:
-          - group: ""
-            kind: Secret
-            name: openshift-ai-inference-internal-certs
-        mode: Terminate
-    # Internal listener - HTTPS for Service traffic (Nemo Guardrails, etc.)
-    - allowedRoutes:
-        namespaces:
-          from: Selector
-          selector:
-            matchExpressions:
-              - key: rhoai-serving/model
-                operator: Exists
-      hostname: openshift-ai-inference-openshift-ai-inference.openshift-ingress.svc.cluster.local
-      name: internal
-      port: 443
-      protocol: HTTPS
       tls:
         certificateRefs:
           - group: ""

@@ -14,7 +14,7 @@ metadata:
 spec:
   host: openshift-ai-inference.apps.{{ .Values.global.clusterDomain }}
   port:
-    targetPort: external
+    targetPort: 443
   to:
     kind: Service
     name: openshift-ai-inference-openshift-ai-inference

@@ -24,7 +24,8 @@ spec:
       name: maas-service-override
   listeners:
     - name: https
-      hostname: maas.apps.{{ .Values.global.clusterDomain }}
+      # No hostname: the router (reencrypt Route) connects with the SNI of the Service, and a listener bound to a
+      # hostname resets any other SNI (HTTP 503 at the Route)
       port: 443
       protocol: HTTPS
       allowedRoutes:
