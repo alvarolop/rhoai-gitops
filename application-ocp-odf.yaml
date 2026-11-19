@@ -11,7 +11,7 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: ocp-odf
+    path: addons/ocp-odf
     repoURL: https://github.com/alvarolop/rhoai-gitops.git
     targetRevision: main
     # kustomize:

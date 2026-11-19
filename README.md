@@ -110,7 +110,7 @@ If you plan to use GPU nodes on AWS, the script also prints the Service Quotas c
 Some of the components deployed in this repo are bound to an specific version of OpenShift. If you want to deploy RHOAI on an older version (For example 4.21), you have to make the following modifications:
 
 - Change the channel of ODF:
-  - In `./ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.21`.
+  - In `./addons/ocp-odf/odf-operator/sub-odf-operator.yaml`, the value of `.spec.channel` field should be `stable-4.21`.
 
 ### Let's install!!
 
