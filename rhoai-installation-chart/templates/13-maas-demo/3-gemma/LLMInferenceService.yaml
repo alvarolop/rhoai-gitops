@@ -7,6 +7,11 @@ kind: LLMInferenceService
 metadata:
   name: {{ $g.name }}
   namespace: {{ .Values.modelsAsService.namespace | default "models-as-a-service" }}
+  {{- if .Values.distributedWorkloads.enabled }}
+  labels:
+    # GPU queue of the serving workloads (04-kueue): its quota covers nvidia.com/gpu, which also counts the DRA claims
+    kueue.x-k8s.io/queue-name: serving-lq
+  {{- end }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "10"

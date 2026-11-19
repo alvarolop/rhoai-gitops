@@ -1,0 +1,23 @@
+{{- if and .Values.distributedWorkloads.enabled .Values.dra.enabled }}
+---
+# Kueue counts the DRA claims against the quota of a resource name. This maps the device class of the NVIDIA DRA driver
+# to nvidia.com/gpu, so a claim and a nvidia.com/gpu limit share the quota of the ClusterQueues (serving-cq).
+# Only this field is applied (server-side apply): the rest of the CR (integrations) is created by RHOAI.
+apiVersion: kueue.openshift.io/v1
+kind: Kueue
+metadata:
+  name: cluster
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true,SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  config:
+    resources:
+      deviceClassMappings:
+        - name: nvidia.com/gpu
+          deviceClassNames:
+            - gpu.nvidia.com
+            {{- if .Values.dra.mig.enabled }}
+            - mig.nvidia.com
+            {{- end }}
+{{- end }}
