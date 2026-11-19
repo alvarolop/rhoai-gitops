@@ -62,7 +62,7 @@ spec:
       managementState: Removed
     # MCP lifecycle operator (new in 3.5): deploys the servers of the MCP Catalog
     mcplifecycleoperator:
-      managementState: {{ if or .Values.mcp.enabled .Values.agentic.enabled }}Managed{{ else }}Removed{{ end }}
+      managementState: {{ if .Values.agentic.enabled }}Managed{{ else }}Removed{{ end }}
     modelregistry:
       managementState: {{ if .Values.modelRegistry.enabled }}Managed{{ else }}Removed{{ end }}
       registriesNamespace: rhoai-model-registries

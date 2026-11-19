@@ -69,7 +69,7 @@ spec:
     genAiTracing: true
     guardrails: {{ .Values.trustyai.enabled }}
     llmdTemplates: {{ .Values.llm_d.enabled }}
-    mcpCatalog: {{ or .Values.mcp.enabled .Values.agentic.enabled }}
+    mcpCatalog: {{ .Values.agentic.enabled }}
     promptManagement: {{ .Values.mlflow.enabled }}  # Loads prompts from the MLflow prompt registry
     toolCalling: true
     # Agentic AI (Developer Preview, except custom endpoints which are Technology Preview): see agentic in values.yaml
@@ -80,7 +80,7 @@ spec:
     # New in 3.5, disabled until needed
     externalVectorStores: false  # External vector stores for RAG
     globalProjectPrompts: false  # Global project setting for prompts in cluster settings
-    mcpRegistry: {{ or .Values.mcp.enabled .Values.agentic.enabled }}  # MCP Registry tab in the MCP Servers page
+    mcpRegistry: {{ .Values.agentic.enabled }}  # MCP Registry tab in the MCP Servers page
   # Other spec fields (3.5), unset by default:
   modelServing:
     deploymentStrategy: recreate  # rolling | recreate. Recreate avoids a second replica waiting for a GPU during updates
