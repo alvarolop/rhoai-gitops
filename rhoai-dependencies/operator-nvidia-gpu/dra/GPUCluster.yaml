@@ -1,7 +1,7 @@
 ---
 # DRA flavor: the DRA driver publishes the GPUs and MIG devices as ResourceSlices and the pods request them with
 # ResourceClaims. It replaces the ClusterPolicy (a cluster cannot have both) and has no device plugin or MIG manager.
-apiVersion: nvidia.com/v1
+apiVersion: nvidia.com/v1alpha1
 kind: GPUCluster
 metadata:
   name: gpu-cluster
