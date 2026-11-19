@@ -1,0 +1,38 @@
+{{- if and .Values.distributedWorkloads.enabled .Values.dra.enabled }}
+---
+# GPU model serving when the GPU comes from a DRA ResourceClaim (templates/06-dra, the DRA flavor of the GPU operator).
+# It has NO nvidia.com/gpu identifier on purpose: the RHOAI webhook would add that limit on top of the claim, Kueue
+# would count 2 GPUs against a quota of 1 (the DeviceClass is mapped to nvidia.com/gpu) and the pod would stay
+# SchedulingGated. The claim itself is written by the model chart (rhoai-serving, dra.enabled).
+apiVersion: infrastructure.opendatahub.io/v1
+kind: HardwareProfile
+metadata:
+  annotations:
+    opendatahub.io/dashboard-feature-visibility: '[]'
+    opendatahub.io/disabled: 'false'
+    opendatahub.io/display-name: gpu-dra-profile
+    opendatahub.io/description: GPU model serving with the GPU requested through DRA (ResourceClaim), so it has no nvidia.com/gpu resource. Queue serving-lq, same as gpu-profile. Use it only on the DRA flavor of the GPU operator.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+  name: gpu-dra-profile
+  namespace: redhat-ods-applications
+spec:
+  identifiers:
+    - defaultCount: '1'
+      displayName: CPU
+      identifier: cpu
+      maxCount: '8'
+      minCount: 1
+      resourceType: CPU
+    - defaultCount: 12Gi
+      displayName: Memory
+      identifier: memory
+      maxCount: 32Gi
+      minCount: 1Gi
+      resourceType: Memory
+  scheduling:
+    type: Queue
+    kueue:
+      localQueueName: "serving-lq"
+      priorityClass: model-critical
+{{- end }}
