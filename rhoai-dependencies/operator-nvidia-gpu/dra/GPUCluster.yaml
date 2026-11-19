@@ -9,6 +9,13 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
+  # The GPU nodes of ocp-nodes carry the nvidia.com/gpu:NoSchedule taint; without this toleration the DRA daemonsets
+  # (kubelet plugin, validator, DCGM exporter) are not scheduled and the driver upgrade controller keeps the node cordoned
+  daemonsets:
+    tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
   draDriver:
     # ComputeDomains are for multi-node NVLink systems (GB200/GB300 NVL72)
     computeDomains:
