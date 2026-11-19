@@ -1,0 +1,59 @@
+{{- if .Values.dra.enabled }}
+{{- range (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) }}
+---
+# Large: 1 whole H100 (80 GB or more). Alternatives in order, the first one that fits wins.
+#   H100 -> the full GPU;  H100 94GB in MIG mode -> 7g.94gb (the whole card as one partition).
+#   L4 only cluster -> does not schedule (there is no GPU of 80 Gi).
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: gpu-l-x1
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          firstAvailable:
+            - name: gpu-min-80gi
+              deviceClassName: gpu.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("80Gi")) >= 0
+            - name: mig-7g-94gb
+              deviceClassName: mig.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == "7g.94gb"
+{{- end }}
+{{- end }}
+#
+# ---------------------------------------------------------------------------
+# Reference: gpu-xl-x4, 4 GPUs. Not rendered: it needs tensor parallelism in the model (parallelism.tensor: 4) and
+# every alternative of the size with the same count. Copy this file, name it ResourceClaimTemplate-gpu-xl-x4.yaml
+# and set count: 4.
+# ---------------------------------------------------------------------------
+# apiVersion: resource.k8s.io/v1
+# kind: ResourceClaimTemplate
+# metadata:
+#   name: gpu-xl-x4
+# spec:
+#   spec:
+#     devices:
+#       requests:
+#         - name: gpu
+#           firstAvailable:
+#             - name: gpu-min-80gi
+#               deviceClassName: gpu.nvidia.com
+#               allocationMode: ExactCount
+#               count: 4
+#               selectors:
+#                 - cel:
+#                     expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("80Gi")) >= 0

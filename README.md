@@ -78,7 +78,7 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `03-metalLB` | IP pool for `LoadBalancer` services on bare metal |
 | `04-kueue` | Queues, flavors and priorities (reserved-spot) |
 | `05-hardware-profiles` | Hardware profiles that point to the queues |
-| `06-dra` | Dynamic Resource Allocation: `ResourceClaimTemplate`s for the GPU (full L4, and H100 MIG disabled) |
+| `06-dra` | Dynamic Resource Allocation: `ResourceClaimTemplate`s as GPU t-shirt sizes (`gpu-s-x1`, `gpu-m-x1`, `gpu-l-x1`) |
 | `07-model-registry` | Model registry |
 | `08-feature-store` | Feast feature stores |
 | `09-mlflow` | MLflow tracking server |
@@ -213,7 +213,7 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 | `dra/` (default) | `GPUCluster` + `NVIDIADriver` (GPU Operator 26.7+, Dynamic Resource Allocation) | `resourceClaims` with a `ResourceClaimTemplate` (`templates/06-dra`), selected by CEL attributes |
 | `device-plugin/` | `ClusterPolicy` with the device plugin and the MIG manager | `resources.limits: nvidia.com/gpu` |
 
-In the DRA flavor there is no device plugin or MIG manager, so the GPU hardware profiles (`nvidia.com/gpu` identifiers) and the Kueue GPU quota do not apply to DRA claims. Set `dra.enabled=false` in the chart values if you go back to `device-plugin/`. You cannot migrate in place: delete the `ClusterPolicy` (or the `GPUCluster`) first. H100 with MIG (one partition of a profile, or another profile if none is left) is prepared in `dra.mig` and needs the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha).
+In the DRA flavor there is no device plugin or MIG manager, so the GPU hardware profiles (`nvidia.com/gpu` identifiers) and the Kueue GPU quota do not apply to DRA claims. Set `dra.enabled=false` in the chart values if you go back to `device-plugin/`. You cannot migrate in place: delete the `ClusterPolicy` (or the `GPUCluster`) first. The sizes (one file each in `templates/06-dra`) fall back from a MIG partition of an H100 94GB to a full GPU, so the same definitions fit different clusters; the MIG alternatives need the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha) and are untested here (see `docs/dra-gpu.md`).
 
 ### NVIDIA GPU partitioning
 

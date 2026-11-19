@@ -1,0 +1,44 @@
+{{- if .Values.dra.enabled }}
+{{- range (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) }}
+---
+# Small: 1 GPU for small models (about 12-16 GB). Alternatives in order, the first one that fits wins, so the same
+# definition lands on different hardware in different clusters. The chosen one is the request of the allocated claim.
+#   H100 94GB with MIG -> 1g.12gb;  L4 only cluster -> last alternative (the L4).
+# MIG alternatives need MIG devices (DynamicMIG feature gate, alpha, or partitions already created); untested here.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: gpu-s-x1
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          firstAvailable:
+            - name: mig-1g-12gb
+              deviceClassName: mig.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == "1g.12gb"
+            - name: mig-2g-24gb
+              deviceClassName: mig.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == "2g.24gb"
+            - name: gpu-min-16gi
+              deviceClassName: gpu.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("16Gi")) >= 0
+{{- end }}
+{{- end }}

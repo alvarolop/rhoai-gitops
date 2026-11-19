@@ -39,7 +39,7 @@ Who makes each piece:
  pod asks:                                        pod asks:
    resources:                                       resourceClaims:
      limits:                                          - name: gpu
-       nvidia.com/gpu: 1                                resourceClaimTemplateName: gpu-l4
+       nvidia.com/gpu: 1                                resourceClaimTemplateName: gpu-m-x1
                                                     ...claim says: deviceClass + CEL selector
  You get "a GPU", a count.                        You get "a device that matches", with alternatives.
 ```
@@ -62,36 +62,47 @@ rhoai-dependencies/operator-nvidia-gpu/
 └── dra/             GPUCluster + NVIDIADriver                                 DRA flavor (default)
 
 rhoai-installation-chart/templates/
-└── 06-dra/                       ResourceClaimTemplates (full GPU; H100 MIG, off)
+└── 06-dra/                       ResourceClaimTemplates: t-shirt sizes gpu-<size>-x<count>
 ```
 
 `variants/default` points to `operator-nvidia-gpu/dra`. To go back, change that line to `operator-nvidia-gpu/device-plugin`, delete the `GPUCluster`, and set `dra.enabled: false` in the chart values.
 
-## 4. How a model uses the claim
+## 4. T-shirt sizes of GPU
 
-`gpu-l4` asks for one full GPU of the product in `dra.gpu.productName`:
+The platform defines sizes; a model asks for a size, not for hardware. The same definitions then fit different clusters. Each size is its own file in `templates/06-dra` (`ResourceClaimTemplate-gpu-<size>-x<count>.yaml`, hardcoded, not a loop over `values.yaml`); `x<count>` is the number of GPUs, as in AWS instance types:
 
-```yaml
-kind: ResourceClaimTemplate
-spec:
-  spec:
-    devices:
-      requests:
-        - name: gpu
-          exactly:
-            deviceClassName: gpu.nvidia.com
-            selectors:
-              - cel:
-                  expression: device.attributes['gpu.nvidia.com'].productName == "NVIDIA L4"
+| Template | Alternatives, in order (first one that fits wins) |
+|---|---|
+| `gpu-s-x1` | MIG `1g.12gb` → MIG `2g.24gb` → any full GPU with 16 Gi or more |
+| `gpu-m-x1` | full L4 → MIG `2g.24gb` (about 1/4 of an H100) → any full GPU with 22 Gi or more |
+| `gpu-l-x1` | full GPU with 80 Gi or more (H100) → MIG `7g.94gb` (the whole H100 in MIG mode) |
+
+```
+ model asks for gpu-m-x1
+   │
+   ├─ 1) full GPU, productName "NVIDIA L4"            ← L4 cluster: lands here
+   ├─ 2) 1 × mig.nvidia.com, profile 2g.24gb          ← H100 94GB cluster: lands here
+   └─ 3) full GPU with 22 Gi or more                  ← anything else that is big enough
 ```
 
-The models are deployed from the `rhoai-serving` repository. A model refers to the template in its pod template; there is no `nvidia.com/gpu` limit:
+Where each size lands:
+
+| Cluster | `gpu-s-x1` | `gpu-m-x1` | `gpu-l-x1` |
+|---|---|---|---|
+| L4 only (this one, 23034 Mi) | the L4 (last alternative) | the L4 | does not schedule |
+| H100 94GB with MIG | MIG `1g.12gb` | MIG `2g.24gb` | whole H100 |
+
+All the alternatives of a size give the same number of devices, so with `x1` the tensor parallelism of the model stays 1. More GPUs (`gpu-xl-x4`) need `parallelism.tensor` in the model and the same count in every alternative; a commented reference sits at the end of `ResourceClaimTemplate-gpu-l-x1.yaml`.
+
+MIG alternatives need MIG devices: the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha, the driver creates the partition when the claim is allocated) or partitions that already exist. The `GPUCluster` flavor has no MIG manager. The MIG alternatives and the H100 profiles are untested here: this cluster only has an L4.
+
+The models are deployed from the `rhoai-serving` repository. A model names the template in its pod template; there is no `nvidia.com/gpu` limit:
 
 ```yaml
 template:
   resourceClaims:
     - name: gpu
-      resourceClaimTemplateName: gpu-l4
+      resourceClaimTemplateName: gpu-m-x1
   containers:
     - name: main
       resources:
@@ -99,29 +110,18 @@ template:
           - name: gpu
 ```
 
-The scheduler allocates a device from a `ResourceSlice` that matches the CEL expression, and the kubelet plugin gives it to the container (through CDI).
+The scheduler allocates a device from a `ResourceSlice` that matches the CEL expression of the first alternative that fits, and the kubelet plugin gives it to the container (through CDI). The chosen alternative is the `request` field of the allocated `ResourceClaim` (for example `gpu/gpu-nvidia-l4`).
 
-## 5. H100 with MIG, prepared but off
+## 5. One HardwareProfile for all sizes
 
-`dra.mig` in `values.yaml` renders a template with a prioritized list. The scheduler tries the alternatives in order:
-
-```
- claim "mig-h100"
-   │
-   ├─ 1) preferred : 1 × mig.nvidia.com with profile 2g.20gb      ← tried first
-   │        └─ no such device left?
-   └─ 2) fallback  : 2 × mig.nvidia.com with profile 1g.10gb      ← used only if (1) cannot be satisfied
-```
-
-To use it, enable `dra.mig.enabled` and the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha: the driver creates the MIG device when the claim is allocated). Without `DynamicMIG` only full GPUs and MIG devices that already exist can be allocated, and the `GPUCluster` flavor has no MIG manager to create them.
-
-Caveat: one vLLM process only sees the first MIG device of its list, so the 2-partition fallback does not spread one model across partitions. It fits several single-partition replicas or a bigger profile.
+The size is chosen by the claim template, so the `HardwareProfile` does not need to know about it. `gpu-dra-profile` has only CPU and memory identifiers and the queue `serving-lq`; every size works with it. It has no `nvidia.com/gpu` identifier on purpose: the RHOAI webhook would add that limit on top of the claim and Kueue would count 2 GPUs against a quota of 1 (the pod stays `SchedulingGated`). RHOAI 3.5.3 has no DRA field in `HardwareProfile` (open upstream pull requests only); when it exists, a profile per size could point to its template.
 
 ## 6. What changes for the rest of the platform
 
-- **Hardware profiles.** The GPU `HardwareProfile`s of `05-hardware-profiles` use the `nvidia.com/gpu` identifier. There is no device plugin in the DRA flavor, so they do not match DRA devices. RHOAI 3.5.3 has no DRA field in `HardwareProfile` (open upstream pull requests only), so the claims are written by hand in the `LLMInferenceService`.
-- **Kueue.** Red Hat build of Kueue 1.5 counts DRA device quota only on OpenShift 5.0 and later. On 4.22 the `nvidia.com/gpu` quota in the ClusterQueues does not account for DRA claims.
+- **Hardware profiles.** `gpu-profile` and `gpu-batch-profile` use the `nvidia.com/gpu` identifier and do not match DRA devices (there is no device plugin). Use `gpu-dra-profile`.
+- **Kueue.** Red Hat build of Kueue 1.5 evaluates the claims. It needs the DeviceClasses mapped to a resource name (`04-kueue/Kueue.yaml` maps `gpu.nvidia.com` and `mig.nvidia.com` to `nvidia.com/gpu`), so a claim counts against the same quota as a `nvidia.com/gpu` limit and a MIG partition counts as one unit. Quota in consumable capacity (GPU memory) needs OpenShift 5.0.
 - **Metrics.** The `GPUCluster` runs its own DCGM exporter (`nvidia-dcgm-exporter-dra`) with a ServiceMonitor, so GPU metrics keep flowing.
+- **Node taint.** The GPU nodes carry `nvidia.com/gpu:NoSchedule`; the `GPUCluster` tolerates it for its daemonsets, and `gpu-flavor` of Kueue adds the toleration to the pods.
 
 ## 7. Commands to look at it
 

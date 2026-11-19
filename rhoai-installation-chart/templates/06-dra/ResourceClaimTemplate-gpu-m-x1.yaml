@@ -1,0 +1,44 @@
+{{- if .Values.dra.enabled }}
+{{- range (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) }}
+---
+# Medium: 1 GPU of about 24 GB. Alternatives in order, the first one that fits wins.
+#   L4 cluster -> the full L4;  H100 94GB with MIG -> 2g.24gb (about 1/4 of the card).
+# MIG alternatives need MIG devices (DynamicMIG feature gate, alpha, or partitions already created); untested here.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: gpu-m-x1
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          firstAvailable:
+            - name: gpu-nvidia-l4
+              deviceClassName: gpu.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].productName == "NVIDIA L4"
+            - name: mig-2g-24gb
+              deviceClassName: mig.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == "2g.24gb"
+            # Full L4 reports 23034Mi, so 22Gi accepts it and any bigger card
+            - name: gpu-min-22gi
+              deviceClassName: gpu.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("22Gi")) >= 0
+{{- end }}
+{{- end }}
