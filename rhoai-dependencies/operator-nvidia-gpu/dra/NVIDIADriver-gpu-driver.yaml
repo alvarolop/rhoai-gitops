@@ -9,4 +9,10 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   driverType: gpu
+  repository: nvcr.io/nvidia
+  image: driver
+  # Without version the operator asks for nvcr.io/nvidia/driver-rhel9:latest, which does not exist (ImagePullBackOff).
+  # This is the default driver image of GPU Operator 26.7.3 (DRIVER_IMAGE of its CSV, same as its NVIDIADriver example).
+  # It is a multi-arch index; the OpenShift driver toolkit container builds the module for the node kernel.
+  version: sha256:e243d778bd83de47668e7629d78f673317a130fedc99941be12aad7fc6bdfa85
   nodeSelector: {}
