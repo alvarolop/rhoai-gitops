@@ -84,8 +84,8 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `09-mlflow` | MLflow tracking server |
 | `10-llm-d` | Direct llm-d gateway and dashboards |
 | `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana` |
-| `12-evalhub` | EvalHub: `1-db`, `2-evalhub` |
-| `13-maas-demo` | MaaS demo content (simulator model, sample subscriptions): `1-simulator`, `2-configs` |
+| `12-maas-demo` | MaaS demo content (simulator model, sample subscriptions): `1-simulator`, `2-configs` |
+| `13-evalhub` | EvalHub: `1-db`, `2-evalhub` |
 
 ## Installation
 
