@@ -64,8 +64,8 @@ This repo configures `DataScienceCluster` in `rhoai-installation-chart/templates
 | trustyai | Bias, drift, guardrails, LM-Eval | Managed if `trustyai.enabled` |
 | feastoperator | Feast feature store | Managed if `featureStore.enabled` |
 | mlflowoperator | MLflow tracking | Managed if `mlflow.enabled` |
-| ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `ogx.enabled` |
-| mcplifecycleoperator | Deploys the MCP servers of the dashboard's MCP Catalog and Registry | Managed if `mcp.enabled` |
+| ogx | OGX (formerly Llama Stack) RAG/agent APIs. `llamastackoperator` is deprecated and kept `Removed` | Managed if `ogx.enabled` or `agentic.enabled` |
+| mcplifecycleoperator | Deploys the MCP servers of the dashboard's MCP Catalog and Registry | Managed if `mcp.enabled` or `agentic.enabled` |
 
 ### Chart layout
 
@@ -358,6 +358,25 @@ The stores are ephemeral, which is fine for short-lived clusters. To keep them i
 Each project is an MLflow workspace. From a workbench, `pip install "mlflow[kubernetes]>=3.11"` and `MLFLOW_TRACKING_AUTH=kubernetes-namespaced` are enough. The chart only grants access in `models-as-a-service`; other projects need the `mlflow-operator-mlflow-edit` ClusterRole bound to their users.
 
 - Documentation: [Working with MLflow](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_mlflow/installing-mlflow_mlflow).
+
+### Agentic AI
+
+`agentic.enabled` turns on, in one flag, what RHOAI 3.5 ships for agents. Most of it is **Developer Preview** (not supported in any way) and the rest **Technology Preview**, so it is on for demo clusters; set it to `false` for anything else.
+
+| What | Where | Support in 3.5 |
+|---|---|---|
+| Agents Catalog (AI hub → Agents), agent starter kits (LangGraph, CrewAI, LlamaIndex…) | `OdhDashboardConfig.agentsCatalog` | Developer Preview |
+| Save a Gen AI Studio playground as a named agent (model, parameters, MLflow prompts, RAG sources, MCP servers), stored in the project | `agentConfigManagement` | Developer Preview |
+| Agent Ops in Gen AI Studio, and the list of running agents deployed as OpenShell `Sandbox` CRs | `agentOps` | Developer Preview |
+| Custom endpoints for AI assets (Gen AI Studio → AI asset endpoints → Create endpoint) | `aiAssetCustomEndpoints` | Technology Preview |
+| OGX and the MCP lifecycle operator (the playground agents need them), MCP Catalog and Registry | `ogx` and `mcplifecycleoperator` Managed, `mcpCatalog`, `mcpRegistry` | Technology Preview (MCP) |
+
+The agents work with `mlflow.enabled` (prompts) and `trustyai.enabled` (guardrails). Not included on purpose:
+
+- **OpenShell** (secure agent sandboxes): it is deployed with Helm from the upstream [agent-ops](https://github.com/opendatahub-io/agent-ops) repository, not from the operator.
+- **MCP gateway operator** (governed gateway for tool calls, Technology Preview): an external operator, `mcp-gateway` in the `redhat-operators` catalog, installed and upgraded separately.
+- **`mcpGuardrailsMode`** of the TrustyAI component: it only says "enables the mcp-guardrails overlay"; it stays `false` until it is documented.
+- **External vector stores** (`externalVectorStores`): about RAG, not agents.
 
 ## Monitoring, Safety and Evaluation
 

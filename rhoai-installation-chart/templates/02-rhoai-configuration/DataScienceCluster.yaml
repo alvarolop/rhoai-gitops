@@ -62,14 +62,14 @@ spec:
       managementState: Removed
     # MCP lifecycle operator (new in 3.5): deploys the servers of the MCP Catalog
     mcplifecycleoperator:
-      managementState: {{ if .Values.mcp.enabled }}Managed{{ else }}Removed{{ end }}
+      managementState: {{ if or .Values.mcp.enabled .Values.agentic.enabled }}Managed{{ else }}Removed{{ end }}
     modelregistry:
       managementState: {{ if .Values.modelRegistry.enabled }}Managed{{ else }}Removed{{ end }}
       registriesNamespace: rhoai-model-registries
     mlflowoperator:
       managementState: {{ if .Values.mlflow.enabled }}Managed{{ else }}Removed{{ end }}
     ogx:
-      managementState: {{ if .Values.ogx.enabled }}Managed{{ else }}Removed{{ end }}
+      managementState: {{ if or .Values.ogx.enabled .Values.agentic.enabled }}Managed{{ else }}Removed{{ end }}
     ray:
       managementState: Managed
     sparkoperator:

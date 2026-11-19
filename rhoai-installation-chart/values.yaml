@@ -28,6 +28,11 @@ ogx:
 mcp:
   enabled: true
 
+# Agentic AI of OpenShift AI 3.5 (Developer Preview, not supported): Agents Catalog, saved agents and Agent Ops in Gen AI Studio,
+# and custom AI asset endpoints. It also turns on ogx and mcp, which the playground agents need.
+agentic:
+  enabled: true
+
 # Models-as-a-Service: aigateway.modelsAsAService plus the maas-default-gateway GatewayClass
 modelsAsService:
   enabled: true

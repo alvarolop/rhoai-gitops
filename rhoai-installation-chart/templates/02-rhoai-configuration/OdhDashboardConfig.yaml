@@ -69,17 +69,18 @@ spec:
     genAiTracing: true
     guardrails: {{ .Values.trustyai.enabled }}
     llmdTemplates: {{ .Values.llm_d.enabled }}
-    mcpCatalog: {{ .Values.mcp.enabled }}
+    mcpCatalog: {{ or .Values.mcp.enabled .Values.agentic.enabled }}
     promptManagement: {{ .Values.mlflow.enabled }}  # Loads prompts from the MLflow prompt registry
     toolCalling: true
+    # Agentic AI (Developer Preview, except custom endpoints which are Technology Preview): see agentic in values.yaml
+    agentConfigManagement: {{ .Values.agentic.enabled }}  # Save playground configurations as named agents
+    agentOps: {{ .Values.agentic.enabled }}  # Agent Ops in Gen AI Studio
+    agentsCatalog: {{ .Values.agentic.enabled }}  # Agents Catalog page (AI hub -> Agents)
+    aiAssetCustomEndpoints: {{ .Values.agentic.enabled }}  # Custom endpoints for AI assets
     # New in 3.5, disabled until needed
-    agentConfigManagement: false  # Agent configuration management in Gen AI Studio
-    agentOps: false  # Agent Ops in Gen AI Studio
-    agentsCatalog: false  # Agents Catalog page
-    aiAssetCustomEndpoints: false  # Custom endpoints for AI assets
     externalVectorStores: false  # External vector stores for RAG
     globalProjectPrompts: false  # Global project setting for prompts in cluster settings
-    mcpRegistry: {{ .Values.mcp.enabled }}  # MCP Registry tab in the MCP Servers page
+    mcpRegistry: {{ or .Values.mcp.enabled .Values.agentic.enabled }}  # MCP Registry tab in the MCP Servers page
   # Other spec fields (3.5), unset by default:
   modelServing:
     deploymentStrategy: recreate  # rolling | recreate. Recreate avoids a second replica waiting for a GPU during updates
