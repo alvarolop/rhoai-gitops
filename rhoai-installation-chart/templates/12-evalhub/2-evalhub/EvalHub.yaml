@@ -17,14 +17,27 @@ spec:
 {{- else }}
     type: sqlite  # in memory: lost when the pod restarts
 {{- end }}
+  # All the providers and collections that the operator ships
   providers:
-  {{- range .Values.evalHub.providers }}
-    - {{ . }}
-  {{- end }}
+    - lm-evaluation-harness
+    - garak
+    - garak-kfp
+    - guidellm
+    - lighteval
+    - deepeval
+    - inspect
+    - ragas
+    - ibm-clear
   collections:
-  {{- range .Values.evalHub.collections }}
-    - {{ . }}
-  {{- end }}
+    - safety-and-fairness-v1
+    - standard-llm-evals-v1
+    - leaderboard-v2
+    - reasoning-v1
+    - instruction-following-v1
+    - coding-v1
+    - long-context-v1
+    - toxicity-and-ethical-principles
+    - model-validation
   # otel:
   #   exporterEndpoint: data-science-collector.redhat-ods-monitoring.svc:4317
   #   exporterInsecure: true

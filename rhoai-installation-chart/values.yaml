@@ -130,40 +130,11 @@ trustyai:
 evalHub:
   enabled: true
   namespace: rhoai-evalhub  # the 3.4.0 dashboard only found EvalHub in redhat-ods-applications; go back there if it does not show up
-  # All the providers and collections that the operator ships
-  providers:
-    - lm-evaluation-harness
-    - garak
-    - garak-kfp
-    - guidellm
-    - lighteval
-    - deepeval
-    - inspect
-    - ragas
-    - ibm-clear
-  collections:
-    - safety-and-fairness-v1
-    - standard-llm-evals-v1
-    - leaderboard-v2
-    - reasoning-v1
-    - instruction-following-v1
-    - coding-v1
-    - long-context-v1
-    - toxicity-and-ethical-principles
-    - model-validation
-  # true: this PostgreSQL, which keeps the jobs across restarts; false: in-memory SQLite
+  # true: its own PostgreSQL (rhoai-evalhub-db), which keeps the jobs across restarts; false: in-memory SQLite
   postgresql:
     enabled: true
-    namespace: rhoai-evalhub-db
-    name: evalhub-postgresql
-    image: registry.redhat.io/rhel9/postgresql-15:latest
-    connection:
-      database: evalhub
-      user: evalhub
-      password: SecurePassword123
-      storageSize: 10Gi
-    service:
-      port: 5432
+    password: SecurePassword123  # Change for production
+    storageSize: 10Gi
 
 # Feast: each enabled example creates a FeatureStore (see the README)
 featureStore:

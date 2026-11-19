@@ -3,40 +3,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.evalHub.postgresql.name }}
-  namespace: {{ .Values.evalHub.postgresql.namespace }}
+  name: evalhub-postgresql
+  namespace: rhoai-evalhub-db
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.evalHub.postgresql.name }}
+      app: evalhub-postgresql
   template:
     metadata:
       labels:
-        app: {{ .Values.evalHub.postgresql.name }}
+        app: evalhub-postgresql
     spec:
       containers:
-        - name: {{ .Values.evalHub.postgresql.name }}
-          image: {{ .Values.evalHub.postgresql.image }}
+        - name: evalhub-postgresql
+          image: registry.redhat.io/rhel9/postgresql-15:latest
           ports:
-            - containerPort: {{ .Values.evalHub.postgresql.service.port }}
+            - containerPort: 5432
           env:
             - name: POSTGRESQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.evalHub.postgresql.name }}-credentials
+                  name: evalhub-postgresql-credentials
                   key: POSTGRES_DB
             - name: POSTGRESQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.evalHub.postgresql.name }}-credentials
+                  name: evalhub-postgresql-credentials
                   key: POSTGRES_USER
             - name: POSTGRESQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.evalHub.postgresql.name }}-credentials
+                  name: evalhub-postgresql-credentials
                   key: POSTGRES_PASSWORD
           volumeMounts:
             - name: postgres-storage
@@ -44,5 +44,5 @@ spec:
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
-            claimName: {{ .Values.evalHub.postgresql.name }}-data
+            claimName: evalhub-postgresql-data
 {{- end }}

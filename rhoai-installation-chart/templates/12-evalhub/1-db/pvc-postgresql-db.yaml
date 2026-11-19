@@ -3,8 +3,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.evalHub.postgresql.name }}-data
-  namespace: {{ .Values.evalHub.postgresql.namespace }}
+  name: evalhub-postgresql-data
+  namespace: rhoai-evalhub-db
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
@@ -12,5 +12,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.evalHub.postgresql.connection.storageSize }}
+      storage: {{ .Values.evalHub.postgresql.storageSize }}
 {{- end }}
