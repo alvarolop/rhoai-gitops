@@ -2,7 +2,7 @@
 ---
 # GPU batch and training workloads when the GPU comes from a DRA ResourceClaim (templates/06-dra). Same as
 # gpu-dra-profile but on the spot queue. No nvidia.com/gpu identifier on purpose: the RHOAI webhook would add that limit
-# on top of the claim and Kueue would count the GPU twice (see docs/dra-gpu.md).
+# on top of the claim and Kueue would count the GPU twice (see docs/gpu-dra.md).
 apiVersion: infrastructure.opendatahub.io/v1
 kind: HardwareProfile
 metadata:

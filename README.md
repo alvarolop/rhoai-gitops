@@ -213,7 +213,7 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 | `dra/` (default) | `GPUCluster` + `NVIDIADriver` (GPU Operator 26.7+, Dynamic Resource Allocation) | `resourceClaims` with a `ResourceClaimTemplate` (`templates/06-dra`), selected by CEL attributes |
 | `device-plugin/` | `ClusterPolicy` with the device plugin and the MIG manager | `resources.limits: nvidia.com/gpu` |
 
-In the DRA flavor there is no device plugin or MIG manager, so the GPU hardware profiles (`nvidia.com/gpu` identifiers) and the Kueue GPU quota do not apply to DRA claims. Set `dra.enabled=false` in the chart values if you go back to `device-plugin/`. You cannot migrate in place: delete the `ClusterPolicy` (or the `GPUCluster`) first. The sizes (one file each in `templates/06-dra`) fall back from a MIG partition of an H100 94GB to a full GPU, so the same definitions fit different clusters; the MIG alternatives need the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha) and are untested here (see `docs/dra-gpu.md`).
+In the DRA flavor there is no device plugin or MIG manager, so the GPU hardware profiles (`nvidia.com/gpu` identifiers) and the Kueue GPU quota do not apply to DRA claims. Set `dra.enabled=false` in the chart values if you go back to `device-plugin/`. You cannot migrate in place: delete the `ClusterPolicy` (or the `GPUCluster`) first. The sizes (one file each in `templates/06-dra`) fall back from a MIG partition of an H100 94GB to a full GPU, so the same definitions fit different clusters; the MIG alternatives need the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha) and are untested here (see `docs/gpu-dra.md`).
 
 ### NVIDIA GPU partitioning
 
@@ -272,7 +272,7 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
 
 `serving-cq` and `batch-cq` share the cohort `gpu-cluster`. Four `WorkloadPriorityClass` objects (`model-critical`, `model-standard`, `batch-interactive`, `batch-nightly`) order work inside each queue.
 
-- **Quotas** are written in each ClusterQueue file of `templates/04-kueue` (`ClusterQueue-cluster-queue.yaml`, `ClusterQueue-serving.yaml`, `ClusterQueue-batch.yaml`). They fit one AWS `g6.2xlarge` node (1x NVIDIA L4, no MIG). The H100/MIG configuration is kept commented at the end of the same files, see [README-MIG.md](docs/README-MIG.md).
+- **Quotas** are written in each ClusterQueue file of `templates/04-kueue` (`ClusterQueue-cluster-queue.yaml`, `ClusterQueue-serving.yaml`, `ClusterQueue-batch.yaml`). They fit one AWS `g6.2xlarge` node (1x NVIDIA L4, no MIG). The H100/MIG configuration is kept commented at the end of the same files, see [gpu-mig.md](docs/gpu-mig.md).
 - **LocalQueues:** HardwareProfiles are global, so the LocalQueue they name has to exist in every namespace that deploys with them, and RHOAI only creates `default` (pointing to `cluster-queue`) in new dashboard projects. This chart creates `default`, `serving-lq` and `batch-lq` in the namespaces listed in `distributedWorkloads.localQueueNamespaces` (`models-as-a-service` by default). For any other namespace, its owner (for example the repo that deploys the models) must create the namespace with the label below and the same three LocalQueues:
 
   ```bash
