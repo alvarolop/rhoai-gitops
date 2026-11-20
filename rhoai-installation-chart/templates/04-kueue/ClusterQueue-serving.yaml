@@ -22,17 +22,22 @@ spec:
   preemption:
     reclaimWithinCohort: Any
     withinClusterQueue: LowerPriority
+  # NOTE: the quota is deliberately far above the real hardware (100 GPUs, not the 1-4 of the cluster), so it never has
+  # to be edited when GPUs or nodes are added: the real limit is the scheduler. Trade-off: Kueue never lacks quota for
+  # a model, so it never preempts batch-cq. A running batch job that borrowed the GPUs is NOT evicted when a model
+  # arrives: the model pod stays Pending until the job ends. For the reserved-spot guarantee to work, set the quota
+  # to the real number of GPUs (and CPU/memory) and raise borrowingLimit in batch-cq to match.
   resourceGroups:
     - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
       flavors:
         - name: "gpu-flavor"
           resources:
             - name: "cpu"
-              nominalQuota: "6"
+              nominalQuota: "1000"
             - name: "memory"
-              nominalQuota: "24Gi"
+              nominalQuota: "4000Gi"
             - name: "nvidia.com/gpu"
-              nominalQuota: "1"
+              nominalQuota: "100"
 #
 # ---------------------------------------------------------------------------
 # Reference: NVIDIA H100 with MIG (mixed strategy). Replacement resourceGroups. Not rendered: remove the leading "# " to use it.
