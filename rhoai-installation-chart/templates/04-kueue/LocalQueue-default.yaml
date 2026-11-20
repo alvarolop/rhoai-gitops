@@ -2,7 +2,7 @@
 {{- range .Values.distributedWorkloads.localQueueNamespaces }}
 ---
 # LocalQueues are the namespaced handle that HardwareProfiles (and the kueue.x-k8s.io/queue-name label) point to.
-# LocalQueue of the general-purpose cluster-queue. HardwareProfile cpu-profile points to it and it is the queue Kueue's
+# LocalQueue of the general-purpose default-cq. HardwareProfile cpu-profile points to it and it is the queue Kueue's
 # webhook assigns by default.
 apiVersion: kueue.x-k8s.io/v1beta2
 kind: LocalQueue
@@ -13,6 +13,6 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  clusterQueue: cluster-queue
+  clusterQueue: default-cq
 {{- end }}
 {{- end }}

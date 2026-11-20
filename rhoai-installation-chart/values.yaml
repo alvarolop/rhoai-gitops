@@ -11,7 +11,7 @@ global:
 modelRegistry:
   enabled: true
 
-# Kueue queues (templates/04-kueue): cluster-queue (workbenches, CPU), serving-cq (models) and batch-cq (jobs on spot GPU).
+# Kueue queues (templates/04-kueue): default-cq (workbenches, CPU), serving-cq (models) and batch-cq (jobs on spot GPU).
 # The quotas are in each ClusterQueue file, sized for a test cluster with one GPU (g6.2xlarge) and three 15.5 CPU / 58 GiB workers.
 distributedWorkloads:
   enabled: true

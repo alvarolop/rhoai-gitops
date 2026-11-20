@@ -54,7 +54,7 @@ spec:
       # false (default): the operator creates no queues; they are defined in templates/04-kueue/. The two default
       # names below are only used when this is true.
       autoCreateQueues: false
-      defaultClusterQueueName: cluster-queue
+      defaultClusterQueueName: default-cq
       defaultLocalQueueName: default
       managementState: {{ if .Values.distributedWorkloads.enabled }}Unmanaged{{ else }}Removed{{ end }}
     # Llama Stack was renamed to OGX in RHOAI 3.5. llamastackoperator is deprecated and kept Removed so only OGX runs.
