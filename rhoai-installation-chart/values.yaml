@@ -16,9 +16,10 @@ modelRegistry:
 distributedWorkloads:
   enabled: true
   # Namespaces that get the LocalQueues (default, serving-lq, batch-lq). Each one must already exist and carry the label
-  # kueue.openshift.io/managed=true (this chart sets it on models-as-a-service).
+  # kueue.openshift.io/managed=true (this chart sets it on models-as-a-service and, with training.enabled, on rhoai-training: if you turn training off, remove it from this list).
   localQueueNamespaces:
     - models-as-a-service
+    - rhoai-training
 
 # OGX (formerly Llama Stack): the server behind the Gen AI Studio playground (RAG, vector stores, agents). This chart always
 # enables Gen AI Studio, so keep it on.
@@ -29,6 +30,11 @@ ogx:
 # and Registry), Agents Catalog, saved agents and Agent Ops in Gen AI Studio, and custom AI asset endpoints.
 # The playground agents need ogx on.
 agentic:
+  enabled: true
+
+# Training with Kubeflow Trainer v2 (TrainJob): enables the trainer component and creates the rhoai-training project,
+# a Kueue namespace; its LocalQueues come from distributedWorkloads.localQueueNamespaces. The jobs are not part of the chart.
+training:
   enabled: true
 
 # Models-as-a-Service: aigateway.modelsAsAService plus the maas-default-gateway GatewayClass

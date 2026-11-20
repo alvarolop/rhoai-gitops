@@ -1,0 +1,18 @@
+{{- if .Values.training.enabled }}
+---
+# Project for training jobs. It is a dashboard project (opendatahub.io/dashboard) and a Kueue namespace
+# (kueue.openshift.io/managed), so its jobs are admitted through the LocalQueues of 04-kueue: default (CPU, default-cq)
+# and batch-lq (GPU borrowed from the pool, batch-cq). It is listed in distributedWorkloads.localQueueNamespaces, which creates its LocalQueues.
+# The jobs themselves (TrainJob) are not part of the chart.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rhoai-training
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    openshift.io/display-name: RHOAI - Training
+    openshift.io/description: Training jobs (Kubeflow Trainer) admitted through Kueue
+  labels:
+    opendatahub.io/dashboard: 'true'
+    kueue.openshift.io/managed: 'true'
+{{- end }}
