@@ -86,6 +86,7 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana` |
 | `12-maas-demo` | MaaS demo content (simulator model, sample subscriptions): `1-simulator`, `2-configs` |
 | `13-evalhub` | EvalHub: `1-db`, `2-evalhub` |
+| `14-training` | `rhoai-training` project for training jobs, enabled with `training.enabled` (Kubeflow Trainer v2): Kueue namespace with its LocalQueues, no jobs. See [docs/training-options.md](docs/training-options.md) |
 
 ## Installation
 
@@ -290,7 +291,7 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
   ```
 
   Add such a namespace to the list only if it already exists with the label, otherwise the sync of the chart fails.
-- **Namespaces** must carry `kueue.openshift.io/managed=true` or Kueue ignores them. The dashboard adds it to new projects when Kueue is enabled; projects created with GitOps need to set it (this chart does for `models-as-a-service`).
+- **Namespaces** must carry `kueue.openshift.io/managed=true` or Kueue ignores them. The dashboard adds it to new projects when Kueue is enabled; projects created with GitOps need to set it (this chart does for `models-as-a-service` and `rhoai-training`).
 - **Priority:** in RHOAI 3.5 the HardwareProfile `priorityClass` was not applied to an `LLMInferenceService` (only the queue label was, so its Workload got priority 0). Set the label `kueue.x-k8s.io/priority-class: model-critical` on the workload itself.
 - **Kueue CR:** with `kueue: Unmanaged` the RHOAI operator creates the `Kueue` CR itself, including the frameworks RHOAI needs (Ray, PyTorchJob, TrainJob, ...). It is not managed here. Gang scheduling uses the Red Hat build of Kueue 1.5 default (`ByWorkloadDefaults`, 30 minute readiness timeout).
 - Keep batch jobs small and restartable: Kueue preempts a whole Workload, and an evicted Job restarts from the beginning unless it checkpoints.
