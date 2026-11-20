@@ -76,6 +76,7 @@ The platform defines sizes; a model asks for a size, not for hardware. The same 
 | `gpu-s-x1` | MIG `1g.12gb` → MIG `2g.24gb` → any full GPU with 16 Gi or more |
 | `gpu-m-x1` | full L4 → MIG `2g.24gb` (about 1/4 of an H100) → any full GPU with 22 Gi or more |
 | `gpu-l-x1` | full GPU with 80 Gi or more (H100) → MIG `7g.94gb` (the whole H100 in MIG mode) |
+| `gpu-xl-x1` | full GPU with 140 Gi or more (B200, H200) → MIG `7g.180gb` → MIG `7g.141gb`; fits Llama 70B in BF16 |
 
 ```
  model asks for gpu-m-x1
@@ -87,10 +88,11 @@ The platform defines sizes; a model asks for a size, not for hardware. The same 
 
 Where each size lands:
 
-| Cluster | `gpu-s-x1` | `gpu-m-x1` | `gpu-l-x1` |
-|---|---|---|---|
-| L4 only (this one, 23034 Mi) | the L4 (last alternative) | the L4 | does not schedule |
-| H100 94GB with MIG | MIG `1g.12gb` | MIG `2g.24gb` | whole H100 |
+| Cluster | `gpu-s-x1` | `gpu-m-x1` | `gpu-l-x1` | `gpu-xl-x1` |
+|---|---|---|---|---|
+| L4 only (this one, 23034 Mi) | the L4 (last alternative) | the L4 | does not schedule | does not schedule |
+| H100 94GB with MIG | MIG `1g.12gb` | MIG `2g.24gb` | whole H100 | does not schedule |
+| B200 / H200 | any full GPU (last alternative) | any full GPU | whole GPU | whole GPU |
 
 All the alternatives of a size give the same number of devices, so with `x1` the tensor parallelism of the model stays 1. More GPUs (`gpu-xl-x4`) need `parallelism.tensor` in the model and the same count in every alternative; a commented reference sits at the end of `ResourceClaimTemplate-gpu-l-x1.yaml`.
 

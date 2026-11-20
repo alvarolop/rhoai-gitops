@@ -1,0 +1,44 @@
+{{- if .Values.dra.enabled }}
+{{- range (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) }}
+---
+# Extra large: 1 whole GPU with 140 Gi or more, enough for Llama 70B in BF16 (about 130 Gi of weights) or a
+# big model with a long context. Alternatives in order, the first one that fits wins.
+#   B200 (180 GB) or H200 (141 GB) -> the full GPU;  same cards in MIG mode -> 7g.180gb / 7g.141gb (the whole card).
+#   L4 or H100 clusters -> does not schedule (no GPU of 140 Gi). For Llama 70B in FP8 (about 70 Gi) use gpu-l-x1.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: gpu-xl-x1
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          firstAvailable:
+            - name: gpu-min-140gi
+              deviceClassName: gpu.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("140Gi")) >= 0
+            - name: mig-7g-180gb
+              deviceClassName: mig.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == "7g.180gb"
+            - name: mig-7g-141gb
+              deviceClassName: mig.nvidia.com
+              allocationMode: ExactCount
+              count: 1
+              selectors:
+                - cel:
+                    expression: device.attributes['gpu.nvidia.com'].profile == "7g.141gb"
+{{- end }}
+{{- end }}

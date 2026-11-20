@@ -78,7 +78,7 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `03-metalLB` | IP pool for `LoadBalancer` services on bare metal |
 | `04-kueue` | Queues, flavors and priorities (reserved-spot) |
 | `05-hardware-profiles` | Hardware profiles that point to the queues |
-| `06-dra` | Dynamic Resource Allocation: `ResourceClaimTemplate`s as GPU t-shirt sizes (`gpu-s-x1`, `gpu-m-x1`, `gpu-l-x1`) |
+| `06-dra` | Dynamic Resource Allocation: `ResourceClaimTemplate`s as GPU t-shirt sizes (`gpu-s-x1`, `gpu-m-x1`, `gpu-l-x1`, `gpu-xl-x1`) |
 | `07-model-registry` | Model registry |
 | `08-feature-store` | Feast feature stores |
 | `09-mlflow` | MLflow tracking server |
