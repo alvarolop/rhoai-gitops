@@ -43,27 +43,26 @@ modelsAsService:
   # Demo content (templates/12-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
   demo:
     enabled: true
+  # Subscriptions for models that live outside this chart (for example the ones from rhoai-serving). Empty by default: a
+  # subscription whose MaaSModelRef does not exist ends Failed and the dashboard warns "Models as a Service could not be loaded".
   # Each entry creates a MaaSSubscription and a MaaSAuthPolicy. priority picks the default subscription when a user matches
   # several (production 100, staging 50, development 0, sandbox -10).
-  configs:
-    - name: basic-models
-      displayName: "Basic Models"
-      description: "Basic subscription for demo models"
-      priority: 50
-      groups:
-        - cluster-admins
-      models:
-        # # Simple string format (no rate limits)
-        # - name: granite-3-3-2b-instruct
-        #   tokenRateLimits:
-        #     - limit: 100
-        #       window: 1h
-        # Limits count prompt and completion tokens; Open WebUI sends extra title/tags requests, so keep them generous
-        # Model deployed from rhoai-serving (values-gemma-4-12b-it-fp8-dynamic.yaml); the name is its MaaSModelRef
-        - name: gemma-4-12b-it-fp8-dynamic
-          tokenRateLimits:
-            - limit: 100000
-              window: 1h
+  configs: []
+  # configs:
+  #   - name: basic-models
+  #     displayName: "Basic Models"
+  #     description: "Basic subscription for demo models"
+  #     priority: 50
+  #     groups:
+  #       - cluster-admins
+  #     models:
+  #       # Simple string format (no rate limits)
+  #       - granite-3-3-2b-instruct
+  #       # With rate limits. They count prompt and completion tokens; Open WebUI sends extra title/tags requests, so keep them generous
+  #       - name: gemma-4-12b-it-fp8-dynamic   # the name of its MaaSModelRef
+  #         tokenRateLimits:
+  #           - limit: 100000
+  #             window: 1h
 
 # Dynamic Resource Allocation (templates/06-dra). Needs the DRA flavor of rhoai-dependencies/operator-nvidia-gpu (GPUCluster).
 # The pods request a GPU through a ResourceClaimTemplate instead of the nvidia.com/gpu limit (the models come from rhoai-serving).
