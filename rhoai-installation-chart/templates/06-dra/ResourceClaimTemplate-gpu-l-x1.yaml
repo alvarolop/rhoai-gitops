@@ -1,7 +1,7 @@
 {{- if .Values.dra.enabled }}
 {{- range (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) }}
 ---
-# Large: 1 whole H100 (80 GB or more). Alternatives in order, the first one that fits wins.
+# Large: 1 whole H100 (80 GB or more; it reports 79.6 Gi, hence the 78Gi threshold). Alternatives in order, the first one that fits wins.
 #   H100 -> the full GPU;  H100 94GB in MIG mode -> 7g.94gb (the whole card as one partition).
 #   L4 only cluster -> does not schedule (there is no GPU of 80 Gi).
 apiVersion: resource.k8s.io/v1
@@ -18,13 +18,13 @@ spec:
       requests:
         - name: gpu
           firstAvailable:
-            - name: gpu-min-80gi
+            - name: gpu-min-78gi
               deviceClassName: gpu.nvidia.com
               allocationMode: ExactCount
               count: 1
               selectors:
                 - cel:
-                    expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("80Gi")) >= 0
+                    expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("78Gi")) >= 0
             - name: mig-7g-94gb
               deviceClassName: mig.nvidia.com
               allocationMode: ExactCount
@@ -50,10 +50,10 @@ spec:
 #       requests:
 #         - name: gpu
 #           firstAvailable:
-#             - name: gpu-min-80gi
+#             - name: gpu-min-78gi
 #               deviceClassName: gpu.nvidia.com
 #               allocationMode: ExactCount
 #               count: 4
 #               selectors:
 #                 - cel:
-#                     expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("80Gi")) >= 0
+#                     expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("78Gi")) >= 0
