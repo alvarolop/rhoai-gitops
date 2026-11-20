@@ -3,7 +3,7 @@
 # The Kuadrant operator checks for the Gateway API provider (Istio) only when it starts. On a new cluster it starts
 # before the provider exists (the Ingress operator installs it when the first GatewayClass appears), so Kuadrant stays
 # MissingDependency and no AuthPolicy or TokenRateLimitPolicy is accepted. This hook waits for the provider and
-# restarts the operator only in that case. Without the problem it changes nothing.
+# restarts the operator (deleting its pod) only in that case. Without the problem it changes nothing.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -37,7 +37,8 @@ spec:
 
               if [ "$(reason)" = "MissingDependency" ]; then
                 echo "Kuadrant started before the provider: restarting the operator"
-                oc rollout restart deployment/$OP -n $NS
+                # Delete the pod: OLM owns the Deployment and reverts a "rollout restart" annotation, so no new pod starts
+                oc delete pod -n $NS -l app=kuadrant,control-plane=controller-manager
                 oc rollout status deployment/$OP -n $NS --timeout=300s
                 for i in $(seq 1 30); do [ "$(reason)" = "Ready" ] && break; sleep 10; done
               fi
