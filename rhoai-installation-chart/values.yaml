@@ -46,7 +46,7 @@ modelsAsService:
     enabled: true
     password: SecurePassword123  # Change for production
     storageSize: 20Gi
-  # Demo content (templates/12-maas-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
+  # Demo content (templates/11-maas/5-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
   demo:
     enabled: true
   # Subscriptions for models that live outside this chart (for example the ones from rhoai-serving). Empty by default: a
