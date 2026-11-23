@@ -83,10 +83,9 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `08-feature-store` | Feast feature stores |
 | `09-mlflow` | MLflow tracking server |
 | `10-llm-d` | Direct llm-d gateway and dashboards |
-| `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana` |
-| `12-maas-demo` | MaaS demo content (simulator model, sample subscriptions): `1-simulator`, `2-configs` |
-| `13-evalhub` | EvalHub: `1-db`, `2-evalhub` |
-| `14-training` | `rhoai-training` project for training jobs, enabled with `training.enabled` (Kubeflow Trainer v2): Kueue namespace with its LocalQueues, no jobs. See [docs/training-options.md](docs/training-options.md) |
+| `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana`, `5-demo` (demo content: simulator model and sample subscriptions, `1-simulator`, `2-configs`), `6-keycloak` (second tenant that authenticates against Keycloak) |
+| `12-evalhub` | EvalHub: `1-db`, `2-evalhub` |
+| `13-training` | `rhoai-training` project for training jobs, enabled with `training.enabled` (Kubeflow Trainer v2): Kueue namespace with its LocalQueues, no jobs. See [docs/training-options.md](docs/training-options.md) |
 
 ## Installation
 
@@ -103,7 +102,7 @@ Edit the toggles at the top of `auto-install.sh` to skip steps you do not need. 
 3. *(Optional)* Installs OpenShift Pipelines (`INSTALL_PIPELINES`), the Cost Management Metrics Operator (`INSTALL_COST_MANAGEMENT`, off by default: it uploads usage to [console.redhat.com](https://console.redhat.com) Cost Management, which needs internet and a Red Hat account, and creates an OpenShift integration named after the cluster ID; see `addons/ocp-cost-management`) and S3 storage: S4 (`INSTALL_S4`, default) and Silo (`INSTALL_SILO`, off by default). Buckets are created in S4, including a playground bucket when `CREATE_RHOAI_ENV=true`.
 4. *(Optional)* Installs ODF in MCG mode (`INSTALL_ODF`, off by default) or OpenShift user-workload monitoring (`INSTALL_MONITORING`, on by default, see [Metrics and user-workload monitoring](#metrics-and-user-workload-monitoring)).
 5. Waits for GPU nodes when `GPU_NODE_COUNT` > 0, then installs RHOAI via `application-rhoai-installation.yaml` (operator + Helm chart defaults: model registry, distributed workloads, TrustyAI, Feast, MLflow, OGX, llm-d, and related settings).
-6. *(Optional)* Installs Keycloak with a MaaS realm (`INSTALL_KEYCLOAK`, via `application-keycloak.yaml` from [keycloak-playground](https://github.com/alvarolop/keycloak-playground)) and, in the RHOAI installation, turns on the second MaaS tenant `maas-keycloak` (`modelsAsService.keycloak`, `templates/11-maas/5-keycloak`): its own Gateway, its own models namespace (`rhoai-models-oidc`, with LocalQueues and DRA claim templates; `models-as-a-service` is not touched), and users that sign in with Keycloak tokens instead of OpenShift identities. Technology Preview in RHOAI 3.5.
+6. *(Optional)* Installs Keycloak with a MaaS realm (`INSTALL_KEYCLOAK`, via `application-keycloak.yaml` from [keycloak-playground](https://github.com/alvarolop/keycloak-playground)) and, in the RHOAI installation, turns on the second MaaS tenant `maas-keycloak` (`modelsAsService.keycloak`, `templates/11-maas/6-keycloak`): its own Gateway, its own models namespace (`rhoai-models-oidc`, with LocalQueues and DRA claim templates; `models-as-a-service` is not touched), and users that sign in with Keycloak tokens instead of OpenShift identities. Technology Preview in RHOAI 3.5.
 7. *(Optional)* Deploys the RHOAI Playground project (`CREATE_RHOAI_ENV`, with its pipelines storage pointing to S4) and Langfuse when `INSTALL_LANGFUSE` is enabled.
 
 If you plan to use GPU nodes on AWS, the script also prints the Service Quotas commands to request and check the Running On-Demand G and VT instances limit.
