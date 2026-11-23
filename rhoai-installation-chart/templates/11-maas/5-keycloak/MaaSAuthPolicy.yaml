@@ -1,0 +1,30 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
+{{- $t := .Values.modelsAsService.keycloak }}
+{{- range $t.configs }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSAuthPolicy
+metadata:
+  name: {{ .name }}-policy
+  namespace: ai-tenant-{{ $t.tenantName }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "6"
+spec:
+  modelRefs:
+  {{- range .models }}
+    {{- if kindIs "string" . }}
+    - name: {{ . }}
+      namespace: {{ $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+    {{- else }}
+    - name: {{ .name }}
+      namespace: {{ .namespace | default $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+    {{- end }}
+  {{- end }}
+  subjects:
+    groups:
+    {{- range .groups }}
+      - name: {{ . }}
+    {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,20 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
+{{- $t := .Values.modelsAsService.keycloak }}
+---
+# Same as 2-gateway/cm-maas-service-override.yaml, for the tenant Gateway: the service CA issues the certificate of the
+# listener and the Service is ClusterIP (the Route below is the entry point).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $t.tenantName }}-service-override
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+data:
+  service: |
+    metadata:
+      annotations:
+        service.beta.openshift.io/serving-cert-secret-name: "{{ $t.tenantName }}-internal-certs"
+    spec:
+      type: ClusterIP
+{{- end }}

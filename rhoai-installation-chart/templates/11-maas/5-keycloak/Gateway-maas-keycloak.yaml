@@ -1,0 +1,48 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
+{{- $t := .Values.modelsAsService.keycloak }}
+---
+# Dedicated Gateway of the second MaaS tenant. Each AITenant needs its own Gateway; the default tenant keeps
+# maas-default-gateway. Required annotations (RHOAI 3.5 multi-tenancy): opendatahub.io/managed "false" and
+# security.opendatahub.io/authorino-tls-bootstrap "true".
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ $t.tenantName }}
+  namespace: openshift-ingress
+  labels:
+    kuadrant.io/gateway: "true"
+    app.kubernetes.io/name: maas-gateway
+    app.kubernetes.io/part-of: {{ $t.tenantName }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+    opendatahub.io/managed: "false"
+    security.opendatahub.io/authorino-tls-bootstrap: "true"
+    networking.istio.io/service-type: ClusterIP
+spec:
+  gatewayClassName: {{ $t.gatewayClassName }}
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ $t.tenantName }}-service-override
+  listeners:
+    - name: https
+      # No hostname, like maas-default-gateway: a listener bound to a hostname resets any other SNI (HTTP 503 at the Route)
+      port: 443
+      protocol: HTTPS
+      # Only the namespaces labelled maas.opendatahub.io/gateway-access-<tenant>=true can attach routes (the infrastructure
+      # namespace and the model namespaces). "from: All" would let any namespace hijack the model paths (RHOAIENG-80360).
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              maas.opendatahub.io/gateway-access-{{ $t.tenantName }}: "true"
+      tls:
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: {{ $t.tenantName }}-internal-certs
+        mode: Terminate
+{{- end }}

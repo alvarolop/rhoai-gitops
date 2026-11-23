@@ -70,6 +70,37 @@ modelsAsService:
   #           - limit: 100000
   #             window: 1h
 
+  # Second MaaS tenant (Technology Preview in RHOAI 3.5): its own Gateway and hostname, and its users sign in with an
+  # external OIDC provider (Keycloak) instead of OpenShift identities. The default tenant (models-as-a-service) is not touched.
+  # A model joins the tenant with MaaSModelRef spec.tenantRef (rhoai-serving: serving.maas.tenant).
+  keycloak:
+    enabled: false
+    # AITenant name, also the Gateway name. DNS-1123, at most 41 characters. The controller creates the namespace ai-tenant-<name>
+    tenantName: maas-keycloak
+    # GatewayClass of the tenant Gateway. The doc asks for "openshift-default", which this cluster does not have: the class this
+    # chart already creates for the default MaaS gateway (same controller) is reused. Change it if the AITenant stays Pending.
+    gatewayClassName: maas-default-gateway
+    # Route host of the tenant gateway. Empty = <tenantName>.apps.<global.clusterDomain>
+    host: ""
+    oidc:
+      # Empty = https://keycloak-ingress-keycloak.apps.<global.clusterDomain>/realms/maas (the route the Keycloak operator creates)
+      issuerUrl: ""
+      # Client registered in Keycloak for MaaS (not the dashboard client data-science-gateway). The token needs the groups claim
+      clientId: maas
+      # Seconds the signing keys (JWKS) are cached: default 300, minimum 30
+      ttl: 300
+    # Subscriptions of the tenant, same shape as modelsAsService.configs. groups are the Keycloak group names exactly as they
+    # appear in the token (for example acme-support, not acme/acme-support). They are created in ai-tenant-<tenantName>.
+    configs: []
+    # configs:
+    #   - name: acme-support
+    #     groups: [acme-support]
+    #     models:
+    #       - name: gemma-4-12b-it-fp8-dynamic   # MaaSModelRef with tenantRef: maas-keycloak
+    #         tokenRateLimits:
+    #           - limit: 10000
+    #             window: 1h
+
 # Dynamic Resource Allocation (templates/06-dra). Needs the DRA flavor of rhoai-dependencies/operator-nvidia-gpu (GPUCluster).
 # The pods request a GPU through a ResourceClaimTemplate instead of the nvidia.com/gpu limit (the models come from rhoai-serving).
 # The GPU t-shirt sizes (gpu-s-x1, gpu-m-x1, gpu-l-x1, gpu-xl-x1, gpu-xl-x2) are one file each in templates/06-dra.

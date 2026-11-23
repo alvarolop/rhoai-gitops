@@ -1,0 +1,28 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
+{{- $t := .Values.modelsAsService.keycloak }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ $t.tenantName }}
+  namespace: openshift-ingress
+  labels:
+    app.kubernetes.io/name: maas-gateway
+    app.kubernetes.io/part-of: {{ $t.tenantName }}
+    gateway.networking.k8s.io/gateway-name: {{ $t.tenantName }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    router.openshift.io/service-ca-certificate: "true"
+spec:
+  host: {{ $t.host | default (printf "%s.apps.%s" $t.tenantName .Values.global.clusterDomain) }}
+  to:
+    kind: Service
+    # <gateway>-<gatewayClass>, the name the Gateway controller gives the Service
+    name: {{ $t.tenantName }}-{{ $t.gatewayClassName }}
+    weight: 100
+  port:
+    targetPort: 443
+  tls:
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}

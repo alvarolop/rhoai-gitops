@@ -1,0 +1,22 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
+{{- $t := .Values.modelsAsService.keycloak }}
+---
+# Second MaaS tenant (Technology Preview in RHOAI 3.5). The controller creates the namespace ai-tenant-<name>, a maas-api
+# of its own in redhat-ai-gateway-infra, the gateway-scoped AuthPolicy and the tenant-admin Roles (no RoleBindings).
+# Without spec.oidc a tenant would use OpenShift TokenReview; with it, Keycloak tokens are validated against the issuer.
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: AITenant
+metadata:
+  name: {{ $t.tenantName }}
+  namespace: ai-tenants
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  gateway:
+    name: {{ $t.tenantName }}
+  oidc:
+    issuerUrl: {{ $t.oidc.issuerUrl | default (printf "https://keycloak-ingress-keycloak.apps.%s/realms/maas" .Values.global.clusterDomain) | quote }}
+    clientId: {{ $t.oidc.clientId | quote }}
+    ttl: {{ $t.oidc.ttl }}
+{{- end }}
