@@ -1,0 +1,119 @@
+---
+# Keycloak with only the MaaS realm. The chart lives in https://github.com/alvarolop/keycloak-playground (keycloak-chart): it
+# installs the Keycloak operator, a PostgreSQL and the Keycloak instance. Passing `realms` replaces the list of realms of the
+# chart (a Helm list is not merged), so the demo and openshift-ai realms of the playground are not created here.
+#
+# The realm holds what the second MaaS tenant needs (rhoai-installation-chart, modelsAsService.keycloak):
+#   - client "maas": the clientId of AITenant.spec.oidc. The token carries the groups claim and the audience "maas".
+#   - the Acme teams as groups (the claim is the team name, for example acme-support) and some users to try them.
+# Demo credentials: every password is the username.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: keycloak
+  name: keycloak
+  namespace: openshift-gitops
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/alvarolop/keycloak-playground.git
+    targetRevision: main
+    path: keycloak-chart
+    helm:
+      values: |
+        global:
+          clusterDomain: $CLUSTER_DOMAIN
+
+        realms:
+          - name: maas
+            displayName: MaaS Realm
+            clients:
+              - name: maas
+                redirectUris:
+                  - "http://localhost:8080/*"
+                protocolMappers:
+                  # MaaS authorizes by the groups of the token: the names must match MaaSSubscription/MaaSAuthPolicy exactly
+                  - name: groups
+                    protocol: openid-connect
+                    protocolMapper: oidc-group-membership-mapper
+                    consentRequired: false
+                    config:
+                      claim.name: groups
+                      full.path: "false"
+                      id.token.claim: "true"
+                      access.token.claim: "true"
+                      userinfo.token.claim: "true"
+                  # Tokens requested with this client carry it as audience
+                  - name: maas-audience
+                    protocol: openid-connect
+                    protocolMapper: oidc-audience-mapper
+                    consentRequired: false
+                    config:
+                      included.client.audience: maas
+                      id.token.claim: "true"
+                      access.token.claim: "true"
+            groups:
+              - name: acme
+                displayName: Acme Corp
+                subGroups:
+                  - name: acme-support
+                    displayName: Acme Customer Support team
+                  - name: acme-engineering
+                    displayName: Acme Engineering team
+            users:
+              - username: support-lead
+                password: support-lead
+                firstName: Sara
+                lastName: Support
+                email: support-lead@acme.example.com
+                emailVerified: true
+                enabled: true
+                createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+                groups:
+                  - acme/acme-support
+              - username: support-agent
+                password: support-agent
+                firstName: Sam
+                lastName: Agent
+                email: support-agent@acme.example.com
+                emailVerified: true
+                enabled: true
+                createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+                groups:
+                  - acme/acme-support
+              - username: eng-lead
+                password: eng-lead
+                firstName: Eva
+                lastName: Engineer
+                email: eng-lead@acme.example.com
+                emailVerified: true
+                enabled: true
+                createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+                groups:
+                  - acme/acme-engineering
+              - username: eng-dev
+                password: eng-dev
+                firstName: Dan
+                lastName: Developer
+                email: eng-dev@acme.example.com
+                emailVerified: true
+                enabled: true
+                createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+                groups:
+                  - acme/acme-engineering
+              # Authenticates but belongs to no team: valid token, empty list of models
+              - username: outsider
+                password: outsider
+                firstName: Olga
+                lastName: Outsider
+                email: outsider@example.com
+                emailVerified: true
+                enabled: true
+                createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false

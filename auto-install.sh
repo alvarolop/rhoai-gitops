@@ -16,6 +16,7 @@ INSTALL_LANGFUSE=false
 INSTALL_PIPELINES=true
 INSTALL_COST_MANAGEMENT=false  # Uploads usage to console.redhat.com (needs internet and a Red Hat account)
 INSTALL_S4=true
+INSTALL_KEYCLOAK=true  # Keycloak with the MaaS realm and the second MaaS tenant that authenticates against it (Technology Preview)
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g6.2xlarge
 AWS_DEFAULT_REGION=eu-central-1
@@ -70,6 +71,7 @@ echo -e " * INSTALL_PIPELINES: $INSTALL_PIPELINES"
 echo -e " * INSTALL_COST_MANAGEMENT: $INSTALL_COST_MANAGEMENT"
 echo -e " * INSTALL_LANGFUSE: $INSTALL_LANGFUSE"
 echo -e " * INSTALL_S4: $INSTALL_S4"
+echo -e " * INSTALL_KEYCLOAK: $INSTALL_KEYCLOAK"
 echo -e " * CREATE_RHOAI_ENV: $CREATE_RHOAI_ENV"
 echo -e " * REQUIRED_MEMORY_Gi: $REQUIRED_MEMORY_Gi"
 echo -e "====================\n"
@@ -392,6 +394,28 @@ else
     echo "⏭️  Skip waiting for NVIDIA gpu nodes..."
 fi
 
+echo -e "\n🔐 ======================"
+echo -e "🔐 =  Keycloak (MaaS)   ="
+echo -e "🔐 ======================\n"
+
+# The MaaS realm is also what turns on the second MaaS tenant (modelsAsService.keycloak) in the RHOAI installation below
+if [[ "$INSTALL_KEYCLOAK" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
+    MAAS_KEYCLOAK_ENABLED=true
+
+    echo -e "1️⃣ Trigger the ArgoCD application to install Keycloak with the MaaS realm (github.com/alvarolop/keycloak-playground)"
+    cat application-keycloak.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    envsubst | oc apply -f -
+
+    echo -e "\n2️⃣ Waiting for the Keycloak route created by the operator..."
+    until oc get route -n keycloak -l 'app=keycloak' -o name 2>/dev/null | grep -q route; do echo "⏳ Waiting... (press q to skip)"; wait_with_skip 10 && break; done
+    KEYCLOAK_HOST=$(oc get route -n keycloak -l 'app=keycloak' -o jsonpath='{.items[0].spec.host}' 2>/dev/null || true)
+    echo -e "\t✅ Keycloak: https://${KEYCLOAK_HOST:-<pending>} (realm maas, users support-lead, support-agent, eng-lead, eng-dev, outsider: password = username)"
+else
+    MAAS_KEYCLOAK_ENABLED=false
+    echo "⏭️  Skip installation of Keycloak..."
+fi
+
 echo -e "\n🤖 ======================"
 echo -e "🤖 = RHOAI Installation ="
 echo -e "🤖 ======================\n"
@@ -403,6 +427,7 @@ cat application-rhoai-installation.yaml | \
 CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
 MLFLOW_S3_ENABLED=$MLFLOW_S3_ENABLED S4_NAMESPACE=$S4_NAMESPACE S4_S3_REGION=$S4_S3_REGION \
 S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
+MAAS_KEYCLOAK_ENABLED=$MAAS_KEYCLOAK_ENABLED \
 envsubst | oc apply -f -
 
 echo -e "\n⏰ Wait 15 seconds for resources to be created"
