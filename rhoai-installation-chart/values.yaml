@@ -83,7 +83,10 @@ modelsAsService:
     # Route host of the tenant gateway. Empty = <tenantName>.apps.<global.clusterDomain>
     host: ""
     # Namespace for the models of this tenant, created here with the Kueue and gateway-access labels. It also gets the LocalQueues
-    # and the DRA claim templates, so models-as-a-service stays as it is. Deploy the models there (rhoai-serving: namespace.name)
+    # and the DRA claim templates, so models-as-a-service stays as it is. Deploy the models there (rhoai-serving: namespace.name).
+    # It is separate from ai-tenant-<tenantName>, which the MaaS controller creates and owns (MaasTenantConfig, subscriptions,
+    # policies, tenant Roles): the workloads run here and join the tenant through MaaSModelRef spec.tenantRef. If the models do
+    # not show up in /maas-api/v1/models, the fallback in the RHOAI 3.5 docs is to run them in ai-tenant-<tenantName> itself.
     modelsNamespace: rhoai-models-oidc
     oidc:
       # Empty = https://keycloak-ingress-keycloak.apps.<global.clusterDomain>/realms/maas (the route the Keycloak operator creates)
