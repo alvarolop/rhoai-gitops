@@ -44,7 +44,7 @@ Plan for this repo: **fine-tuning of a small model on GPU with `TrainJob`**, and
 `training.enabled` in `values.yaml` (default `true`):
 
 - `trainer` `Managed` in the `DataScienceCluster` (`trainingoperator` is always `Removed`).
-- The `rhoai-training` project (`templates/14-training`): a dashboard project and a Kueue namespace (`kueue.openshift.io/managed=true`).
+- The `rhoai-training` project (`templates/13-training`): a dashboard project and a Kueue namespace (`kueue.openshift.io/managed=true`).
 - Its LocalQueues `default`, `serving-lq` and `batch-lq`, from `distributedWorkloads.localQueueNamespaces`. If you turn training off, remove `rhoai-training` from that list or the sync fails.
 
 Which queue to use:
