@@ -9,7 +9,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "-2"
   {{- if .Values.modelsAsService.keycloak.enabled }}
   labels:
-    # Lets the HTTPRoute of the maas-api of the Keycloak tenant attach to its gateway (5-keycloak)
+    # Lets the HTTPRoute of the maas-api of the Keycloak tenant attach to its gateway (6-keycloak)
     maas.opendatahub.io/gateway-access-{{ .Values.modelsAsService.keycloak.tenantName }}: "true"
   {{- end }}
 {{- end }}
