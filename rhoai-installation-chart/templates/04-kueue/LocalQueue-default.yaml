@@ -1,5 +1,5 @@
 {{- if .Values.distributedWorkloads.enabled }}
-{{- range .Values.distributedWorkloads.localQueueNamespaces }}
+{{- range (concat .Values.distributedWorkloads.localQueueNamespaces (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray)) }}
 ---
 # LocalQueues are the namespaced handle that HardwareProfiles (and the kueue.x-k8s.io/queue-name label) point to.
 # LocalQueue of the general-purpose default-cq. HardwareProfile cpu-profile points to it and it is the queue Kueue's

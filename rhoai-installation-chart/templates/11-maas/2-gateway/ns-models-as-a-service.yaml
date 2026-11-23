@@ -11,8 +11,4 @@ metadata:
     opendatahub.io/dashboard: 'true'
     rhoai-serving/model: 'true'
     kueue.openshift.io/managed: 'true'
-    {{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
-    # Lets the HTTPRoutes of the models attach to the gateway of the Keycloak tenant (5-keycloak)
-    maas.opendatahub.io/gateway-access-{{ .Values.modelsAsService.keycloak.tenantName }}: "true"
-    {{- end }}
     evalhub.trustyai.opendatahub.io/tenant: ""  # Enable EvalHub tenant auto-provisioning (MLflow RBAC + job ServiceAccount)

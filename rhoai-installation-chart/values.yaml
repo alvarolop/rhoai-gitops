@@ -82,6 +82,9 @@ modelsAsService:
     gatewayClassName: maas-default-gateway
     # Route host of the tenant gateway. Empty = <tenantName>.apps.<global.clusterDomain>
     host: ""
+    # Namespace for the models of this tenant, created here with the Kueue and gateway-access labels. It also gets the LocalQueues
+    # and the DRA claim templates, so models-as-a-service stays as it is. Deploy the models there (rhoai-serving: namespace.name)
+    modelsNamespace: rhoai-models-oidc
     oidc:
       # Empty = https://keycloak-ingress-keycloak.apps.<global.clusterDomain>/realms/maas (the route the Keycloak operator creates)
       issuerUrl: ""
@@ -96,7 +99,7 @@ modelsAsService:
     #   - name: acme-support
     #     groups: [acme-support]
     #     models:
-    #       - name: gemma-4-12b-it-fp8-dynamic   # MaaSModelRef with tenantRef: maas-keycloak
+    #       - name: gemma-4-12b-it-fp8-dynamic   # MaaSModelRef with tenantRef: maas-keycloak, in modelsNamespace
     #         tokenRateLimits:
     #           - limit: 10000
     #             window: 1h

@@ -1,5 +1,5 @@
 {{- if .Values.dra.enabled }}
-{{- range (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) }}
+{{- range (concat (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray)) }}
 ---
 # Extra large: 1 whole GPU with 140 Gi or more, enough for Llama 70B in BF16 (about 130 Gi of weights) or a
 # big model with a long context. Alternatives in order, the first one that fits wins.

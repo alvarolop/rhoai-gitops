@@ -1,5 +1,5 @@
 {{- if .Values.distributedWorkloads.enabled }}
-{{- range .Values.distributedWorkloads.localQueueNamespaces }}
+{{- range (concat .Values.distributedWorkloads.localQueueNamespaces (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray)) }}
 ---
 # LocalQueues are the namespaced handle that HardwareProfiles (and the kueue.x-k8s.io/queue-name label) point to.
 # LocalQueue of batch-cq (borrows idle GPU). HardwareProfile gpu-batch-profile points to it.

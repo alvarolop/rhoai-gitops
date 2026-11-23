@@ -15,10 +15,10 @@ spec:
   {{- range .models }}
     {{- if kindIs "string" . }}
     - name: {{ . }}
-      namespace: {{ $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+      namespace: {{ $t.modelsNamespace }}
     {{- else }}
     - name: {{ .name }}
-      namespace: {{ .namespace | default $.Values.modelsAsService.namespace | default "models-as-a-service" }}
+      namespace: {{ .namespace | default $t.modelsNamespace }}
     {{- end }}
   {{- end }}
   subjects:

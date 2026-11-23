@@ -67,3 +67,15 @@ Create the name of the service account to use
 {{- $suffix := randAlphaNum 36 | lower -}}
 {{- printf "%s-%s" $base $suffix -}}
 {{- end -}}
+
+{{/*
+Namespace of the models of the Keycloak MaaS tenant (modelsAsService.keycloak.modelsNamespace) as a JSON list, empty when the
+tenant is off. It gets the Kueue LocalQueues and the DRA claim templates like models-as-a-service does.
+*/}}
+{{- define "rhoai-installation-chart.keycloakModelsNamespaces" -}}
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled -}}
+{{- list .Values.modelsAsService.keycloak.modelsNamespace | toJson -}}
+{{- else -}}
+[]
+{{- end -}}
+{{- end }}
