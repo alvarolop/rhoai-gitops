@@ -57,12 +57,9 @@ spec:
                       access.token.claim: "true"
             groups:
               - name: acme
-                displayName: Acme Corp
                 subGroups:
                   - name: acme-support
-                    displayName: Acme Customer Support team
                   - name: acme-engineering
-                    displayName: Acme Engineering team
             users:
               - username: support-lead
                 password: support-lead
