@@ -1,5 +1,4 @@
-{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
-{{- $t := .Values.modelsAsService.keycloak }}
+{{- $t := .Values }}
 {{- range $t.configs }}
 ---
 apiVersion: maas.opendatahub.io/v1alpha1
@@ -26,5 +25,4 @@ spec:
     {{- range .groups }}
       - name: {{ . }}
     {{- end }}
-{{- end }}
 {{- end }}

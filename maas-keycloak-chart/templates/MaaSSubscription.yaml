@@ -1,5 +1,4 @@
-{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
-{{- $t := .Values.modelsAsService.keycloak }}
+{{- $t := .Values }}
 {{- range $t.configs }}
 ---
 # Created in the tenant namespace. The admission webhook rejects it until the controller has created the MaasTenantConfig
@@ -40,5 +39,4 @@ spec:
       - name: {{ . }}
     {{- end }}
   priority: {{ .priority | default 0 }}
-{{- end }}
 {{- end }}

@@ -1,5 +1,4 @@
-{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
-{{- $t := .Values.modelsAsService.keycloak }}
+{{- $t := .Values }}
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -25,4 +24,3 @@ spec:
   tls:
     termination: reencrypt
     insecureEdgeTerminationPolicy: Redirect
-{{- end }}

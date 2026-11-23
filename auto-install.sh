@@ -398,7 +398,8 @@ echo -e "\n🔐 ======================"
 echo -e "🔐 =  Keycloak (MaaS)   ="
 echo -e "🔐 ======================\n"
 
-# The MaaS realm is also what turns on the second MaaS tenant (modelsAsService.keycloak) in the RHOAI installation below
+# The MaaS realm is also what turns on the second MaaS tenant: the namespace for its models in the RHOAI installation below
+# (modelsAsService.keycloak) and the tenant itself in its own Application (application-maas-keycloak.yaml), after the RHOAI installation
 if [[ "$INSTALL_KEYCLOAK" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     MAAS_KEYCLOAK_ENABLED=true
 
@@ -453,6 +454,15 @@ if [[ "$CREATE_RHOAI_ENV" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then
     envsubst | oc apply -f -
 else
     echo "⏭️  Skip creation of RHOAI Playground environment..."
+fi
+
+if [[ "$MAAS_KEYCLOAK_ENABLED" == "true" ]]; then
+    echo -e "🔐 Trigger the ArgoCD application of the second MaaS tenant (AITenant maas-keycloak, own Gateway, Keycloak sign-in)"
+    cat application-maas-keycloak.yaml | \
+    CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
+    envsubst | oc apply -f -
+else
+    echo "⏭️  Skip the second MaaS tenant (requires INSTALL_KEYCLOAK)..."
 fi
 
 if [[ "$INSTALL_LANGFUSE" =~ ^([Tt]rue|[Yy]es|[1])$ ]] && [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then

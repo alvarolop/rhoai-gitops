@@ -1,0 +1,49 @@
+# Second MaaS tenant (Technology Preview in RHOAI 3.5), deployed by its own Argo CD Application (application-maas-keycloak.yaml)
+# so that a problem here cannot block or degrade rhoai-installation. The default tenant (models-as-a-service) is not touched.
+# What it needs from rhoai-installation: the namespace modelsNamespace with its LocalQueues and DRA claim templates
+# (modelsAsService.keycloak.enabled there) and MaaS itself. A model joins the tenant with MaaSModelRef spec.tenantRef
+# (rhoai-serving: serving.maas.tenant).
+
+global:
+  # DNS segment after apps. in the route hostnames (for example ocp.sandbox3642.opentlc.com)
+  clusterDomain: ""
+
+# AITenant name, also the Gateway name. DNS-1123, at most 41 characters. The controller creates the namespace ai-tenant-<name>
+tenantName: maas-keycloak
+
+# GatewayClass of the tenant Gateway. The doc asks for "openshift-default", which this cluster does not have: the class that
+# rhoai-installation creates for the default MaaS gateway (same controller) is reused. Change it if the AITenant stays Pending.
+gatewayClassName: maas-default-gateway
+
+# Route host of the tenant gateway. Empty = <tenantName>.apps.<global.clusterDomain>
+host: ""
+
+# Namespaces whose HTTPRoutes can attach to the tenant Gateway: the one of the maas-api (created by the AI Gateway operator)
+# and the one of the models of this tenant (created by rhoai-installation, modelsAsService.keycloak.modelsNamespace).
+# The models namespace is separate from ai-tenant-<tenantName>, which the MaaS controller creates and owns (MaasTenantConfig,
+# subscriptions, policies, tenant Roles): the workloads run in modelsNamespace and join the tenant through spec.tenantRef.
+# If the models do not show up in /maas-api/v1/models, the fallback in the RHOAI 3.5 docs is to run them in ai-tenant-<tenantName>.
+infraNamespace: redhat-ai-gateway-infra
+modelsNamespace: rhoai-models-oidc
+
+oidc:
+  # Empty = https://keycloak-ingress-keycloak.apps.<global.clusterDomain>/realms/maas (the route the Keycloak operator creates)
+  issuerUrl: ""
+  # Client registered in Keycloak for MaaS (not the dashboard client data-science-gateway). The token needs the groups claim
+  clientId: maas
+  # Seconds the signing keys (JWKS) are cached: default 300, minimum 30
+  ttl: 300
+
+# Subscriptions of the tenant. groups are the Keycloak group names exactly as they appear in the token (for example acme-support,
+# not acme/acme-support). They are created in ai-tenant-<tenantName>. Empty by default: a subscription whose MaaSModelRef does
+# not exist ends Failed.
+configs: []
+# configs:
+#   - name: acme-support
+#     groups: [acme-support]
+#     priority: 0
+#     models:
+#       - name: gemma-4-12b-it-fp8-dynamic   # MaaSModelRef with tenantRef: maas-keycloak, in modelsNamespace
+#         tokenRateLimits:
+#           - limit: 10000
+#             window: 1h

@@ -2,9 +2,9 @@
 {{- $t := .Values.modelsAsService.keycloak }}
 ---
 # Namespace for the models of the Keycloak tenant, apart from models-as-a-service (the default tenant keeps its own).
-# The gateway-access label lets the HTTPRoutes of the models attach to the tenant Gateway; the other labels are the ones
-# of a model namespace (dashboard project, rhoai-serving model, Kueue). Its LocalQueues and DRA claim templates are created
-# by 04-kueue and 06-dra through the helper keycloakModelsNamespaces.
+# The labels are the ones of a model namespace (dashboard project, rhoai-serving model, Kueue). Its LocalQueues and DRA claim
+# templates are created by 04-kueue and 06-dra through the helper keycloakModelsNamespaces. The tenant itself (Gateway, Route,
+# AITenant, subscriptions) is NOT in this chart: it is the maas-keycloak-chart, with its own Application.
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -17,5 +17,4 @@ metadata:
     opendatahub.io/dashboard: 'true'
     rhoai-serving/model: 'true'
     kueue.openshift.io/managed: 'true'
-    maas.opendatahub.io/gateway-access-{{ $t.tenantName }}: "true"
 {{- end }}

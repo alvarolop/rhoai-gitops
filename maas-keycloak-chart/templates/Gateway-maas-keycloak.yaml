@@ -1,5 +1,4 @@
-{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
-{{- $t := .Values.modelsAsService.keycloak }}
+{{- $t := .Values }}
 ---
 # Dedicated Gateway of the second MaaS tenant. Each AITenant needs its own Gateway; the default tenant keeps
 # maas-default-gateway. Required annotations (RHOAI 3.5 multi-tenancy): opendatahub.io/managed "false" and
@@ -31,18 +30,23 @@ spec:
       # No hostname, like maas-default-gateway: a listener bound to a hostname resets any other SNI (HTTP 503 at the Route)
       port: 443
       protocol: HTTPS
-      # Only the namespaces labelled maas.opendatahub.io/gateway-access-<tenant>=true can attach routes (the infrastructure
-      # namespace and the model namespaces). "from: All" would let any namespace hijack the model paths (RHOAIENG-80360).
+      # Only the maas-api namespace and the models namespace of this tenant can attach routes ("from: All" would let any
+      # namespace hijack the model paths, RHOAIENG-80360). The doc selects them with a label of its own
+      # (maas.opendatahub.io/gateway-access-<tenant>); matching kubernetes.io/metadata.name, which every namespace already
+      # has, gives the same result without touching any existing namespace.
       allowedRoutes:
         namespaces:
           from: Selector
           selector:
-            matchLabels:
-              maas.opendatahub.io/gateway-access-{{ $t.tenantName }}: "true"
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - {{ $t.infraNamespace }}
+                  - {{ $t.modelsNamespace }}
       tls:
         certificateRefs:
           - group: ""
             kind: Secret
             name: {{ $t.tenantName }}-internal-certs
         mode: Terminate
-{{- end }}

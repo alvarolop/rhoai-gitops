@@ -40,7 +40,8 @@ spec:
               accessKey: "$S4_S3_ACCESS_KEY"
               secretKey: "$S4_S3_SECRET_KEY"
         
-        # Second MaaS tenant that authenticates against Keycloak (INSTALL_KEYCLOAK in auto-install.sh)
+        # Models namespace of the second MaaS tenant that authenticates against Keycloak (INSTALL_KEYCLOAK in auto-install.sh).
+        # The tenant itself is application-maas-keycloak.yaml
         modelsAsService:
           keycloak:
             enabled: $MAAS_KEYCLOAK_ENABLED

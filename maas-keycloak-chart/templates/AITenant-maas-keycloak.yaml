@@ -1,5 +1,4 @@
-{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
-{{- $t := .Values.modelsAsService.keycloak }}
+{{- $t := .Values }}
 ---
 # Second MaaS tenant (Technology Preview in RHOAI 3.5). The controller creates the namespace ai-tenant-<name>, a maas-api
 # of its own in redhat-ai-gateway-infra, the gateway-scoped AuthPolicy and the tenant-admin Roles (no RoleBindings).
@@ -19,4 +18,3 @@ spec:
     issuerUrl: {{ $t.oidc.issuerUrl | default (printf "https://keycloak-ingress-keycloak.apps.%s/realms/maas" .Values.global.clusterDomain) | quote }}
     clientId: {{ $t.oidc.clientId | quote }}
     ttl: {{ $t.oidc.ttl }}
-{{- end }}
