@@ -14,10 +14,10 @@ spec:
   {{- range .models }}
     {{- if kindIs "string" . }}
     - name: {{ . }}
-      namespace: {{ $t.modelsNamespace }}
+      namespace: ai-tenant-{{ $t.tenantName }}
     {{- else }}
     - name: {{ .name }}
-      namespace: {{ .namespace | default $t.modelsNamespace }}
+      namespace: {{ .namespace | default (printf "ai-tenant-%s" $t.tenantName) }}
     {{- end }}
   {{- end }}
   subjects:

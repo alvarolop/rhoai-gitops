@@ -70,14 +70,14 @@ modelsAsService:
   #           - limit: 100000
   #             window: 1h
 
-  # Models namespace of the second MaaS tenant (Technology Preview in RHOAI 3.5), the one that authenticates against Keycloak.
-  # Only the namespace and what hangs from it are here: its Kueue LocalQueues and the DRA claim templates, like the other model
-  # namespaces. The tenant itself (Gateway, Route, AITenant, subscriptions) is the maas-keycloak-chart, deployed by its own
-  # Argo CD Application so that it cannot block or degrade this one. Models of the tenant run in modelsNamespace
-  # (rhoai-serving: namespace.name) and join it with MaaSModelRef spec.tenantRef (serving.maas.tenant).
+  # Namespace of the second MaaS tenant (Technology Preview in RHOAI 3.5), the one that authenticates against Keycloak. It is
+  # ai-tenant-<tenantName>, the name the MaaS controller gives an AITenant, created here (like models-as-a-service for the default
+  # tenant) together with its Kueue LocalQueues and the DRA claim templates. The models of the tenant run in it. The tenant itself
+  # (Gateway, Route, AITenant, subscriptions) is the maas-keycloak-chart, deployed by its own Argo CD Application so that it cannot
+  # block or degrade this one. tenantName must be the same in both charts.
   keycloak:
     enabled: false
-    modelsNamespace: rhoai-models-oidc
+    tenantName: maas-keycloak
 
 # Dynamic Resource Allocation (templates/06-dra). Needs the DRA flavor of rhoai-dependencies/operator-nvidia-gpu (GPUCluster).
 # The pods request a GPU through a ResourceClaimTemplate instead of the nvidia.com/gpu limit (the models come from rhoai-serving).

@@ -1,0 +1,21 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled }}
+{{- $t := .Values.modelsAsService.keycloak }}
+---
+# Namespace of the Keycloak tenant: the one the MaaS controller names for an AITenant (ai-tenant-<name>). It is created here, like
+# models-as-a-service for the default tenant, so that the Kueue LocalQueues and the DRA claim templates (04-kueue, 06-dra, through
+# the helper keycloakModelsNamespaces) exist before the AITenant; the controller adopts it and adds its own labels. The models
+# of the tenant run in it together with its MaaSModelRef, subscriptions and policies. The tenant itself (Gateway, Route, AITenant)
+# is NOT in this chart: it is the maas-keycloak-chart, with its own Application.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-tenant-{{ $t.tenantName }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    openshift.io/display-name: RHOAI - MaaS Keycloak tenant
+    openshift.io/description: Namespace of the MaaS tenant {{ $t.tenantName }}, whose users sign in with Keycloak
+  labels:
+    opendatahub.io/dashboard: 'true'
+    rhoai-serving/model: 'true'
+    kueue.openshift.io/managed: 'true'
+{{- end }}

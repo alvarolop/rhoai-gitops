@@ -30,7 +30,7 @@ spec:
       # No hostname, like maas-default-gateway: a listener bound to a hostname resets any other SNI (HTTP 503 at the Route)
       port: 443
       protocol: HTTPS
-      # Only the maas-api namespace and the models namespace of this tenant can attach routes ("from: All" would let any
+      # Only the maas-api namespace and the namespace of this tenant can attach routes ("from: All" would let any
       # namespace hijack the model paths, RHOAIENG-80360). The doc selects them with a label of its own
       # (maas.opendatahub.io/gateway-access-<tenant>); matching kubernetes.io/metadata.name, which every namespace already
       # has, gives the same result without touching any existing namespace.
@@ -43,7 +43,7 @@ spec:
                 operator: In
                 values:
                   - {{ $t.infraNamespace }}
-                  - {{ $t.modelsNamespace }}
+                  - ai-tenant-{{ $t.tenantName }}
       tls:
         certificateRefs:
           - group: ""

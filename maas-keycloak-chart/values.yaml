@@ -1,8 +1,8 @@
 # Second MaaS tenant (Technology Preview in RHOAI 3.5), deployed by its own Argo CD Application (application-maas-keycloak.yaml)
 # so that a problem here cannot block or degrade rhoai-installation. The default tenant (models-as-a-service) is not touched.
-# What it needs from rhoai-installation: the namespace modelsNamespace with its LocalQueues and DRA claim templates
-# (modelsAsService.keycloak.enabled there) and MaaS itself. A model joins the tenant with MaaSModelRef spec.tenantRef
-# (rhoai-serving: serving.maas.tenant).
+# What it needs from rhoai-installation: the namespace ai-tenant-<tenantName> with its LocalQueues and DRA claim templates
+# (modelsAsService.keycloak.enabled there) and MaaS itself. The models of the tenant run in that namespace
+# (rhoai-serving: namespace.name and serving.maas.tenant).
 
 global:
   # DNS segment after apps. in the route hostnames (for example ocp.sandbox3642.opentlc.com)
@@ -18,13 +18,11 @@ gatewayClassName: maas-default-gateway
 # Route host of the tenant gateway. Empty = <tenantName>.apps.<global.clusterDomain>
 host: ""
 
-# Namespaces whose HTTPRoutes can attach to the tenant Gateway: the one of the maas-api (created by the AI Gateway operator)
-# and the one of the models of this tenant (created by rhoai-installation, modelsAsService.keycloak.modelsNamespace).
-# The models namespace is separate from ai-tenant-<tenantName>, which the MaaS controller creates and owns (MaasTenantConfig,
-# subscriptions, policies, tenant Roles): the workloads run in modelsNamespace and join the tenant through spec.tenantRef.
-# If the models do not show up in /maas-api/v1/models, the fallback in the RHOAI 3.5 docs is to run them in ai-tenant-<tenantName>.
+# Namespaces whose HTTPRoutes can attach to the tenant Gateway: the one of the maas-api (created by the AI Gateway operator) and the
+# namespace of the tenant, ai-tenant-<tenantName>, where its models run with their MaaSModelRef, subscriptions and policies. The
+# namespace is created by rhoai-installation (modelsAsService.keycloak.enabled) with its LocalQueues and DRA claim templates, and
+# adopted by the MaaS controller; tenantName must be the same there.
 infraNamespace: redhat-ai-gateway-infra
-modelsNamespace: rhoai-models-oidc
 
 oidc:
   # Empty = https://keycloak-ingress-keycloak.apps.<global.clusterDomain>/realms/maas (the route the Keycloak operator creates)
@@ -43,7 +41,7 @@ configs: []
 #     groups: [acme-support]
 #     priority: 0
 #     models:
-#       - name: gemma-4-12b-it-fp8-dynamic   # MaaSModelRef with tenantRef: maas-keycloak, in modelsNamespace
+#       - name: gemma-4-12b-it-fp8-dynamic   # MaaSModelRef in ai-tenant-<tenantName>
 #         tokenRateLimits:
 #           - limit: 10000
 #             window: 1h

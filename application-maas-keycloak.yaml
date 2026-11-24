@@ -2,7 +2,7 @@
 # Second MaaS tenant: its own Gateway, Route and AITenant whose users sign in with Keycloak (INSTALL_KEYCLOAK in auto-install.sh).
 # It is a separate Application on purpose: a problem here (a subscription rejected until the controller has created the MaasTenantConfig,
 # an AITenant stuck Pending) cannot block the sync of rhoai-installation, which holds the default tenant, or show it as degraded.
-# Needs rhoai-installation (MaaS, and the namespace rhoai-models-oidc with modelsAsService.keycloak.enabled) and the Keycloak of
+# Needs rhoai-installation (MaaS, and the namespace ai-tenant-maas-keycloak with modelsAsService.keycloak.enabled) and the Keycloak of
 # application-keycloak.yaml (realm maas, client maas). Technology Preview in RHOAI 3.5.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
