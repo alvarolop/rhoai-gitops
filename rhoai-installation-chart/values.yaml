@@ -32,6 +32,11 @@ ogx:
 agentic:
   enabled: true
 
+# NVIDIA NIM (RHOAI native NIM platform): kserve.nim in the DataScienceCluster and the NIM option in the dashboard.
+# On by default. The Account CR and the NGC API key are not managed by this repo.
+nim:
+  enabled: true
+
 # Training with Kubeflow Trainer v2 (TrainJob): enables the trainer component and creates the rhoai-training project,
 # a Kueue namespace; its LocalQueues come from distributedWorkloads.localQueueNamespaces. The jobs are not part of the chart.
 training:

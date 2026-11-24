@@ -46,7 +46,7 @@ spec:
       modelsAsService:
         managementState: Removed
       nim:
-        managementState: Managed
+        managementState: {{ if .Values.nim.enabled }}Managed{{ else }}Removed{{ end }}
       rawDeploymentServiceConfig: Headless
       wva:
         managementState: Removed
