@@ -79,16 +79,9 @@ The platform defines sizes; a model asks for a size, not for hardware. The same 
 | `gpu-xl-x1` | 1 full GPU with 140 Gi or more (B200, H200); fits Llama 70B in BF16 |
 | `gpu-xl-x2` | 2 full GPUs with 78 Gi or more each (2 × H100 80GB or 94GB, H200, B200); Llama 70B in BF16 (tight on 2 × 80GB: limit the context); needs `parallelism.tensor: 2` |
 
-**No `firstAvailable`.** Kueue cannot admit a workload whose claim uses it (`FirstAvailable device selection is not supported`): the pod stays `SchedulingGated` and the Workload `Inadmissible`. So each size is one `exactly` request and the same definition fits different clusters only by memory. MIG has its own templates, below, because one request cannot offer both a full GPU and a MIG partition. A small model on a big card takes the whole card.
+**No `firstAvailable`.** Kueue cannot admit a workload whose claim uses it (`FirstAvailable device selection is not supported`): the pod stays `SchedulingGated` and the Workload `Inadmissible`. So each size is one `exactly` request and the same definition fits different clusters only by memory. Without it one request cannot offer both a full GPU and a MIG partition. A small model on a big card takes the whole card.
 
-MIG templates (`mig.nvidia.com`), separate from the sizes above. They need MIG devices (the `DynamicMIG` feature gate in `dra/GPUCluster.yaml`, alpha, or partitions already created) and are untested here; on a cluster without MIG nothing references them and they are harmless. A model picks the full GPU or the MIG one by the template name:
-
-| Template | Request |
-|---|---|
-| `gpu-s-x1-mig` | 1 MIG partition `1g.12gb` |
-| `gpu-m-x1-mig` | 1 MIG partition `2g.24gb` |
-| `gpu-l-x1-mig` | 1 MIG partition `7g.94gb` (the whole H100 94GB) |
-| `gpu-xl-x1-mig` | 1 MIG partition `7g.180gb` or `7g.141gb` (the whole B200 / H200) |
+The alternatives (MIG partitions first, then the full GPU by memory) are kept as a commented `firstAvailable` reference at the end of each `x1` file, for when Kueue supports it (`KueueDRAIntegrationPrioritizedList` gate, alpha). They need MIG devices (the `DynamicMIG` feature gate in `dra/GPUCluster.yaml`, alpha, or partitions already created) and are untested here.
 
 Where each size lands:
 

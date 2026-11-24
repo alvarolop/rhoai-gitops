@@ -17,6 +17,6 @@ spec:
         - name: nvidia.com/gpu
           deviceClassNames:
             - gpu.nvidia.com
-            # MIG partitions count as one unit of the same quota (the sizes may fall back to them)
+            # MIG partitions count as one unit of the same quota (for the MIG alternatives kept commented in 06-dra)
             - mig.nvidia.com
 {{- end }}
