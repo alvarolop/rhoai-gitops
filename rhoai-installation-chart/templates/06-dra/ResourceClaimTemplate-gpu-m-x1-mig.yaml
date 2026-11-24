@@ -1,0 +1,29 @@
+{{- if .Values.dra.enabled }}
+{{- range (concat (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray) (include "rhoai-installation-chart.nimModelsNamespaces" . | fromJsonArray)) }}
+---
+# Medium on MIG: 1 partition 2g.24gb (about 24 GB, 1/4 of an H100 94GB in MIG mode).
+# Needs MIG devices: the DynamicMIG feature gate (alpha, dra/GPUCluster.yaml) or partitions already created. Without them the
+# pod waits; on a cluster without MIG nothing uses this template. It is separate from gpu-m-x1 because Kueue does not support
+# firstAvailable, so one request cannot offer both the full GPU and a MIG partition.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: gpu-m-x1-mig
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          exactly:
+            deviceClassName: mig.nvidia.com
+            allocationMode: ExactCount
+            count: 1
+            selectors:
+              - cel:
+                  expression: device.attributes['gpu.nvidia.com'].profile == "2g.24gb"
+{{- end }}
+{{- end }}

@@ -1,0 +1,29 @@
+{{- if .Values.dra.enabled }}
+{{- range (concat (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray) (include "rhoai-installation-chart.nimModelsNamespaces" . | fromJsonArray)) }}
+---
+# Extra large on MIG: 1 partition 7g.180gb or 7g.141gb (the whole B200 / H200 in MIG mode as one partition).
+# Needs MIG devices: the DynamicMIG feature gate (alpha, dra/GPUCluster.yaml) or partitions already created. Without them the
+# pod waits; on a cluster without MIG nothing uses this template. It is separate from gpu-xl-x1 because Kueue does not support
+# firstAvailable, so one request cannot offer both the full GPU and a MIG partition.
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: gpu-xl-x1-mig
+  namespace: {{ . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  spec:
+    devices:
+      requests:
+        - name: gpu
+          exactly:
+            deviceClassName: mig.nvidia.com
+            allocationMode: ExactCount
+            count: 1
+            selectors:
+              - cel:
+                  expression: device.attributes['gpu.nvidia.com'].profile in ["7g.180gb", "7g.141gb"]
+{{- end }}
+{{- end }}

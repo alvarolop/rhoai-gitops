@@ -5,7 +5,7 @@
 # Force=true,Replace=true: the spec of a ResourceClaimTemplate is immutable, so Argo CD recreates it when it changes (running pods keep their claims).
 # One exact request with a CEL selector, not firstAvailable: Kueue cannot admit a workload whose claim uses firstAvailable
 # ("FirstAvailable device selection is not supported"), so every GPU pod would stay SchedulingGated. The price is no MIG
-# fallback: the MIG partitions are another device class (mig.nvidia.com) and cannot be an alternative of the same request.
+# fallback: the MIG partitions are another device class (mig.nvidia.com), offered as the separate gpu-<size>-x1-mig templates.
 apiVersion: resource.k8s.io/v1
 kind: ResourceClaimTemplate
 metadata:
@@ -28,36 +28,3 @@ spec:
                   expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("16Gi")) >= 0
 {{- end }}
 {{- end }}
-#
-# ---------------------------------------------------------------------------
-# Reference for later: the same size with MIG alternatives (firstAvailable, first one that fits wins). Not rendered: Kueue
-# does not admit workloads with firstAvailable yet. MIG alternatives need MIG devices (DynamicMIG feature gate, alpha,
-# or partitions already created); untested. Replace the `exactly` request above with:
-# ---------------------------------------------------------------------------
-# spec:
-#   spec:
-#     devices:
-#       requests:
-#         - name: gpu
-#           firstAvailable:
-#             - name: mig-1g-12gb
-#               deviceClassName: mig.nvidia.com
-#               allocationMode: ExactCount
-#               count: 1
-#               selectors:
-#                 - cel:
-#                     expression: device.attributes['gpu.nvidia.com'].profile == "1g.12gb"
-#             - name: mig-2g-24gb
-#               deviceClassName: mig.nvidia.com
-#               allocationMode: ExactCount
-#               count: 1
-#               selectors:
-#                 - cel:
-#                     expression: device.attributes['gpu.nvidia.com'].profile == "2g.24gb"
-#             - name: gpu-min-16gi
-#               deviceClassName: gpu.nvidia.com
-#               allocationMode: ExactCount
-#               count: 1
-#               selectors:
-#                 - cel:
-#                     expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("16Gi")) >= 0
