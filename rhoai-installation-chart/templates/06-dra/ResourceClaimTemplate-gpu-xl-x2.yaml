@@ -1,5 +1,5 @@
 {{- if .Values.dra.enabled }}
-{{- range (concat (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray)) }}
+{{- range (concat (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray) (include "rhoai-installation-chart.nimModelsNamespaces" . | fromJsonArray)) }}
 ---
 # Extra large, 2 GPUs: Llama 70B in BF16 (about 130 Gi of weights) split with tensor parallelism.
 # 2 whole GPUs of 78 Gi or more (an H100 80GB reports 79.6 Gi, so 80Gi would leave it out):

@@ -46,6 +46,10 @@ spec:
           keycloak:
             enabled: $MAAS_KEYCLOAK_ENABLED
 
+        # NVIDIA NIM models project and platform switches (INSTALL_NIM in auto-install.sh). The Account CR is in rhoai-nim
+        nim:
+          enabled: $NIM_ENABLED
+
         trustyai:
           enabled: true
         

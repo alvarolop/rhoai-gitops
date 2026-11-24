@@ -79,3 +79,15 @@ tenant is off. It gets the Kueue LocalQueues and the DRA claim templates like mo
 []
 {{- end -}}
 {{- end }}
+
+{{/*
+Namespace for the models served with the NVIDIA NIM platform, as a JSON list ([] when nim is off). It gets the Kueue
+LocalQueues and the DRA claim templates like models-as-a-service does.
+*/}}
+{{- define "rhoai-installation-chart.nimModelsNamespaces" -}}
+{{- if .Values.nim.enabled -}}
+{{- list .Values.nim.namespace | toJson -}}
+{{- else -}}
+[]
+{{- end -}}
+{{- end }}

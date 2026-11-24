@@ -86,6 +86,7 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana`, `5-demo` (demo content: simulator model and sample subscriptions, `1-simulator`, `2-configs`), `6-keycloak` (only the namespace of the Keycloak tenant, with its LocalQueues and DRA claim templates) |
 | `12-evalhub` | EvalHub: `1-db`, `2-evalhub` |
 | `13-training` | `rhoai-training` project for training jobs, enabled with `training.enabled` (Kubeflow Trainer v2): Kueue namespace with its LocalQueues, no jobs. See [docs/training-options.md](docs/training-options.md) |
+| `14-nim` | `nim.enabled` (default `true`): the models project of the NVIDIA NIM platform (`nim.namespace`, `rhoai-nim-models`, adopted if it already exists), with its Kueue LocalQueues and DRA claim templates. It also sets `kserve.nim` in the `DataScienceCluster` and shows the NIM option in the dashboard. The `Account` CR and the NGC secrets are in [rhoai-nim](https://github.com/alvarolop/rhoai-nim) |
 
 ## Installation
 

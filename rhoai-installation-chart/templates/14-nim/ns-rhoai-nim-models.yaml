@@ -1,0 +1,18 @@
+{{- if .Values.nim.enabled }}
+---
+# Models project of the NVIDIA NIM platform. If it already exists on the cluster it is adopted (never deleted or recreated by
+# this chart). Its Kueue LocalQueues and DRA claim templates come from 04-kueue and 06-dra through the helper nimModelsNamespaces.
+# The Account CR and the NGC secrets are in github.com/alvarolop/rhoai-nim.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.nim.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    openshift.io/display-name: {{ .Values.nim.displayName }}
+    openshift.io/description: {{ .Values.nim.description }}
+    opendatahub.io/nim-support: "true"
+  labels:
+    opendatahub.io/dashboard: 'true'
+    kueue.openshift.io/managed: 'true'
+{{- end }}

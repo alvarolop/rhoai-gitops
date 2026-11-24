@@ -17,6 +17,7 @@ INSTALL_PIPELINES=true
 INSTALL_COST_MANAGEMENT=false  # Uploads usage to console.redhat.com (needs internet and a Red Hat account)
 INSTALL_S4=true
 INSTALL_KEYCLOAK=true  # Keycloak with the MaaS realm and the second MaaS tenant that authenticates against it (Technology Preview)
+INSTALL_NIM=true  # NVIDIA NIM platform: rhoai-nim-models project, queues and claim templates (the Account and NGC secrets are in github.com/alvarolop/rhoai-nim)
 CREATE_RHOAI_ENV=true
 AWS_GPU_INSTANCE=g6.2xlarge
 AWS_DEFAULT_REGION=eu-central-1
@@ -72,6 +73,7 @@ echo -e " * INSTALL_COST_MANAGEMENT: $INSTALL_COST_MANAGEMENT"
 echo -e " * INSTALL_LANGFUSE: $INSTALL_LANGFUSE"
 echo -e " * INSTALL_S4: $INSTALL_S4"
 echo -e " * INSTALL_KEYCLOAK: $INSTALL_KEYCLOAK"
+echo -e " * INSTALL_NIM: $INSTALL_NIM"
 echo -e " * CREATE_RHOAI_ENV: $CREATE_RHOAI_ENV"
 echo -e " * REQUIRED_MEMORY_Gi: $REQUIRED_MEMORY_Gi"
 echo -e "====================\n"
@@ -424,11 +426,12 @@ echo -e "🤖 ======================\n"
 echo -e "\n🚀 Trigger the ArgoCD application to install RHOAI instance"
 # MLflow stores its artifacts in the S4 bucket created above, or on its PVC when S4 is not installed
 if [[ "$INSTALL_S4" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then MLFLOW_S3_ENABLED=true; else MLFLOW_S3_ENABLED=false; fi
+if [[ "$INSTALL_NIM" =~ ^([Tt]rue|[Yy]es|[1])$ ]]; then NIM_ENABLED=true; else NIM_ENABLED=false; fi
 cat application-rhoai-installation.yaml | \
 CLUSTER_DOMAIN=$(oc get dns.config/cluster -o jsonpath='{.spec.baseDomain}') \
 MLFLOW_S3_ENABLED=$MLFLOW_S3_ENABLED S4_NAMESPACE=$S4_NAMESPACE S4_S3_REGION=$S4_S3_REGION \
 S4_S3_ACCESS_KEY=$S4_S3_ACCESS_KEY S4_S3_SECRET_KEY=$S4_S3_SECRET_KEY \
-MAAS_KEYCLOAK_ENABLED=$MAAS_KEYCLOAK_ENABLED \
+MAAS_KEYCLOAK_ENABLED=$MAAS_KEYCLOAK_ENABLED NIM_ENABLED=$NIM_ENABLED \
 envsubst | oc apply -f -
 
 echo -e "\n⏰ Wait 15 seconds for resources to be created"

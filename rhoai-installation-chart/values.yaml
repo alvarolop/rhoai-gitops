@@ -32,10 +32,14 @@ ogx:
 agentic:
   enabled: true
 
-# NVIDIA NIM (RHOAI native NIM platform): kserve.nim in the DataScienceCluster and the NIM option in the dashboard.
-# On by default. The Account CR and the NGC API key are not managed by this repo.
+# NVIDIA NIM (RHOAI native NIM platform): kserve.nim in the DataScienceCluster, the NIM option in the dashboard and the models
+# project (templates/14-nim) with its Kueue LocalQueues and DRA claim templates. The namespace is adopted if it already exists.
+# The NIM Account CR and the NGC secrets are NOT part of this chart: they belong to github.com/alvarolop/rhoai-nim.
 nim:
   enabled: true
+  namespace: rhoai-nim-models   # rhoai-nim uses this name too: keep both in sync
+  displayName: RHOAI - NIM
+  description: Models served with the NVIDIA NIM platform of OpenShift AI
 
 # Training with Kubeflow Trainer v2 (TrainJob): enables the trainer component and creates the rhoai-training project,
 # a Kueue namespace; its LocalQueues come from distributedWorkloads.localQueueNamespaces. The jobs are not part of the chart.

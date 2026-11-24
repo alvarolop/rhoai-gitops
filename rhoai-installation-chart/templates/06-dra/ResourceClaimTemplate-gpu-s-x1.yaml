@@ -1,5 +1,5 @@
 {{- if .Values.dra.enabled }}
-{{- range (concat (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray)) }}
+{{- range (concat (.Values.dra.namespaces | default (list (.Values.modelsAsService.namespace | default "models-as-a-service"))) (include "rhoai-installation-chart.keycloakModelsNamespaces" . | fromJsonArray) (include "rhoai-installation-chart.nimModelsNamespaces" . | fromJsonArray)) }}
 ---
 # Small: 1 GPU for small models (about 12-16 GB). Alternatives in order, the first one that fits wins, so the same
 # definition lands on different hardware in different clusters. The chosen one is the request of the allocated claim.
