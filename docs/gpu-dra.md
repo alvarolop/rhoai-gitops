@@ -41,7 +41,7 @@ Who makes each piece:
      limits:                                          - name: gpu
        nvidia.com/gpu: 1                                resourceClaimTemplateName: gpu-m-x1
                                                     ...claim says: deviceClass + CEL selector
- You get "a GPU", a count.                        You get "a device that matches", with alternatives.
+ You get "a GPU", a count.                        You get "a device that matches".
 ```
 
 | | Device plugin (`device-plugin/`) | DRA (`dra/`) |
@@ -49,7 +49,7 @@ Who makes each piece:
 | Operator CR | `ClusterPolicy` | `GPUCluster` + `NVIDIADriver` |
 | Request | `nvidia.com/gpu` limit | `ResourceClaim` with CEL on attributes |
 | MIG partitioning | MIG manager (node label) | preconfigured MIG, or `DynamicMIG` (alpha) creates it at allocation |
-| Alternatives | none | `firstAvailable` (ordered list) |
+| Alternatives | none | `firstAvailable` (ordered list; not used here: Kueue does not support it) |
 | Both in one cluster | No: `GPUCluster` and `ClusterPolicy` exclude each other, and there is no in-place migration | |
 
 ## 3. What this repo installs
@@ -71,33 +71,25 @@ rhoai-installation-chart/templates/
 
 The platform defines sizes; a model asks for a size, not for hardware. The same definitions then fit different clusters. Each size is its own file in `templates/06-dra` (`ResourceClaimTemplate-gpu-<size>-x<count>.yaml`, hardcoded, not a loop over `values.yaml`); `x<count>` is the number of GPUs, as in AWS instance types:
 
-| Template | Alternatives, in order (first one that fits wins) |
+| Template | Request (one exact device request with a CEL selector on memory) |
 |---|---|
-| `gpu-s-x1` | MIG `1g.12gb` → MIG `2g.24gb` → any full GPU with 16 Gi or more |
-| `gpu-m-x1` | full L4 → MIG `2g.24gb` (about 1/4 of an H100) → any full GPU with 22 Gi or more |
-| `gpu-l-x1` | full GPU with 78 Gi or more (H100 80GB reports 79.6 Gi) → MIG `7g.94gb` (the whole H100 in MIG mode) |
-| `gpu-xl-x1` | full GPU with 140 Gi or more (B200, H200) → MIG `7g.180gb` → MIG `7g.141gb`; fits Llama 70B in BF16 |
-| `gpu-xl-x2` | 2 full GPUs with 78 Gi or more each (2 × H100 80GB or 94GB, H200, B200); Llama 70B in BF16 (tight on 2 × 80GB: limit the context); needs `parallelism.tensor: 2`, no MIG alternative |
+| `gpu-s-x1` | 1 full GPU with 16 Gi or more |
+| `gpu-m-x1` | 1 full GPU with 22 Gi or more (the L4 reports 23034 Mi) |
+| `gpu-l-x1` | 1 full GPU with 78 Gi or more (H100 80GB reports 79.6 Gi) |
+| `gpu-xl-x1` | 1 full GPU with 140 Gi or more (B200, H200); fits Llama 70B in BF16 |
+| `gpu-xl-x2` | 2 full GPUs with 78 Gi or more each (2 × H100 80GB or 94GB, H200, B200); Llama 70B in BF16 (tight on 2 × 80GB: limit the context); needs `parallelism.tensor: 2` |
 
-```
- model asks for gpu-m-x1
-   │
-   ├─ 1) full GPU, productName "NVIDIA L4"            ← L4 cluster: lands here
-   ├─ 2) 1 × mig.nvidia.com, profile 2g.24gb          ← H100 94GB cluster: lands here
-   └─ 3) full GPU with 22 Gi or more                  ← anything else that is big enough
-```
+**No `firstAvailable`.** Kueue cannot admit a workload whose claim uses it (`FirstAvailable device selection is not supported`): the pod stays `SchedulingGated` and the Workload `Inadmissible`. So each size is one `exactly` request and the same definition fits different clusters only by memory. The price is no MIG fallback: MIG partitions are another device class (`mig.nvidia.com`) and cannot be an alternative inside one request. A small model on a big card takes the whole card.
 
 Where each size lands:
 
 | Cluster | `gpu-s-x1` | `gpu-m-x1` | `gpu-l-x1` | `gpu-xl-x1` | `gpu-xl-x2` |
 |---|---|---|---|---|---|
-| L4 only (this one, 23034 Mi) | the L4 (last alternative) | the L4 | does not schedule | does not schedule | does not schedule |
-| H100 94GB with MIG | MIG `1g.12gb` | MIG `2g.24gb` | whole H100 | does not schedule | 2 whole H100 (needs 2 on the node) |
-| B200 / H200 | any full GPU (last alternative) | any full GPU | whole GPU | whole GPU | 2 whole GPUs |
+| L4 only (this one, 23034 Mi) | the L4 | the L4 | does not schedule | does not schedule | does not schedule |
+| H100 | whole H100 | whole H100 | whole H100 | does not schedule | 2 whole H100 (needs 2 on the node) |
+| B200 / H200 | whole GPU | whole GPU | whole GPU | whole GPU | 2 whole GPUs |
 
-All the alternatives of a size give the same number of devices, so with `x1` the tensor parallelism of the model stays 1. More GPUs (`gpu-xl-x2` is the example; `gpu-xl-x4`) need `parallelism.tensor` in the model and the same count in every alternative; a commented reference sits at the end of `ResourceClaimTemplate-gpu-l-x1.yaml`.
-
-MIG alternatives need MIG devices: the `DynamicMIG` feature gate in `dra/GPUCluster.yaml` (alpha, the driver creates the partition when the claim is allocated) or partitions that already exist. The `GPUCluster` flavor has no MIG manager. The MIG alternatives and the H100 profiles are untested here: this cluster only has an L4.
+More GPUs (`gpu-xl-x2` is the example; `gpu-xl-x4`) need `parallelism.tensor` in the model; a commented reference sits at the end of `ResourceClaimTemplate-gpu-l-x1.yaml`.
 
 The models are deployed from the `rhoai-serving` repository. A model names the template in its pod template; there is no `nvidia.com/gpu` limit:
 
@@ -113,7 +105,7 @@ template:
           - name: gpu
 ```
 
-The scheduler allocates a device from a `ResourceSlice` that matches the CEL expression of the first alternative that fits, and the kubelet plugin gives it to the container (through CDI). The chosen alternative is the `request` field of the allocated `ResourceClaim` (for example `gpu/gpu-nvidia-l4`).
+The scheduler allocates a device from a `ResourceSlice` that matches the CEL expression of the request, and the kubelet plugin gives it to the container (through CDI). The request name of the allocated `ResourceClaim` is `gpu`.
 
 ## 5. One HardwareProfile for all sizes
 

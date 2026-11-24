@@ -4,9 +4,11 @@
 # Extra large, 2 GPUs: Llama 70B in BF16 (about 130 Gi of weights) split with tensor parallelism.
 # 2 whole GPUs of 78 Gi or more (an H100 80GB reports 79.6 Gi, so 80Gi would leave it out):
 # 2 x H100 80GB = 159 Gi (tight, short context), 2 x H100 94GB = 188 Gi, 2 x H200 = 282 Gi, 2 x B200 = 360 Gi.
-# The model needs parallelism.tensor: 2.
-# No MIG alternative: MIG partitions of a GPU cannot be combined with tensor parallelism between them.
-#   L4 only cluster -> does not schedule.
+# The model needs parallelism.tensor: 2. L4 only cluster -> does not schedule.
+# Force=true,Replace=true: the spec of a ResourceClaimTemplate is immutable, so Argo CD recreates it when it changes (running pods keep their claims).
+# One exact request with a CEL selector, not firstAvailable: Kueue cannot admit a workload whose claim uses firstAvailable
+# ("FirstAvailable device selection is not supported"), so every GPU pod would stay SchedulingGated. The price is no MIG
+# fallback: the MIG partitions are another device class (mig.nvidia.com) and cannot be an alternative of the same request.
 apiVersion: resource.k8s.io/v1
 kind: ResourceClaimTemplate
 metadata:
@@ -14,19 +16,18 @@ metadata:
   namespace: {{ . }}
   annotations:
     argocd.argoproj.io/sync-wave: "5"
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true,Force=true,Replace=true
 spec:
   spec:
     devices:
       requests:
         - name: gpu
-          firstAvailable:
-            - name: gpu-x2-min-78gi
-              deviceClassName: gpu.nvidia.com
-              allocationMode: ExactCount
-              count: 2
-              selectors:
-                - cel:
-                    expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("78Gi")) >= 0
+          exactly:
+            deviceClassName: gpu.nvidia.com
+            allocationMode: ExactCount
+            count: 2
+            selectors:
+              - cel:
+                  expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("78Gi")) >= 0
 {{- end }}
 {{- end }}
