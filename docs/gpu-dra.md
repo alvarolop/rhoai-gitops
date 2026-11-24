@@ -79,7 +79,7 @@ The platform defines sizes; a model asks for a size, not for hardware. The same 
 | `gpu-xl-x1` | 1 full GPU with 140 Gi or more (B200, H200); fits Llama 70B in BF16 |
 | `gpu-xl-x2` | 2 full GPUs with 78 Gi or more each (2 × H100 80GB or 94GB, H200, B200); Llama 70B in BF16 (tight on 2 × 80GB: limit the context); needs `parallelism.tensor: 2` |
 
-**No `firstAvailable`.** Kueue cannot admit a workload whose claim uses it (`FirstAvailable device selection is not supported`): the pod stays `SchedulingGated` and the Workload `Inadmissible`. So each size is one `exactly` request and the same definition fits different clusters only by memory. The price is no MIG fallback: MIG partitions are another device class (`mig.nvidia.com`) and cannot be an alternative inside one request. A small model on a big card takes the whole card.
+**No `firstAvailable`.** Kueue cannot admit a workload whose claim uses it (`FirstAvailable device selection is not supported`): the pod stays `SchedulingGated` and the Workload `Inadmissible`. So each size is one `exactly` request and the same definition fits different clusters only by memory. The MIG alternatives are kept as commented reference blocks at the end of each `x1` file, for when Kueue supports `firstAvailable`. A small model on a big card takes the whole card.
 
 Where each size lands:
 

@@ -28,3 +28,37 @@ spec:
                   expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("22Gi")) >= 0
 {{- end }}
 {{- end }}
+#
+# ---------------------------------------------------------------------------
+# Reference for later: the same size with MIG alternatives (firstAvailable, first one that fits wins). Not rendered: Kueue
+# does not admit workloads with firstAvailable yet. MIG alternatives need MIG devices (DynamicMIG feature gate, alpha,
+# or partitions already created); untested. Replace the `exactly` request above with:
+# ---------------------------------------------------------------------------
+# spec:
+#   spec:
+#     devices:
+#       requests:
+#         - name: gpu
+#           firstAvailable:
+#             - name: gpu-nvidia-l4
+#               deviceClassName: gpu.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.attributes['gpu.nvidia.com'].productName == "NVIDIA L4"
+#             - name: mig-2g-24gb
+#               deviceClassName: mig.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.attributes['gpu.nvidia.com'].profile == "2g.24gb"
+#             # Full L4 reports 23034Mi, so 22Gi accepts it and any bigger card
+#             - name: gpu-min-22gi
+#               deviceClassName: gpu.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("22Gi")) >= 0

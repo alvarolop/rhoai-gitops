@@ -31,6 +31,32 @@ spec:
 {{- end }}
 #
 # ---------------------------------------------------------------------------
+# Reference for later: the same size with MIG alternatives (firstAvailable, first one that fits wins). Not rendered: Kueue
+# does not admit workloads with firstAvailable yet. MIG alternatives need MIG devices (DynamicMIG feature gate, alpha,
+# or partitions already created); untested. Replace the `exactly` request above with:
+# ---------------------------------------------------------------------------
+# spec:
+#   spec:
+#     devices:
+#       requests:
+#         - name: gpu
+#           firstAvailable:
+#             - name: gpu-min-78gi
+#               deviceClassName: gpu.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("78Gi")) >= 0
+#             - name: mig-7g-94gb
+#               deviceClassName: mig.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.attributes['gpu.nvidia.com'].profile == "7g.94gb"
+#
+# ---------------------------------------------------------------------------
 # Reference: gpu-xl-x4, 4 GPUs. Not rendered: it needs tensor parallelism in the model (parallelism.tensor: 4).
 # Copy this file, name it ResourceClaimTemplate-gpu-xl-x4.yaml, set count: 4 and use the single exact request of the others.
 # ---------------------------------------------------------------------------

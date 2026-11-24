@@ -30,3 +30,36 @@ spec:
                   expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("140Gi")) >= 0
 {{- end }}
 {{- end }}
+#
+# ---------------------------------------------------------------------------
+# Reference for later: the same size with MIG alternatives (firstAvailable, first one that fits wins). Not rendered: Kueue
+# does not admit workloads with firstAvailable yet. MIG alternatives need MIG devices (DynamicMIG feature gate, alpha,
+# or partitions already created); untested. Replace the `exactly` request above with:
+# ---------------------------------------------------------------------------
+# spec:
+#   spec:
+#     devices:
+#       requests:
+#         - name: gpu
+#           firstAvailable:
+#             - name: gpu-min-140gi
+#               deviceClassName: gpu.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.capacity['gpu.nvidia.com'].memory.compareTo(quantity("140Gi")) >= 0
+#             - name: mig-7g-180gb
+#               deviceClassName: mig.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.attributes['gpu.nvidia.com'].profile == "7g.180gb"
+#             - name: mig-7g-141gb
+#               deviceClassName: mig.nvidia.com
+#               allocationMode: ExactCount
+#               count: 1
+#               selectors:
+#                 - cel:
+#                     expression: device.attributes['gpu.nvidia.com'].profile == "7g.141gb"
