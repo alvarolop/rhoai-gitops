@@ -11,4 +11,7 @@ metadata:
     opendatahub.io/dashboard: 'true'
     rhoai-serving/model: 'true'
     kueue.openshift.io/managed: 'true'
+    # Single-model serving platform preselected: with NIM enabled the Deployments tab otherwise asks which platform to use (the click
+    # in the dashboard sets this same label)
+    modelmesh-enabled: 'false'
     evalhub.trustyai.opendatahub.io/tenant: ""  # Enable EvalHub tenant auto-provisioning (MLflow RBAC + job ServiceAccount)
