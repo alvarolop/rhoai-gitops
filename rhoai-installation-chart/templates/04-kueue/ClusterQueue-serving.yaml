@@ -33,7 +33,7 @@ spec:
         - name: "gpu-flavor"
           resources:
             - name: "cpu"
-              nominalQuota: "1000"
+              nominalQuota: "100"
             - name: "memory"
               nominalQuota: "4000Gi"
             - name: "nvidia.com/gpu"
