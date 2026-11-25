@@ -61,7 +61,7 @@ modelsAsService:
     storageSize: 20Gi
   # Demo content (templates/11-maas/5-demo): the simulator model with its two subscriptions. It is the only model that this repo
   # creates: the access to every other model (MaaSSubscription and MaaSAuthPolicy) is generated in rhoai-serving
-  # (maas/maas-subscriptions.sh, docs/011-maas-subscriptions.md). Turn the demo off to start without any model
+  # (maas/1-subscriptions.sh, docs/011-maas.md). Turn the demo off to start without any model
   demo:
     enabled: true
 

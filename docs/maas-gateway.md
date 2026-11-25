@@ -1,6 +1,6 @@
 # Exposing and testing the MaaS gateways
 
-How each Models-as-a-Service tenant is exposed through the OpenShift router, why it is built this way, and how to check it with `testing/maas/test-maas-gateways.sh`. Verified on OpenShift 4.22 with OpenShift AI 3.5.4.
+How each Models-as-a-Service tenant is exposed through the OpenShift router, why it is built this way, and how to check it with `maas/3-test.sh`. Verified on OpenShift 4.22 with OpenShift AI 3.5.4.
 
 ## 1. The shape
 
@@ -28,25 +28,13 @@ Until `0f9d155` / `9051ca9` the listeners had no hostname and the Routes were `r
 
 ## 3. The test
 
+The checks of this exposure (gateway, listeners, Route, certificate, `/maas-api/health`, `/v1/tenants`, internal address, dashboard, and an optional real request) are the script `maas/3-test.sh` of [rhoai-serving](https://github.com/alvarolop/rhoai-serving), documented in its [docs/011-maas.md](https://github.com/alvarolop/rhoai-serving/blob/main/docs/011-maas.md), together with what to do when a check fails. Run it after changing a gateway or a Route here:
+
 ```bash
-oc login ...
-testing/maas/test-maas-gateways.sh              # read only
-testing/maas/test-maas-gateways.sh --inference  # plus: creates a 1h API key, calls the model of the default tenant, revokes the key
+maas/3-test.sh              # every tenant
+maas/3-test.sh maas-keycloak
+maas/4-test-inference.sh    # a real message per tenant
 ```
-
-It loops over every `AITenant`, so a new tenant is covered without changing the script. Exit code 1 if any check fails.
-
-| Check | What it proves | If it fails |
-|---|---|---|
-| Gateway and listeners Programmed | The controller accepted both listeners (same port, different hostname) | `oc describe gateway <name> -n openshift-ingress`: conflicts, missing certificate Secret |
-| A listener has a hostname | `/v1/tenants` can build the external URL | Set the hostname of the public listener |
-| Listener without hostname | The internal address of the models answers | Restore `https-internal` |
-| Route is passthrough, same host as the listener | The router forwards the SNI the listener expects | A `reencrypt` Route against a hostname listener gives HTTP 503 |
-| Certificate trusted and valid for the host | The users get the Let's Encrypt wildcard, not a self-signed one | `tlsSecret` points at the wrong secret (for example the service CA one) |
-| `/maas-api/health` 200, `/v1/tenants` 200 with the right `externalUrl` | `maas-api` is reachable and resolves the gateway | 500 `Failed to resolve gateway`: see section 2. 401/403: the tenant needs its own (OIDC) token, reported as a warning |
-| Internal address answers 200 (from a pod) | In-cluster clients of the model addresses work | No listener without hostname, or its service CA certificate is missing |
-| `maas-ui` log, dashboard `/maas/api/v1/models` | The dashboard finds and reaches MaaS | `oc rollout restart deploy/maas-ui -n redhat-ods-applications` forces a new discovery |
-| Inference (`--inference`) | Authorino, the rate limit and the model route work end to end | Check `AuthPolicy`, `MaaSSubscription`, the `LLMInferenceService` |
 
 ## 4. Known limits
 
