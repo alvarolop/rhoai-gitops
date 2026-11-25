@@ -97,8 +97,8 @@ Uncomment (remove the leading `# `) the block marked `Reference: NVIDIA H100 wit
 | File (in `rhoai-installation-chart/templates/`) | What to uncomment |
 |---|---|
 | `04-kueue/ResourceFlavor-gpu-flavor.yaml` | the three MIG ResourceFlavors |
-| `04-kueue/ClusterQueue-serving.yaml` | the replacement `resourceGroups` (replace the active one) |
-| `04-kueue/ClusterQueue-batch.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `04-kueue/ClusterQueue-serving-cq.yaml` | the replacement `resourceGroups` (replace the active one) |
+| `04-kueue/ClusterQueue-batch-cq.yaml` | the replacement `resourceGroups` (replace the active one) |
 | `05-hardware-profiles/HardwareProfile-gpu-profile.yaml` | the three MIG HardwareProfiles |
 
 A resource name can only be covered by **one** `resourceGroup` per ClusterQueue, so do not add one group per MIG profile

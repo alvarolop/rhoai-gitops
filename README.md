@@ -274,7 +274,7 @@ GPUs are shared with the *reserved-spot* pattern from [kueue-reserved-spot](http
 
 `serving-cq` and `batch-cq` share the cohort `gpu-cluster`. Four `WorkloadPriorityClass` objects (`model-critical`, `model-standard`, `batch-interactive`, `batch-nightly`) order work inside each queue.
 
-- **Quotas** are written in each ClusterQueue file of `templates/04-kueue` (`ClusterQueue-default.yaml`, `ClusterQueue-serving.yaml`, `ClusterQueue-batch.yaml`). They fit one AWS `g6.2xlarge` node (1x NVIDIA L4, no MIG). The H100/MIG configuration is kept commented at the end of the same files, see [gpu-mig.md](docs/gpu-mig.md).
+- **Quotas** are written in each ClusterQueue file of `templates/04-kueue` (`ClusterQueue-default-cq.yaml`, `ClusterQueue-serving-cq.yaml`, `ClusterQueue-batch-cq.yaml`). They fit one AWS `g6.2xlarge` node (1x NVIDIA L4, no MIG). The H100/MIG configuration is kept commented at the end of the same files, see [gpu-mig.md](docs/gpu-mig.md).
 - **LocalQueues:** HardwareProfiles are global, so the LocalQueue they name has to exist in every namespace that deploys with them, and RHOAI only creates `default` (pointing to `default-cq`) in new dashboard projects. This chart creates `default`, `serving-lq` and `batch-lq` in the namespaces listed in `distributedWorkloads.localQueueNamespaces` (`models-as-a-service` by default). For any other namespace, its owner (for example the repo that deploys the models) must create the namespace with the label below and the same three LocalQueues:
 
   ```bash
