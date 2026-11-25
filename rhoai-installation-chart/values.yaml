@@ -75,9 +75,8 @@ modelsAsService:
   #     groups:
   #       - cluster-admins
   #     models:
-  #       # Simple string format (no rate limits)
-  #       - granite-3-3-2b-instruct
-  #       # With rate limits. They count prompt and completion tokens; Open WebUI sends extra title/tags requests, so keep them generous
+  #       # tokenRateLimits is required in RHOAI 3.5 (the MaaSSubscription CRD rejects a model without it). They count prompt and
+  #       # completion tokens; Open WebUI sends extra title/tags requests, so keep them generous
   #       - name: gemma-4-12b-it-fp8-dynamic   # the name of its MaaSModelRef
   #         tokenRateLimits:
   #           - limit: 100000

@@ -53,3 +53,9 @@ It loops over every `AITenant`, so a new tenant is covered without changing the 
 - `DNSReady=False` ("The wildcard record resource was not found") on the public listener: the gateway controller expects to create a DNS record for the hostname, and a ClusterIP Service has no address. The host resolves through the cluster `*.apps` wildcard and everything works, so it is cosmetic.
 - A renewal of the certificate in `tlsSecret` (Let's Encrypt) is not tested: check that the gateway serves the new one without a restart.
 - The test uses the OpenShift token. A tenant with OIDC (Keycloak) answers 401 to `/v1/tenants` with it in some builds; it is reported as a warning, not a failure.
+
+## 5. Subscriptions for the models of a tenant
+
+A `MaaSModelRef` stays `Pending` ("No active subscription and auth policy pairing found") until a `MaaSSubscription` and a `MaaSAuthPolicy` include it. Each tenant keeps its own, in its own namespace (its `maas-api` and gateway only read those), so one subscription cannot cover two tenants.
+
+`./maas-subscriptions.sh` generates `all-models` and `all-models-policy` for every tenant namespace with all its `MaaSModelRef`s and one default token limit. Rerun it after deploying or deleting a model: it updates the same two resources. `EXCLUDE=<ref>[,<ref>]` leaves models with their own subscription (the demo simulator), `LIMIT`, `WINDOW`, `GROUPS_LIST` change the defaults, `--dry-run` validates without applying. The result is not in git (the Argo CD applications use `prune: false`).
