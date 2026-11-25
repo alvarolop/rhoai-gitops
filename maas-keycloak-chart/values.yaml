@@ -37,16 +37,3 @@ oidc:
   # Seconds the signing keys (JWKS) are cached: default 300, minimum 30
   ttl: 300
 
-# Subscriptions of the tenant. groups are the Keycloak group names exactly as they appear in the token (for example acme-support,
-# not acme/acme-support). They are created in ai-tenant-<tenantName>. Empty by default: a subscription whose MaaSModelRef does
-# not exist ends Failed.
-configs: []
-# configs:
-#   - name: acme-support
-#     groups: [acme-support]
-#     priority: 0
-#     models:
-#       - name: gemma-4-12b-it-fp8-dynamic   # MaaSModelRef in ai-tenant-<tenantName>
-#         tokenRateLimits:
-#           - limit: 10000
-#             window: 1h

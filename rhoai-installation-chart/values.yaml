@@ -59,33 +59,16 @@ modelsAsService:
     enabled: true
     password: SecurePassword123  # Change for production
     storageSize: 20Gi
-  # Demo content (templates/11-maas/5-demo): the simulator model and the sample subscriptions below. Turn it off to put your own on top
+  # Demo content (templates/11-maas/5-demo): the simulator model with its two subscriptions. It is the only model that this repo
+  # creates: the access to every other model (MaaSSubscription and MaaSAuthPolicy) is generated in rhoai-serving
+  # (maas/maas-subscriptions.sh, docs/011-maas-subscriptions.md). Turn the demo off to start without any model
   demo:
     enabled: true
-  # Subscriptions for models that live outside this chart (for example the ones from rhoai-serving). Empty by default: a
-  # subscription whose MaaSModelRef does not exist ends Failed and the dashboard warns "Models as a Service could not be loaded".
-  # Each entry creates a MaaSSubscription and a MaaSAuthPolicy. priority picks the default subscription when a user matches
-  # several (production 100, staging 50, development 0, sandbox -10).
-  configs: []
-  # configs:
-  #   - name: basic-models
-  #     displayName: "Basic Models"
-  #     description: "Basic subscription for demo models"
-  #     priority: 50
-  #     groups:
-  #       - cluster-admins
-  #     models:
-  #       # tokenRateLimits is required in RHOAI 3.5 (the MaaSSubscription CRD rejects a model without it). They count prompt and
-  #       # completion tokens; Open WebUI sends extra title/tags requests, so keep them generous
-  #       - name: gemma-4-12b-it-fp8-dynamic   # the name of its MaaSModelRef
-  #         tokenRateLimits:
-  #           - limit: 100000
-  #             window: 1h
 
   # Namespace of the second MaaS tenant (Technology Preview in RHOAI 3.5), the one that authenticates against Keycloak. It is
   # ai-tenant-<tenantName>, the name the MaaS controller gives an AITenant, created here (like models-as-a-service for the default
   # tenant) together with its Kueue LocalQueues and the DRA claim templates. The models of the tenant run in it. The tenant itself
-  # (Gateway, Route, AITenant, subscriptions) is the maas-keycloak-chart, deployed by its own Argo CD Application so that it cannot
+  # (Gateway, Route, AITenant) is the maas-keycloak-chart, deployed by its own Argo CD Application so that it cannot
   # block or degrade this one. tenantName must be the same in both charts.
   keycloak:
     enabled: false

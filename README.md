@@ -83,7 +83,7 @@ The templates of `rhoai-installation-chart` are numbered in the order that makes
 | `08-feature-store` | Feast feature stores |
 | `09-mlflow` | MLflow tracking server |
 | `10-llm-d` | Direct llm-d gateway and dashboards |
-| `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana`, `5-demo` (demo content: simulator model and sample subscriptions, `1-simulator`, `2-configs`), `6-keycloak` (only the namespace of the Keycloak tenant, with its LocalQueues and DRA claim templates) |
+| `11-maas` | Models-as-a-Service: `1-db`, `2-gateway`, `3-observability`, `4-grafana`, `5-demo` (demo content: the simulator model with its subscriptions, the only model of this repo, the access to the models of rhoai-serving is generated there), `6-keycloak` (only the namespace of the Keycloak tenant, with its LocalQueues and DRA claim templates) |
 | `12-evalhub` | EvalHub: `1-db`, `2-evalhub` |
 | `13-training` | `rhoai-training` project for training jobs, enabled with `training.enabled` (Kubeflow Trainer v2): Kueue namespace with its LocalQueues, no jobs. See [docs/training-options.md](docs/training-options.md) |
 | `14-nim` | `nim.enabled` (default `true`): the models project of the NVIDIA NIM platform (`nim.namespace`, `rhoai-nim-models`, adopted if it already exists), with its Kueue LocalQueues and DRA claim templates. It also sets `kserve.nim` in the `DataScienceCluster` and shows the NIM option in the dashboard. The `Account` CR and the NGC secrets are in [rhoai-nim](https://github.com/alvarolop/rhoai-nim) |
@@ -452,7 +452,7 @@ Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI plat
 >   - **Workaround**: Manually enable "Enable New Sign Ups" in Admin Panel → Settings → General → Authentication
 > - **Default User Role**: New users get `"user"` role (non-admin)
 > 
-> Override defaults using environment variables from your Fedora system. To use a Models-as-a-Service model, `eval "$(./maas-api-key.sh tinyllama-1b)"` creates an API key and sets `OPENAI_API_URL` and `OPENAI_API_KEY` for you:
+> Override defaults using environment variables from your Fedora system. To use a Models-as-a-Service model, `eval "$(maas/maas-api-key.sh tinyllama-1b)"` (in [rhoai-serving](https://github.com/alvarolop/rhoai-serving), [docs/011-maas-subscriptions.md](https://github.com/alvarolop/rhoai-serving/blob/main/docs/011-maas-subscriptions.md)) creates an API key and sets `OPENAI_API_URL` and `OPENAI_API_KEY` for you:
 
 ```bash
 cat application-open-webui.yaml | \

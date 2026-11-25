@@ -23,23 +23,12 @@ spec:
       values: |
         global:
           clusterDomain: "$CLUSTER_DOMAIN"
-
-        # Subscriptions of the tenant: groups are the Keycloak group names exactly as in the token. They need the MaaSModelRef of
-        # each model (rhoai-serving, serving.maas.tenant) to exist, so they are added when the models are deployed.
-        # configs:
-        #   - name: acme-support
-        #     groups: [acme-support]
-        #     models:
-        #       - name: gemma-4-12b-it-fp8-dynamic
-        #         tokenRateLimits:
-        #           - limit: 10000
-        #             window: 1h
   syncPolicy:
     automated:
       prune: false
       selfHeal: false
-    # The tenant subscriptions are rejected by the admission webhook until the controller has created the MaasTenantConfig
-    # of the AITenant: retry instead of leaving the first sync failed
+    # The admission webhook rejects the tenant resources until the controller has created the MaasTenantConfig of the AITenant:
+    # retry instead of leaving the first sync failed
     retry:
       limit: 10
       backoff:
