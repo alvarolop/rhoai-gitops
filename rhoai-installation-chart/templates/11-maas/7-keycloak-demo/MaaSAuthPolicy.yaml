@@ -1,0 +1,20 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled .Values.modelsAsService.keycloak.demo.enabled }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSAuthPolicy
+metadata:
+  name: simulator-access
+  namespace: ai-tenant-{{ .Values.modelsAsService.keycloak.tenantName }}
+  annotations:
+    openshift.io/display-name: "Simulator Access"
+    openshift.io/description: "Grants all authenticated users access to the simulator model"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  modelRefs:
+    - name: facebook-opt-125m-simulated
+      namespace: ai-tenant-{{ .Values.modelsAsService.keycloak.tenantName }}
+  subjects:
+    groups:
+      - name: system:authenticated
+{{- end }}

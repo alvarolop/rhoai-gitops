@@ -1,0 +1,24 @@
+{{- if and .Values.modelsAsService.enabled .Values.modelsAsService.keycloak.enabled .Values.modelsAsService.keycloak.demo.enabled }}
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSSubscription
+metadata:
+  name: simulator-premium
+  namespace: ai-tenant-{{ .Values.modelsAsService.keycloak.tenantName }}
+  annotations:
+    openshift.io/display-name: "Simulator Premium Tier"
+    openshift.io/description: "Premium tier: 10000 tokens/min for premium users"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  owner:
+    groups:
+      - name: system:authenticated
+  modelRefs:
+    - name: facebook-opt-125m-simulated
+      namespace: ai-tenant-{{ .Values.modelsAsService.keycloak.tenantName }}
+      tokenRateLimits:
+        - limit: 100000
+          window: 1m
+  priority: 100
+{{- end }}
