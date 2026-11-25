@@ -11,8 +11,6 @@ metadata:
     gateway.networking.k8s.io/gateway-name: maas-default-gateway
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-    # Same as the Route that OpenShift AI creates for its own gateway: the router trusts the service CA of the backend
-    router.openshift.io/service-ca-certificate: "true"
 spec:
   host: maas.apps.{{ .Values.global.clusterDomain }}
   to:
@@ -21,7 +19,9 @@ spec:
     weight: 100
   port:
     targetPort: 443
+  # Passthrough: the router forwards the TLS connection by SNI and the gateway listener presents the certificate of the router
+  # (a reencrypt Route would connect with the SNI of the Service, which a listener with hostname resets: HTTP 503)
   tls:
-    termination: reencrypt
+    termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
 {{- end }}

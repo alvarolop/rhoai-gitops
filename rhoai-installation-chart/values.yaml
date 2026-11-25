@@ -50,6 +50,10 @@ training:
 modelsAsService:
   enabled: true
   namespace: models-as-a-service
+  # Secret with the certificate that the public listener of maas-default-gateway presents (the Route is passthrough). The default
+  # certificate of the router: spec.defaultCertificate of the default IngressController, or router-certs-default when it has none.
+  # It must be in openshift-ingress.
+  tlsSecret: ingress-certs
   # true: its own PostgreSQL (rhoai-maas-db) for the MaaS API; false: provide the maas-db-config secret yourself
   postgresql:
     enabled: true

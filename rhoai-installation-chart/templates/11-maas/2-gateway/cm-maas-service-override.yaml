@@ -1,7 +1,8 @@
 {{- if .Values.modelsAsService.enabled }}
 ---
 # Injects the service CA annotation into the Service that the Gateway creates, so that the service CA issues the
-# certificate of the listener. The router re-encrypts to it and presents its own certificate to the clients.
+# certificate of the internal listener (the in-cluster address of the gateway). The public listener presents the certificate of
+# the router, and the Service is ClusterIP: the passthrough Route is the entry point.
 apiVersion: v1
 kind: ConfigMap
 metadata:

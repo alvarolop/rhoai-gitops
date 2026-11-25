@@ -23,14 +23,28 @@ spec:
       kind: ConfigMap
       name: maas-service-override
   listeners:
+    # Public listener, as in the RHOAI 3.5 docs: it has the hostname of the Route (maas-api reads it in /v1/tenants) and the
+    # certificate of the router (Let's Encrypt wildcard). The Route is passthrough, so the clients get this certificate.
     - name: https
-      # No hostname: the router (reencrypt Route) connects with the SNI of the Service, and a listener bound to a
-      # hostname resets any other SNI (HTTP 503 at the Route)
+      hostname: maas.apps.{{ .Values.global.clusterDomain }}
       port: 443
       protocol: HTTPS
-      allowedRoutes:
+      allowedRoutes: &allowedRoutes
         namespaces:
           from: All
+      tls:
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: {{ .Values.modelsAsService.tlsSecret }}
+        mode: Terminate
+    # Internal listener, without hostname: the in-cluster address that the models publish in their status
+    # (https://maas-default-gateway-maas-default-gateway.openshift-ingress.svc.cluster.local) keeps working with the
+    # certificate of the service CA that the ConfigMap above makes the service CA issue.
+    - name: https-internal
+      port: 443
+      protocol: HTTPS
+      allowedRoutes: *allowedRoutes
       tls:
         certificateRefs:
           - group: ""
