@@ -1,4 +1,5 @@
 {{- $t := .Values }}
+{{- $host := $t.host | default (printf "%s.apps.%s" $t.tenantName .Values.global.clusterDomain) }}
 ---
 # Dedicated Gateway of the second MaaS tenant. Each AITenant needs its own Gateway; the default tenant keeps
 # maas-default-gateway. Required annotations (RHOAI 3.5 multi-tenancy): opendatahub.io/managed "false" and
@@ -26,15 +27,17 @@ spec:
       kind: ConfigMap
       name: {{ $t.tenantName }}-service-override
   listeners:
+    # Public listener, as in the RHOAI 3.5 docs: it has the hostname of the Route (maas-api reads it in /v1/tenants) and the
+    # certificate of the router (Let's Encrypt wildcard). The Route is passthrough, so the clients get this certificate.
     - name: https
-      # No hostname, like maas-default-gateway: a listener bound to a hostname resets any other SNI (HTTP 503 at the Route)
+      hostname: {{ $host }}
       port: 443
       protocol: HTTPS
-      # Only the maas-api namespace and the namespace of this tenant can attach routes ("from: All" would let any
-      # namespace hijack the model paths, RHOAIENG-80360). The doc selects them with a label of its own
-      # (maas.opendatahub.io/gateway-access-<tenant>); matching kubernetes.io/metadata.name, which every namespace already
-      # has, gives the same result without touching any existing namespace.
-      allowedRoutes:
+      allowedRoutes: &allowedRoutes
+        # Only the maas-api namespace and the namespace of this tenant can attach routes ("from: All" would let any
+        # namespace hijack the model paths, RHOAIENG-80360). The doc selects them with a label of its own
+        # (maas.opendatahub.io/gateway-access-<tenant>); matching kubernetes.io/metadata.name, which every namespace already
+        # has, gives the same result without touching any existing namespace.
         namespaces:
           from: Selector
           selector:
@@ -44,6 +47,18 @@ spec:
                 values:
                   - {{ $t.infraNamespace }}
                   - ai-tenant-{{ $t.tenantName }}
+      tls:
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: {{ $t.tlsSecret }}
+        mode: Terminate
+    # Internal listener, without hostname: the in-cluster address that the models publish in their status
+    # (https://<gateway>.openshift-ingress.svc.cluster.local) keeps working with the certificate of the service CA.
+    - name: https-internal
+      port: 443
+      protocol: HTTPS
+      allowedRoutes: *allowedRoutes
       tls:
         certificateRefs:
           - group: ""

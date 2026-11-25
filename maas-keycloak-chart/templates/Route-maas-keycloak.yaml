@@ -11,7 +11,6 @@ metadata:
     gateway.networking.k8s.io/gateway-name: {{ $t.tenantName }}
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-    router.openshift.io/service-ca-certificate: "true"
 spec:
   host: {{ $t.host | default (printf "%s.apps.%s" $t.tenantName .Values.global.clusterDomain) }}
   to:
@@ -21,6 +20,8 @@ spec:
     weight: 100
   port:
     targetPort: 443
+  # Passthrough: the router forwards the TLS connection by SNI and the gateway listener presents the certificate of the router
+  # (a reencrypt Route would connect with the SNI of the Service, which a listener with hostname resets: HTTP 503)
   tls:
-    termination: reencrypt
+    termination: passthrough
     insecureEdgeTerminationPolicy: Redirect

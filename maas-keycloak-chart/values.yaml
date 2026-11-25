@@ -15,6 +15,11 @@ tenantName: maas-keycloak
 # rhoai-installation creates for the default MaaS gateway (same controller) is reused. Change it if the AITenant stays Pending.
 gatewayClassName: maas-default-gateway
 
+# Secret with the certificate that the public listener presents. The default certificate of the router: the secret named in
+# spec.defaultCertificate of the default IngressController (oc get ingresscontroller default -n openshift-ingress-operator),
+# or router-certs-default when it has none. It must be in openshift-ingress.
+tlsSecret: ingress-certs
+
 # Route host of the tenant gateway. Empty = <tenantName>.apps.<global.clusterDomain>
 host: ""
 
