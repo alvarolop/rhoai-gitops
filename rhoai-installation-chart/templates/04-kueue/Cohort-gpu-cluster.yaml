@@ -1,9 +1,12 @@
 {{- if .Values.distributedWorkloads.enabled }}
 ---
-# The GPU pool of the cluster, as the quota of the cohort: the real totals of the nodes, in one place. serving-cq and
-# batch-cq (nominalQuota 0) borrow from it, and priority decides who keeps it (preemption of serving-cq). When GPUs or
-# nodes are added, this is the only quota to edit. Values for one g6.2xlarge (1x NVIDIA L4; allocatable is below
-# the 8 vCPU / 32 Gi of the instance).
+# The GPU pool of the cluster, as the quota of the cohort. serving-cq and batch-cq (nominalQuota 0) borrow from it, and
+# priority decides who keeps it (preemption of serving-cq). Static: Kueue does not read the capacity of the nodes.
+#
+# NOTE: the quota is deliberately above the real hardware: it is sized as 3 GPU nodes (3x g6.2xlarge: 3 GPUs, 21 vCPU,
+# 84 Gi) while the cluster has 1, so it does not have to be edited when a node is added. Trade-off: while the quota is
+# not used up, Kueue admits a model even if the real GPU is taken, and does not preempt batch: the model pod stays
+# Pending until the job ends. Preemption only works when the quota matches the real GPUs: set it to them for that.
 apiVersion: kueue.x-k8s.io/v1beta2
 kind: Cohort
 metadata:
@@ -18,9 +21,9 @@ spec:
         - name: "gpu-flavor"
           resources:
             - name: "cpu"
-              nominalQuota: "7"
+              nominalQuota: "21"
             - name: "memory"
-              nominalQuota: "28Gi"
+              nominalQuota: "84Gi"
             - name: "nvidia.com/gpu"
-              nominalQuota: "1"
+              nominalQuota: "3"
 {{- end }}
