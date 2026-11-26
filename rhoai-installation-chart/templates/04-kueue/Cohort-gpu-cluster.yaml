@@ -1,0 +1,26 @@
+{{- if .Values.distributedWorkloads.enabled }}
+---
+# The GPU pool of the cluster, as the quota of the cohort: the real totals of the nodes, in one place. serving-cq and
+# batch-cq (nominalQuota 0) borrow from it, and priority decides who keeps it (preemption of serving-cq). When GPUs or
+# nodes are added, this is the only quota to edit. Values for one g6.2xlarge (1x NVIDIA L4; allocatable is below
+# the 8 vCPU / 32 Gi of the instance).
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: Cohort
+metadata:
+  name: gpu-cluster
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  resourceGroups:
+    - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
+      flavors:
+        - name: "gpu-flavor"
+          resources:
+            - name: "cpu"
+              nominalQuota: "7"
+            - name: "memory"
+              nominalQuota: "28Gi"
+            - name: "nvidia.com/gpu"
+              nominalQuota: "1"
+{{- end }}

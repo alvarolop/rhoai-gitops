@@ -52,7 +52,7 @@ Which queue to use:
 | Work | Queue | Behind it |
 |---|---|---|
 | Notebooks, CPU training, classical ML | `default` | `default-cq` (CPU, not preemptive, as workbenches require) |
-| GPU fine-tuning | `batch-lq` | `batch-cq`: borrows idle GPU from the pool; with the quota of `serving-cq` raised to 100 GPUs it is not evicted when a model arrives (see the note in `ClusterQueue-serving-cq.yaml`) |
+| GPU fine-tuning | `batch-lq` | `batch-cq`: borrows idle GPU from the pool; a model of `serving-cq` preempts it when the GPUs are needed (priority, see `Cohort-gpu-cluster.yaml`); the job is requeued, so keep it restartable |
 
 The chart does not create jobs, a pipeline server or buckets; those are created when the demo is run.
 

@@ -7,7 +7,7 @@ metadata:
     opendatahub.io/dashboard-feature-visibility: '[]'
     opendatahub.io/disabled: 'false'
     opendatahub.io/display-name: gpu-profile
-    opendatahub.io/description: GPU model serving with NVIDIA accelerators. Queue serving-lq (serving-cq owns the GPUs and reclaims them from batch); GPU nodes and taints come from the gpu ResourceFlavor.
+    opendatahub.io/description: GPU model serving with NVIDIA accelerators. Queue serving-lq (serving-cq borrows the GPUs of the cohort and preempts batch when it needs them); GPU nodes and taints come from the gpu ResourceFlavor.
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "1"
   name: gpu-profile

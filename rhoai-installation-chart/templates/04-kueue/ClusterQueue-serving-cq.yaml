@@ -1,10 +1,9 @@
 {{- if .Values.distributedWorkloads.enabled }}
 ---
-# Reserved-spot pattern (see https://github.com/MarkusGersdorf/kueue-reserved-spot).
-#
-# serving-cq OWNS the whole GPU pool. Classical preemption only lets a workload reclaim quota from the cohort when it
-# fits inside its own queue's nominal quota, so owning all of it means a model can always take its GPUs back from
-# batch-cq. `reclaimWithinCohort: Any` makes that independent of the priority values used by each team.
+# Shared pool (see Cohort-gpu-cluster.yaml): the GPUs, CPU and memory of the cluster are the quota of the cohort, and
+# serving-cq owns none of it (nominalQuota 0, no borrowingLimit): it borrows what it needs. Priority decides between
+# queues: a model (model-critical / model-standard) that does not fit preempts the batch workloads of batch-cq,
+# whose priority is lower, and never one of its own kind. The preempted job is evicted and requeued, not failed.
 #
 # Used by model serving (gpu-profile -> LocalQueue serving-lq). Every project that needs it must have that LocalQueue.
 apiVersion: kueue.x-k8s.io/v1beta2
@@ -20,24 +19,24 @@ spec:
   # Priority is absolute for serving: a model-critical replica is never overtaken by a lower-priority one.
   queueingStrategy: StrictFIFO
   preemption:
-    reclaimWithinCohort: Any
+    # Nominal quota is 0, so every model borrows: borrowWithinCohort is the one that applies. Only workloads up to
+    # maxPriorityThreshold can be preempted this way (batch-interactive 1000 and batch-nightly 100, never a model).
+    reclaimWithinCohort: LowerPriority
+    borrowWithinCohort:
+      policy: LowerPriority
+      maxPriorityThreshold: 10000
     withinClusterQueue: LowerPriority
-  # NOTE: the quota is deliberately far above the real hardware (100 GPUs, not the 1-4 of the cluster), so it never has
-  # to be edited when GPUs or nodes are added: the real limit is the scheduler. Trade-off: Kueue never lacks quota for
-  # a model, so it never preempts batch-cq. A running batch job that borrowed the GPUs is NOT evicted when a model
-  # arrives: the model pod stays Pending until the job ends. For the reserved-spot guarantee to work, set the quota
-  # to the real number of GPUs (and CPU/memory) and raise borrowingLimit in batch-cq to match.
   resourceGroups:
     - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
       flavors:
         - name: "gpu-flavor"
           resources:
             - name: "cpu"
-              nominalQuota: "100"
+              nominalQuota: "0"
             - name: "memory"
-              nominalQuota: "4000Gi"
+              nominalQuota: "0"
             - name: "nvidia.com/gpu"
-              nominalQuota: "100"
+              nominalQuota: "0"
 #
 # ---------------------------------------------------------------------------
 # Reference: NVIDIA H100 with MIG (mixed strategy). Replacement resourceGroups. Not rendered: remove the leading "# " to use it.

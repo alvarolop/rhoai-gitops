@@ -1,8 +1,8 @@
 {{- if .Values.distributedWorkloads.enabled }}
 ---
-# Reserved-spot pattern: batch-cq is the "spot" side. It owns nothing and may borrow the whole GPU pool of serving-cq,
-# so every admitted batch workload is borrowing, which is exactly what serving-cq is allowed to reclaim (it is evicted
-# and requeued, not failed). `reclaimWithinCohort: Never` also guarantees batch can never evict a model server.
+# Batch side of the shared pool (see Cohort-gpu-cluster.yaml): it owns nothing and borrows what the models of serving-cq
+# are not using, up to borrowingLimit. A model with higher priority preempts its workloads (they are evicted and requeued,
+# not failed). `reclaimWithinCohort: Never` guarantees that batch never evicts a model server.
 #
 # Used by training and other batch work (gpu-batch-profile -> LocalQueue batch-lq, or label your jobs with
 # kueue.x-k8s.io/queue-name: batch-lq). Keep jobs restartable (checkpoints) and small: Kueue preempts a whole Workload.
