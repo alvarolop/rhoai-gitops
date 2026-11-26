@@ -81,7 +81,7 @@ modelsAsService:
 # The pods request a GPU through a ResourceClaimTemplate instead of the nvidia.com/gpu limit (the models come from rhoai-serving).
 # The GPU t-shirt sizes (gpu-s-x1, gpu-m-x1, gpu-l-x1, gpu-xl-x1, gpu-xl-x2) are one file each in templates/06-dra.
 dra:
-  enabled: true
+  enabled: false
   # Namespaces that get the templates. Default: modelsAsService.namespace, where the models run
   namespaces: []
 

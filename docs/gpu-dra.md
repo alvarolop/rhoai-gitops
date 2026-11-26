@@ -58,14 +58,14 @@ Who makes each piece:
 rhoai-dependencies/operator-nvidia-gpu/
 ├── operator/        Namespace, OperatorGroup, Subscription (channel v26.7)   shared
 ├── dashboard/       DCGM exporter dashboard for the console                   shared
-├── device-plugin/   ClusterPolicy                                             classic flavor
-└── dra/             GPUCluster + NVIDIADriver                                 DRA flavor (default)
+├── device-plugin/   ClusterPolicy                                             classic flavor (default)
+└── dra/             GPUCluster + NVIDIADriver                                 DRA flavor
 
 rhoai-installation-chart/templates/
 └── 06-dra/                       ResourceClaimTemplates: t-shirt sizes gpu-<size>-x<count>
 ```
 
-`variants/default` points to `operator-nvidia-gpu/dra`. To go back, change that line to `operator-nvidia-gpu/device-plugin`, delete the `GPUCluster`, and set `dra.enabled: false` in the chart values.
+DRA is off by default (Kueue does not support it for all we need): `variants/*` point to `operator-nvidia-gpu/device-plugin` and the chart has `dra.enabled: false`. To use DRA, change that line to `operator-nvidia-gpu/dra`, delete the `ClusterPolicy` and set `dra.enabled: true` in the chart values.
 
 ## 4. T-shirt sizes of GPU
 

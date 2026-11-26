@@ -10,8 +10,8 @@ resources:
 
   # Support for GPU Acceleration
   - ../../operator-nfd
-  # DRA flavor. Use operator-nvidia-gpu/device-plugin for the ClusterPolicy with the device plugin and the MIG manager
-  - ../../operator-nvidia-gpu/dra
+  # Device plugin flavor (ClusterPolicy + MIG manager). DRA is off by default: Kueue does not support it for all we need. Use operator-nvidia-gpu/dra for the GPUCluster flavor (and dra.enabled=true in the chart)
+  - ../../operator-nvidia-gpu/device-plugin
 
   # Required for llm-d
   - ../../operator-lws

@@ -212,10 +212,10 @@ Wait for a few seconds until the dashboard pods start again and you will see in 
 
 | Folder | What it creates | How pods ask for a GPU |
 |---|---|---|
-| `dra/` (default) | `GPUCluster` + `NVIDIADriver` (GPU Operator 26.7+, Dynamic Resource Allocation) | `resourceClaims` with a `ResourceClaimTemplate` (`templates/06-dra`), selected by CEL attributes |
-| `device-plugin/` | `ClusterPolicy` with the device plugin and the MIG manager | `resources.limits: nvidia.com/gpu` |
+| `dra/` | `GPUCluster` + `NVIDIADriver` (GPU Operator 26.7+, Dynamic Resource Allocation) | `resourceClaims` with a `ResourceClaimTemplate` (`templates/06-dra`), selected by CEL attributes |
+| `device-plugin/` (default) | `ClusterPolicy` with the device plugin and the MIG manager | `resources.limits: nvidia.com/gpu` |
 
-In the DRA flavor there is no device plugin or MIG manager, so the GPU hardware profiles (`nvidia.com/gpu` identifiers) and the Kueue GPU quota do not apply to DRA claims. Set `dra.enabled=false` in the chart values if you go back to `device-plugin/`. You cannot migrate in place: delete the `ClusterPolicy` (or the `GPUCluster`) first. The sizes (one file each in `templates/06-dra`) are one exact request with a memory selector each, because Kueue does not support `firstAvailable`, so there is no MIG fallback; the `firstAvailable` version with the MIG alternatives is kept commented in each file (see `docs/gpu-dra.md`).
+In the DRA flavor there is no device plugin or MIG manager, so the GPU hardware profiles (`nvidia.com/gpu` identifiers) and the Kueue GPU quota do not apply to DRA claims. `device-plugin/` is the default and the chart has `dra.enabled: false`; set it to `true` together with `dra/`. You cannot migrate in place: delete the `ClusterPolicy` (or the `GPUCluster`) first. The sizes (one file each in `templates/06-dra`) are one exact request with a memory selector each, because Kueue does not support `firstAvailable`, so there is no MIG fallback; the `firstAvailable` version with the MIG alternatives is kept commented in each file (see `docs/gpu-dra.md`).
 
 ### NVIDIA GPU partitioning
 
