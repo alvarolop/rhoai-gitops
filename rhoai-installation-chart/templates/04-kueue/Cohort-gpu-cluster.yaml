@@ -25,5 +25,5 @@ spec:
             - name: "memory"
               nominalQuota: "84Gi"
             - name: "nvidia.com/gpu"
-              nominalQuota: "3"
+              nominalQuota: "3"  # real GPUs today: 1. Set it to the real number for batch preemption to work (see NOTE above)
 {{- end }}
